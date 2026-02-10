@@ -1,0 +1,23 @@
+{
+    "landing_title": "Follow child development on a single platform with SmartKids.",
+    "landing_subtitle": "Together, let's explore your child's development journey!",
+    "start_now": "Start Now",
+    "login_title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "forgot_password": "Forgot Password?",
+    "login_button": "Login",
+    "no_account": "Don't have an account?",
+    "register": "Register",
+    "powered_by": "Powered by",
+    "admin_panel": "Admin Panel",
+    "teacher_panel": "Teacher Panel",
+    "parent_panel": "Parent Panel",
+    "welcome": "Welcome",
+    "role_label": "Role",
+    "superadmin": "Super Admin",
+    "admin": "Admin",
+    "teacher": "Teacher",
+    "parent": "Parent",
+    "logout": "Logout"
+}

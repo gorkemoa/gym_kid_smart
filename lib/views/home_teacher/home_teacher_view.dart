@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../viewmodels/login_view_model.dart';
+import '../../viewmodels/landing_view_model.dart';
 import '../../core/responsive/size_tokens.dart';
+import '../../core/utils/app_translations.dart';
 import '../login/login_view.dart';
 
 class HomeTeacherView extends StatelessWidget {
@@ -10,11 +12,12 @@ class HomeTeacherView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.read<LoginViewModel>().data?.data;
+    final locale = context.read<LandingViewModel>().locale.languageCode;
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Öğretmen Paneli'),
+        title: Text(AppTranslations.translate('teacher_panel', locale)),
         backgroundColor: Colors.orange,
         actions: [
           IconButton(
@@ -26,6 +29,7 @@ class HomeTeacherView extends StatelessWidget {
               );
             },
             icon: const Icon(Icons.logout),
+            tooltip: AppTranslations.translate('logout', locale),
           ),
         ],
       ),
@@ -44,11 +48,11 @@ class HomeTeacherView extends StatelessWidget {
             ),
             SizedBox(height: SizeTokens.p16),
             Text(
-              'Hoş geldin, ${user?.name ?? ''} ${user?.surname ?? ''}',
+              '${AppTranslations.translate('welcome', locale)}, ${user?.name ?? ''} ${user?.surname ?? ''}',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             Text(
-              'Rol: Öğretmen',
+              '${AppTranslations.translate('role_label', locale)}: ${AppTranslations.translate(user?.role ?? '', locale)}',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             SizedBox(height: SizeTokens.p32),

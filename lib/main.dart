@@ -3,13 +3,19 @@ import 'package:provider/provider.dart';
 import 'app/app_theme.dart';
 import 'core/responsive/size_config.dart';
 import 'viewmodels/login_view_model.dart';
-import 'views/login/login_view.dart';
+import 'viewmodels/settings_view_model.dart';
+import 'viewmodels/landing_view_model.dart';
+import 'views/landing/landing_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => LoginViewModel())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => SettingsViewModel()),
+        ChangeNotifierProvider(create: (_) => LandingViewModel()),
+        ChangeNotifierProvider(create: (_) => LoginViewModel()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -37,7 +43,7 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      home: const LoginView(),
+      home: const LandingView(),
     );
   }
 }

@@ -58,6 +58,9 @@ class ApiClient {
     switch (response.statusCode) {
       case 200:
       case 201:
+        if (body is Map<String, dynamic> && body.containsKey('failure')) {
+          throw ApiException(body['failure']?.toString() ?? 'Bir hata oluştu');
+        }
         return body;
       case 400:
         throw ApiException(body['message'] ?? 'Hatalı istek', statusCode: 400);

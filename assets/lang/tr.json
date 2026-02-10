@@ -1,0 +1,23 @@
+{
+    "landing_title": "SmartKids ile çocuk gelişimini tek platformda takip edin.",
+    "landing_subtitle": "Birlikte, çocuğunuzun gelişim yolculuğunu keşfedelim!",
+    "start_now": "Şimdi Başlayın",
+    "login_title": "Giriş Yap",
+    "email": "E-posta",
+    "password": "Şifre",
+    "forgot_password": "Şifremi Unuttum?",
+    "login_button": "Giriş Yap",
+    "no_account": "Hesabınız yok mu?",
+    "register": "Kayıt Ol",
+    "powered_by": "Powered by",
+    "admin_panel": "Yönetici Paneli",
+    "teacher_panel": "Öğretmen Paneli",
+    "parent_panel": "Veli Paneli",
+    "welcome": "Hoş geldin",
+    "role_label": "Rol",
+    "superadmin": "Süper Yönetici",
+    "admin": "Yönetici",
+    "teacher": "Öğretmen",
+    "parent": "Veli",
+    "logout": "Çıkış Yap"
+}

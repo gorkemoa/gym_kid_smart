@@ -19,7 +19,8 @@ class LoginViewModel extends ChangeNotifier {
   final TextEditingController passwordController = TextEditingController();
 
   void init() {
-    // Initialization logic if needed
+    emailController.text = 'b.sekman@smartmetrics.com.tr';
+    passwordController.text = '123123';
   }
 
   void refresh() {
