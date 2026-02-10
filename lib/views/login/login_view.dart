@@ -30,29 +30,28 @@ class _LoginViewState extends State<LoginView> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: SizeTokens.p32 * 2),
-              // Mascot or Welcome Illustration
-              Container(
+              // Landing Illustration
+              Image.asset(
+                'assets/app-logo.jpg',
                 height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(SizeTokens.r24),
-                ),
-                child: const Center(
-                  child: Icon(Icons.school, size: 80, color: Colors.white),
-                ),
+                width: 200,
+                fit: BoxFit.contain,
               ),
               SizedBox(height: SizeTokens.p32),
               Text(
-                'Giriş Yap',
-                style: Theme.of(context).textTheme.displayMedium,
+                'SmartKids ile çocuk gelişimini tek platformda takip edin.',
+                textAlign: TextAlign.center,
+                style: Theme.of(
+                  context,
+                ).textTheme.displayMedium?.copyWith(fontSize: SizeTokens.f24),
               ),
-              SizedBox(height: SizeTokens.p8),
+              SizedBox(height: SizeTokens.p12),
               Text(
-                'Çocuğunuzun gelişimini takip edin',
+                'Birlikte, çocuğunuzun gelişim yolculuğunu keşfedelim!',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: SizeTokens.f14,
                 ),
               ),
               SizedBox(height: SizeTokens.p32),
