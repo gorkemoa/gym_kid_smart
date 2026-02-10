@@ -5,6 +5,7 @@ import 'core/responsive/size_config.dart';
 import 'viewmodels/login_view_model.dart';
 import 'viewmodels/settings_view_model.dart';
 import 'viewmodels/landing_view_model.dart';
+import 'viewmodels/home_view_model.dart';
 import 'views/landing/landing_view.dart';
 
 void main() {
@@ -15,6 +16,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),
         ChangeNotifierProvider(create: (_) => LandingViewModel()),
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
+        ChangeNotifierProvider(create: (_) => HomeViewModel()),
       ],
       child: const MyApp(),
     ),

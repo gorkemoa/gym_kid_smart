@@ -21,6 +21,7 @@ class SizeTokens {
   static double get r16 => 4.1.w;
   static double get r20 => 5.1.w;
   static double get r24 => 6.2.w;
+  static double get r32 => 8.2.w;
   static double get r100 => 25.6.w;
 
   // Font Sizes

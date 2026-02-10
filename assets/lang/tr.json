@@ -19,5 +19,16 @@
     "admin": "Yönetici",
     "teacher": "Öğretmen",
     "parent": "Veli",
-    "logout": "Çıkış Yap"
+    "logout": "Çıkış Yap",
+    "upcoming_events": "Yaklaşan Etkinlik ve Randevular",
+    "no_notices": "Yaklaşan Bir Duyuru Bulunmamaktadır!",
+    "tracking_modules": "Öğrenci Takip Modülleri",
+    "daily_report": "Günlük Karne",
+    "calendar": "Takvim",
+    "food_list": "Yemek Listesi",
+    "messages": "Mesajlar",
+    "daily_report_desc": "Günlük aktiviteleri ve öğün raporları",
+    "calendar_desc": "Kişisel gelişim ve alışkanlıklar",
+    "food_list_desc": "Haftalık veya aylık yemek menüleri",
+    "messages_desc": "Hızlı erişimi sağlayan bağlantılar"
 }

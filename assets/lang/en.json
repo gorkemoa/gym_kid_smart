@@ -19,5 +19,16 @@
     "admin": "Admin",
     "teacher": "Teacher",
     "parent": "Parent",
-    "logout": "Logout"
+    "logout": "Logout",
+    "upcoming_events": "Upcoming Events and Appointments",
+    "no_notices": "There are no upcoming announcements!",
+    "tracking_modules": "Student Tracking Modules",
+    "daily_report": "Daily Report",
+    "calendar": "Calendar",
+    "food_list": "Food List",
+    "messages": "Messages",
+    "daily_report_desc": "Daily activities and meal reports",
+    "calendar_desc": "Personal development and habits",
+    "food_list_desc": "Weekly or monthly food menus",
+    "messages_desc": "Links providing quick access"
 }

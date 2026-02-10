@@ -44,4 +44,6 @@ class SizeConfig {
 extension SizeExtension on num {
   double get w => this * SizeConfig.h;
   double get h => this * SizeConfig.v;
+  double get sp => this * SizeConfig.h;
+  double get r => this * SizeConfig.h;
 }
