@@ -5,6 +5,7 @@ import '../../../viewmodels/login_view_model.dart';
 import '../../../core/utils/app_translations.dart';
 import '../../../viewmodels/landing_view_model.dart';
 import '../../../viewmodels/settings_view_model.dart';
+import '../../home/home_view.dart';
 
 class QuickLoginSection extends StatelessWidget {
   const QuickLoginSection({super.key});
@@ -88,13 +89,9 @@ class QuickLoginSection extends StatelessWidget {
       final schoolId = viewModel.data?.data?.schoolId;
       context.read<SettingsViewModel>().fetchSettings(schoolId: schoolId);
 
-      final role = viewModel.data?.data?.role;
-
-      Widget targetView;
-
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => targetView),
+        MaterialPageRoute(builder: (context) => const HomeView()),
       );
     }
   }

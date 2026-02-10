@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../core/network/api_result.dart';
 import '../../models/daily_student_model.dart';
 import '../../services/home_service.dart';
-import '../../core/utils/logger.dart'; // Make sure AppLogger is available if needed
 
 class StudentDetailViewModel extends ChangeNotifier {
   final HomeService _homeService = HomeService();
@@ -47,6 +46,14 @@ class StudentDetailViewModel extends ChangeNotifier {
     _fetchDailyData();
   }
 
+  bool _isDisposed = false;
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
   Future<void> _fetchDailyData() async {
     if (_schoolId == null || _userKey == null || _studentId == null) return;
 
@@ -62,15 +69,25 @@ class StudentDetailViewModel extends ChangeNotifier {
       part: _selectedPart,
     );
 
+    if (_isDisposed) return;
+
     if (result is Success<List<DailyStudentModel>>) {
       _dailyData = result.data;
     } else if (result is Failure<List<DailyStudentModel>>) {
-      _errorMessage = result.message;
-      _dailyData = [];
+      // "Bulunamadı" is API's way of saying no data found for this day/part.
+      // Treat it as empty state instead of error.
+      if (result.message == 'Bulunamadı') {
+        _dailyData = [];
+      } else {
+        _errorMessage = result.message;
+        _dailyData = [];
+      }
     }
 
     _isLoading = false;
-    notifyListeners();
+    if (!_isDisposed) {
+      notifyListeners();
+    }
   }
 
   void refresh() {

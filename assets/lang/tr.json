@@ -33,5 +33,14 @@
     "messages_desc": "Hızlı erişimi sağlayan bağlantılar",
     "quick_login": "Hızlı Giriş",
     "retry": "Tekrar Dene",
-    "no_classes_found": "Sınıf Bulunamadı"
+    "no_classes_found": "Sınıf Bulunamadı",
+    "done": "Tamam",
+    "cancel": "İptal",
+    "meals": "Yemek",
+    "socials": "Sosyal",
+    "activities": "Aktivite",
+    "medicament": "İlaç",
+    "receiving": "Teslim",
+    "mealMenu": "Menü",
+    "noteLogs": "Notlar"
 }

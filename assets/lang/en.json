@@ -31,5 +31,14 @@
     "calendar_desc": "Personal development and habits",
     "food_list_desc": "Weekly or monthly food menus",
     "messages_desc": "Links providing quick access",
-    "quick_login": "Quick Login"
+    "quick_login": "Quick Login",
+    "done": "Done",
+    "cancel": "Cancel",
+    "meals": "Meals",
+    "socials": "Social",
+    "activities": "Activities",
+    "medicament": "Medication",
+    "receiving": "Delivery",
+    "mealMenu": "Menu",
+    "noteLogs": "Notes"
 }

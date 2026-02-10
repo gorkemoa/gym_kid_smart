@@ -255,31 +255,12 @@ class _HomeViewState extends State<HomeView> {
           onTap: () {
             final user = context.read<LoginViewModel>().data?.data;
             if (user != null) {
-              // Navigation logic based on role if needed
-              if (role == 'teacher') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DailyReportView(user: user),
-                  ),
-                );
-              } else {
-                // Parent/Admin navigation (same view for now? or different?)
-                // Assuming parent also goes to DailyReportView but maybe read-only mode?
-                // For now, let's enable it for everyone if the view supports it, or keep it restricted.
-                // The old code had NO onTap for parents.
-                // If I want to match "same design rules", I should consider if parents should access it.
-                // Given the context of "gym_kid_smart", parents likely want to SEE daily reports.
-                // Teachers CREATE them.
-                // The DailyReportView seems to be for selecting students.
-                // I will keep it teacher-only for now unless I see evidence otherwise, OR allow it if the user is parent.
-                // Let's assume for now only teachers have this implemented based on previous code.
-                // BUT, user asked to "merge".
-
-                if (role == 'parent') {
-                  // TODO: Implement parent view for daily report
-                }
-              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DailyReportView(user: user),
+                ),
+              );
             }
           },
         ),
