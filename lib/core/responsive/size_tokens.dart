@@ -51,6 +51,7 @@ class SizeTokens {
   static double get h60 => 15.4.w;
   static double get h80 => 20.5.w;
   static double get h100 => 25.6.w;
+  static double get w100 => 25.6.w;
   static double get h120 => 30.7.w;
   static double get h150 => 38.5.w;
   static double get h200 => 51.3.w;

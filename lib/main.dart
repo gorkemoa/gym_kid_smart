@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'app/app_theme.dart';
 import 'core/responsive/size_config.dart';
 import 'viewmodels/login_view_model.dart';
 import 'viewmodels/settings_view_model.dart';
@@ -28,10 +27,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsViewModel = context.watch<SettingsViewModel>();
+
     return MaterialApp(
       title: 'GyBoree SmartKid',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      theme: settingsViewModel.themeData,
       builder: (context, child) {
         // Initialize SizeConfig
         SizeConfig().init(context);

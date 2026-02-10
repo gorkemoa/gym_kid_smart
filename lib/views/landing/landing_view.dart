@@ -22,6 +22,7 @@ class _LandingViewState extends State<LandingView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<LandingViewModel>().init();
+      context.read<SettingsViewModel>().fetchSettings();
     });
   }
 

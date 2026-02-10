@@ -1,38 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/responsive/size_config.dart';
 import '../../core/responsive/size_tokens.dart';
+import '../../viewmodels/settings_view_model.dart';
 
 class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? title;
   final List<Widget>? actions;
   final bool centerTitle;
+  final bool automaticallyImplyLeading;
 
   const BaseAppBar({
     super.key,
     this.title,
     this.actions,
     this.centerTitle = true,
+    this.automaticallyImplyLeading = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    final settingsViewModel = context.watch<SettingsViewModel>();
+    final logoUrl = settingsViewModel.logoFullUrl;
+
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
       centerTitle: centerTitle,
+      automaticallyImplyLeading: automaticallyImplyLeading,
       title:
           title ??
-          Image.asset(
-            'assets/smartmetrics-logo.png',
-            height: SizeTokens.h32,
-            errorBuilder: (context, error, stackTrace) => const Text('GYBOREE'),
-          ),
+          (logoUrl.isNotEmpty
+              ? Image.network(
+                  logoUrl,
+                  height: SizeTokens.h32,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Text('GYBOREE'),
+                )
+              : Image.asset(
+                  'assets/smartmetrics-logo.png',
+                  height: SizeTokens.h32,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Text('GYBOREE'),
+                )),
       actions: actions,
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
 class BaseBottomNavBar extends StatelessWidget {

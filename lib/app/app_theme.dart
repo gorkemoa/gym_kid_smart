@@ -1,35 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/responsive/size_tokens.dart';
+import '../core/utils/color_utils.dart';
 
 class AppTheme {
-  // Colors (Inspired by the provided screenshots and dryfix style)
-  static const Color primaryColor = Color(0xFFFF9800); // Orange
-  static const Color secondaryColor = Color(0xFF5C6BC0); // Indigo/Blue
-  static const Color backgroundColor = Color(0xFFFF9800);
-  static const Color cardColor = Colors.white;
-  static const Color errorColor = Color(0xFFE53935);
-  static const Color successColor = Color(0xFF43A047);
-
   static const Color textPrimary = Color(0xFF212121);
   static const Color textSecondary = Color(0xFF757575);
   static const Color textWhite = Colors.white;
 
-  static ThemeData get lightTheme {
+  static ThemeData getTheme({String? mainColor, String? otherColor}) {
+    final Color primary = ColorUtils.fromHex(mainColor ?? '#f9991c');
+    final Color secondary = ColorUtils.fromHex(otherColor ?? '#028ab2');
+
     return ThemeData(
-      primaryColor: primaryColor,
-      scaffoldBackgroundColor: backgroundColor,
+      primaryColor: primary,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: primary,
+        primary: primary,
+        secondary: secondary,
+      ),
+      scaffoldBackgroundColor: const Color(0xFFF9F9F9),
       useMaterial3: true,
       textTheme: GoogleFonts.outfitTextTheme().copyWith(
         displayLarge: TextStyle(
           fontSize: SizeTokens.f32,
           fontWeight: FontWeight.bold,
-          color: textWhite,
+          color: textPrimary,
         ),
         displayMedium: TextStyle(
           fontSize: SizeTokens.f24,
           fontWeight: FontWeight.bold,
-          color: textWhite,
+          color: textPrimary,
         ),
         titleLarge: TextStyle(
           fontSize: SizeTokens.f20,
@@ -40,8 +41,8 @@ class AppTheme {
         bodyMedium: TextStyle(fontSize: SizeTokens.f14, color: textSecondary),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButtonStyleFrom(
-          backgroundColor: secondaryColor,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primary,
           foregroundColor: textWhite,
           minimumSize: Size(double.infinity, SizeTokens.h52),
           shape: RoundedRectangleBorder(
@@ -58,33 +59,17 @@ class AppTheme {
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(SizeTokens.r12),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(SizeTokens.r12),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(SizeTokens.r12),
-          borderSide: BorderSide(color: secondaryColor, width: 2),
+          borderSide: BorderSide(color: primary, width: 2),
         ),
       ),
-    );
-  }
-
-  static ButtonStyle ElevatedButtonStyleFrom({
-    required Color backgroundColor,
-    required Color foregroundColor,
-    required Size minimumSize,
-    required OutlinedBorder shape,
-    required TextStyle textStyle,
-  }) {
-    return ElevatedButton.styleFrom(
-      backgroundColor: backgroundColor,
-      foregroundColor: foregroundColor,
-      minimumSize: minimumSize,
-      shape: shape,
-      textStyle: textStyle,
     );
   }
 }

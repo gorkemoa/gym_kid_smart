@@ -74,8 +74,4 @@ class SettingsData {
       'created_at': createdAt,
     };
   }
-
-  String get logoUrl => logo != null
-      ? 'https://smartkid.gymboreeizmir.com/images/schools/$logo'
-      : '';
 }

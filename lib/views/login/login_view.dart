@@ -8,6 +8,7 @@ import '../../core/utils/color_utils.dart';
 import '../../viewmodels/landing_view_model.dart';
 import '../../viewmodels/settings_view_model.dart';
 import 'widgets/login_form.dart';
+import 'widgets/quick_login_section.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -45,9 +46,9 @@ class _LoginViewState extends State<LoginView> {
                 children: [
                   SizedBox(height: SizeTokens.p32 * 2),
                   // App Logo/Illustration
-                  if (settings?.logo != null)
+                  if (settingsVM.logoFullUrl.isNotEmpty)
                     Image.network(
-                      settings!.logoUrl,
+                      settingsVM.logoFullUrl,
                       height: SizeTokens.h120,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) =>
@@ -82,6 +83,8 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   SizedBox(height: SizeTokens.p32),
                   const LoginForm(),
+                  SizedBox(height: SizeTokens.p16),
+                  const QuickLoginSection(),
                   SizedBox(height: SizeTokens.p24),
                   const _PoweredBy(),
                   SizedBox(height: SizeTokens.p24),

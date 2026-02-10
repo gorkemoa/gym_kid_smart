@@ -6,7 +6,7 @@ import '../../viewmodels/home_view_model.dart';
 import '../../core/responsive/size_tokens.dart';
 import '../../core/responsive/size_config.dart';
 import '../../core/utils/app_translations.dart';
-import '../login/login_view.dart';
+import '../../core/ui_components/common_widgets.dart';
 
 class HomeTeacherView extends StatefulWidget {
   const HomeTeacherView({super.key});
@@ -16,6 +16,8 @@ class HomeTeacherView extends StatefulWidget {
 }
 
 class _HomeTeacherViewState extends State<HomeTeacherView> {
+  int _currentIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -34,28 +36,7 @@ class _HomeTeacherViewState extends State<HomeTeacherView> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: Image.asset(
-          'assets/smartmetrics-logo.png',
-          height: SizeTokens.h32,
-          errorBuilder: (context, error, stackTrace) => const Text('GYBOREE'),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginView()),
-                (route) => false,
-              );
-            },
-            icon: const Icon(Icons.logout, color: Colors.orange),
-          ),
-        ],
-      ),
+      appBar: const BaseAppBar(automaticallyImplyLeading: false),
       body: RefreshIndicator(
         onRefresh: () => homeViewModel.refresh(),
         child: SingleChildScrollView(
@@ -89,7 +70,14 @@ class _HomeTeacherViewState extends State<HomeTeacherView> {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: BaseBottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
     );
   }
 
@@ -270,42 +258,6 @@ class _HomeTeacherViewState extends State<HomeTeacherView> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildBottomNav() {
-    return Container(
-      height: 8.3.h + MediaQuery.of(context).padding.bottom,
-      decoration: const BoxDecoration(
-        color: Colors.orange,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(Icons.home, true),
-          _buildNavItem(Icons.grid_view, false),
-          _buildNavItem(Icons.chat_bubble_outline, false),
-          _buildNavItem(Icons.campaign_outlined, false),
-          _buildNavItem(Icons.settings_outlined, false),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, bool isActive) {
-    return Container(
-      padding: EdgeInsets.all(SizeTokens.p8),
-      decoration: isActive
-          ? const BoxDecoration(
-              color: Color(0xFF00A9E0),
-              shape: BoxShape.circle,
-            )
-          : null,
-      child: Icon(icon, color: Colors.white, size: SizeTokens.i24),
     );
   }
 }
