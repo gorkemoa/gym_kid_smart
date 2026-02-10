@@ -22,13 +22,30 @@ class ApiClient {
     Map<String, dynamic>? body,
     Map<String, String>? headers,
   }) async {
-    return _request(
-      () => _client.post(
-        Uri.parse('${ApiConstants.baseUrl}$endpoint'),
-        body: jsonEncode(body),
-        headers: _combineHeaders(headers),
-      ),
-    );
+    try {
+      final combinedHeaders = _combineHeaders(headers);
+      final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
+
+      final request = http.MultipartRequest('POST', url);
+      request.headers.addAll(combinedHeaders);
+
+      if (body != null) {
+        body.forEach((key, value) {
+          request.fields[key] = value.toString();
+        });
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      _logResponse(response);
+      return _handleResponse(response);
+    } on SocketException {
+      throw NetworkException();
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException(e.toString());
+    }
   }
 
   Map<String, String> _combineHeaders(Map<String, String>? extraHeaders) {
@@ -59,7 +76,10 @@ class ApiClient {
       case 200:
       case 201:
         if (body is Map<String, dynamic> && body.containsKey('failure')) {
-          throw ApiException(body['failure']?.toString() ?? 'Bir hata oluştu');
+          throw ApiException(
+            body['failure']?.toString() ?? 'Bir hata oluştu',
+            statusCode: response.statusCode,
+          );
         }
         return body;
       case 400:
@@ -76,7 +96,16 @@ class ApiClient {
   }
 
   void _logResponse(http.Response response) {
-    AppLogger.request('${response.request?.method} ${response.request?.url}');
+    final request = response.request;
+    String requestDetails = '${request?.method} ${request?.url}';
+
+    if (request is http.Request) {
+      requestDetails += '\nHeaders: ${request.headers}\nBody: ${request.body}';
+    } else if (request != null) {
+      requestDetails += '\nHeaders: ${request.headers}';
+    }
+
+    AppLogger.request(requestDetails);
     AppLogger.response('Status: ${response.statusCode} Body: ${response.body}');
   }
 }

@@ -4,10 +4,11 @@ class ApiConstants {
   // Auth
   static const String login = '/Api/Login';
   static const String allSettings = '/Api/AllSettings';
+  static const String addToken = '/Api/addToken';
 
   // Headers
   static Map<String, String> get headers => {
     'Accept': 'application/json',
-    'Content-Type': 'application/json',
+    'Authorization': 'DcuV3wdDqrx-c#e#P-1dS#6n@dEFEd5hA354e',
   };
 }
