@@ -7,6 +7,7 @@ import '../../models/user_model.dart';
 import '../../viewmodels/daily_report_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
 import '../../models/class_model.dart';
+import '../../views/daily_report/student_list_view.dart';
 
 class DailyReportView extends StatelessWidget {
   final UserModel user;
@@ -101,13 +102,17 @@ class _DailyReportContent extends StatelessWidget {
         itemCount: viewModel.classes.length,
         itemBuilder: (context, index) {
           final classItem = viewModel.classes[index];
-          return _buildClassCard(context, classItem);
+          return _buildClassCard(context, classItem, viewModel);
         },
       ),
     );
   }
 
-  Widget _buildClassCard(BuildContext context, ClassModel classItem) {
+  Widget _buildClassCard(
+    BuildContext context,
+    ClassModel classItem,
+    DailyReportViewModel viewModel,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -125,10 +130,23 @@ class _DailyReportContent extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(SizeTokens.r16),
           onTap: () {
-            // TODO: Navigate to detail view or next step
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Selected: ${classItem.name}')),
-            );
+            if (classItem.id != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StudentListView(
+                    user: viewModel.userKey != null
+                        ? UserModel(
+                            schoolId: viewModel.schoolId,
+                            userKey: viewModel.userKey,
+                          )
+                        : UserModel(), // Fallback or handle appropriately
+                    classId: classItem.id!,
+                    className: classItem.name ?? '',
+                  ),
+                ),
+              );
+            }
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

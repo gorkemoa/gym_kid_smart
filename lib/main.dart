@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_kid_smart/viewmodels/daily_report_view_model.dart';
 import 'package:provider/provider.dart';
 import 'core/responsive/size_config.dart';
 import 'viewmodels/login_view_model.dart';
@@ -16,6 +17,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => LandingViewModel()),
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
+
+        ChangeNotifierProvider(create: (_) => DailyReportViewModel()),
       ],
       child: const MyApp(),
     ),

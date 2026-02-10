@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../core/network/api_result.dart';
-import '../models/class_model.dart';
+import '../models/student_model.dart';
 import '../services/home_service.dart';
 
-class DailyReportViewModel extends ChangeNotifier {
+class StudentListViewModel extends ChangeNotifier {
   final HomeService _homeService = HomeService();
 
   bool _isLoading = false;
@@ -12,35 +12,36 @@ class DailyReportViewModel extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  List<ClassModel> _classes = [];
-  List<ClassModel> get classes => _classes;
+  List<StudentModel> _students = [];
+  List<StudentModel> get students => _students;
 
   int? _schoolId;
-  int? get schoolId => _schoolId;
   String? _userKey;
-  String? get userKey => _userKey;
+  int? _classId;
 
-  void init(int schoolId, String userKey) {
+  void init(int schoolId, String userKey, int classId) {
     _schoolId = schoolId;
     _userKey = userKey;
-    _fetchClasses();
+    _classId = classId;
+    _fetchStudents();
   }
 
-  Future<void> _fetchClasses() async {
-    if (_schoolId == null || _userKey == null) return;
+  Future<void> _fetchStudents() async {
+    if (_schoolId == null || _userKey == null || _classId == null) return;
 
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
-    final result = await _homeService.getAllClasses(
+    final result = await _homeService.getAllStudents(
       schoolId: _schoolId!,
       userKey: _userKey!,
+      classId: _classId!,
     );
 
-    if (result is Success<List<ClassModel>>) {
-      _classes = result.data;
-    } else if (result is Failure<List<ClassModel>>) {
+    if (result is Success<List<StudentModel>>) {
+      _students = result.data;
+    } else if (result is Failure<List<StudentModel>>) {
       _errorMessage = result.message;
     }
 
@@ -49,6 +50,6 @@ class DailyReportViewModel extends ChangeNotifier {
   }
 
   void refresh() {
-    _fetchClasses();
+    _fetchStudents();
   }
 }
