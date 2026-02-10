@@ -5,9 +5,9 @@ import '../../../viewmodels/login_view_model.dart';
 import '../../../core/utils/app_translations.dart';
 import '../../../viewmodels/landing_view_model.dart';
 import '../../../viewmodels/settings_view_model.dart';
-import '../../home_admin/home_admin_view.dart';
-import '../../home_teacher/home_teacher_view.dart';
-import '../../home_parent/home_parent_view.dart';
+import '../../home/admin/home_admin_view.dart';
+import '../../home/teacher/home_teacher_view.dart';
+import '../../home/parent/home_parent_view.dart';
 
 class QuickLoginSection extends StatelessWidget {
   const QuickLoginSection({super.key});

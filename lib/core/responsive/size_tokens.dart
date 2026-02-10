@@ -40,6 +40,7 @@ class SizeTokens {
   static double get i20 => 5.1.w;
   static double get i24 => 6.2.w;
   static double get i32 => 8.2.w;
+  static double get i48 => 12.3.w;
 
   // Height & Width tokens
   static double get h12 => 3.1.w;

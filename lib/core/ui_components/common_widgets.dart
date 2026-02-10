@@ -61,9 +61,9 @@ class BaseBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 8.3.h + MediaQuery.of(context).padding.bottom,
-      decoration: const BoxDecoration(
-        color: Colors.orange,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor,
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
@@ -71,24 +71,34 @@ class BaseBottomNavBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavItem(Icons.home, currentIndex == 0, 0),
-          _buildNavItem(Icons.grid_view, currentIndex == 1, 1),
-          _buildNavItem(Icons.chat_bubble_outline, currentIndex == 2, 2),
-          _buildNavItem(Icons.campaign_outlined, currentIndex == 3, 3),
-          _buildNavItem(Icons.settings_outlined, currentIndex == 4, 4),
+          _buildNavItem(context, Icons.home, currentIndex == 0, 0),
+          _buildNavItem(context, Icons.grid_view, currentIndex == 1, 1),
+          _buildNavItem(
+            context,
+            Icons.chat_bubble_outline,
+            currentIndex == 2,
+            2,
+          ),
+          _buildNavItem(context, Icons.campaign_outlined, currentIndex == 3, 3),
+          _buildNavItem(context, Icons.settings_outlined, currentIndex == 4, 4),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem(IconData icon, bool isActive, int index) {
+  Widget _buildNavItem(
+    BuildContext context,
+    IconData icon,
+    bool isActive,
+    int index,
+  ) {
     return GestureDetector(
       onTap: () => onTap?.call(index),
       child: Container(
         padding: EdgeInsets.all(SizeTokens.p8),
         decoration: isActive
-            ? const BoxDecoration(
-                color: Color(0xFF00A9E0),
+            ? BoxDecoration(
+                color: Theme.of(context).colorScheme.secondary,
                 shape: BoxShape.circle,
               )
             : null,

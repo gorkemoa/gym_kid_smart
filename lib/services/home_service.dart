@@ -4,6 +4,7 @@ import '../core/network/api_result.dart';
 import '../core/utils/logger.dart';
 import '../models/notice_model.dart';
 import '../models/student_model.dart';
+import '../models/class_model.dart';
 
 class HomeService {
   final ApiClient _apiClient = ApiClient();
@@ -52,6 +53,28 @@ class HomeService {
       return Success([]);
     } catch (e) {
       AppLogger.error('Fetch students failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<ClassModel>>> getAllClasses({
+    required int schoolId,
+    required String userKey,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.allClasses,
+        body: {'school_id': schoolId, 'user_key': userKey},
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final classes = data.map((json) => ClassModel.fromJson(json)).toList();
+        return Success(classes);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch classes failed', e);
       return Failure(e.toString());
     }
   }

@@ -1,6 +1,7 @@
 SmartKid Adında Ama appde GyBoree olacak bir app yapacağız.
 Gönderdiğim Ekran görüntülerini baz alacak.
 UYGULAMA TÜRKÇE İNGİLİZCE OLACAK JSONA GÖRE HER ZAMAN YAZACAKSIN SAKIN UNUTMA!
+ASLA RENKLER STATİK OLAYACAK APİDEN GELEN RENKLERİ KULLAN!
 DEĞİŞTİRİLEMEZ KURALLAR (TARTIŞMASIZ) 1.1 Statik veri kesinlikle YASAK
 Dummy / mock / hardcoded veri yok
 

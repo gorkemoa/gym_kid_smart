@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../viewmodels/login_view_model.dart';
-import '../../viewmodels/landing_view_model.dart';
-import '../../viewmodels/home_view_model.dart';
-import '../../core/responsive/size_tokens.dart';
-import '../../core/responsive/size_config.dart';
-import '../../core/utils/app_translations.dart';
-import '../../core/ui_components/common_widgets.dart';
+import '../../../viewmodels/login_view_model.dart';
+import '../../../viewmodels/landing_view_model.dart';
+import '../../../viewmodels/home_view_model.dart';
+import '../../../core/responsive/size_tokens.dart';
+import '../../../core/responsive/size_config.dart';
+import '../../../core/utils/app_translations.dart';
+import '../../../core/ui_components/common_widgets.dart';
 
-class HomeTeacherView extends StatefulWidget {
-  const HomeTeacherView({super.key});
+class HomeAdminView extends StatefulWidget {
+  const HomeAdminView({super.key});
 
   @override
-  State<HomeTeacherView> createState() => _HomeTeacherViewState();
+  State<HomeAdminView> createState() => _HomeAdminViewState();
 }
 
-class _HomeTeacherViewState extends State<HomeTeacherView> {
+class _HomeAdminViewState extends State<HomeAdminView> {
   int _currentIndex = 0;
 
   @override
@@ -41,7 +41,7 @@ class _HomeTeacherViewState extends State<HomeTeacherView> {
         onRefresh: () => homeViewModel.refresh(),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(SizeTokens.p20),
+          padding: EdgeInsets.all(SizeTokens.p24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
