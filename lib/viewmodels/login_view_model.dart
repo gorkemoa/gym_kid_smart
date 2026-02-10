@@ -3,11 +3,13 @@ import '../core/network/api_result.dart';
 import '../models/login_response.dart';
 import '../services/auth_service.dart';
 import '../services/push_notification_service.dart';
+import '../services/device_info_service.dart';
 import '../core/utils/logger.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final AuthService _authServiceData = AuthService();
   final PushNotificationService _pushService = PushNotificationService();
+  final DeviceInfoService _deviceInfoService = DeviceInfoService();
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -54,21 +56,21 @@ class LoginViewModel extends ChangeNotifier {
       // addtoken da ki bildirim işlemlerine başka zaman bakılacak
       if (_data?.data != null) {
         final user = _data!.data!;
-        _pushService
-            .addToken(
-              schoolId: user.schoolId ?? 1,
-              userKey: user.userKey ?? '',
-              deviceId: 'temp_device_id', // TODO: Get actual FCM token later
-            )
-            .then((res) {
-              if (res is Success) {
-                AppLogger.info('Push token registered successfully');
-              } else if (res is Failure) {
-                AppLogger.warning(
-                  'Push token registration failed: ${res.message}',
-                );
-              }
-            });
+
+        final deviceId = await _deviceInfoService.getDeviceId();
+        final res = await _pushService.addToken(
+          schoolId: user.schoolId ?? 1,
+          userKey: user.userKey ?? '',
+          deviceId: deviceId,
+        );
+
+        if (res is Success<bool>) {
+          AppLogger.info(
+            'Push token registered successfully with ID: $deviceId',
+          );
+        } else if (res is Failure<bool>) {
+          AppLogger.warning('Push token registration failed: ${res.message}');
+        }
       }
 
       notifyListeners();
