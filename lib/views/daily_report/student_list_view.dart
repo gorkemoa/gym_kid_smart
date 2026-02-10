@@ -7,6 +7,7 @@ import '../../models/user_model.dart';
 import '../../viewmodels/student_list_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
 import '../../models/student_model.dart';
+import 'student_detail_view.dart';
 
 class StudentListView extends StatelessWidget {
   final UserModel user;
@@ -103,13 +104,17 @@ class _StudentListContent extends StatelessWidget {
         separatorBuilder: (context, index) => SizedBox(height: SizeTokens.p16),
         itemBuilder: (context, index) {
           final student = viewModel.students[index];
-          return _buildStudentCard(context, student);
+          return _buildStudentCard(context, student, viewModel);
         },
       ),
     );
   }
 
-  Widget _buildStudentCard(BuildContext context, StudentModel student) {
+  Widget _buildStudentCard(
+    BuildContext context,
+    StudentModel student,
+    StudentListViewModel viewModel,
+  ) {
     return Container(
       padding: EdgeInsets.all(SizeTokens.p16),
       decoration: BoxDecoration(
@@ -123,50 +128,68 @@ class _StudentListContent extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          ClipOval(
-            child: SizedBox(
-              width: SizeTokens.h60,
-              height: SizeTokens.h60,
-              child: student.image != null && student.image!.isNotEmpty
-                  ? Image.network(
-                      student.image!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          _buildPlaceholder(),
-                    )
-                  : _buildPlaceholder(),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => StudentDetailView(
+                user: viewModel.userKey != null
+                    ? UserModel(
+                        schoolId: viewModel.schoolId,
+                        userKey: viewModel.userKey,
+                      )
+                    : UserModel(),
+                student: student,
+              ),
             ),
-          ),
-          SizedBox(width: SizeTokens.p16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${student.name ?? ''} ${student.surname ?? ''}',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: SizeTokens.f16,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: SizeTokens.p4),
-                if (student.birthDate != null)
+          );
+        },
+        child: Row(
+          children: [
+            ClipOval(
+              child: SizedBox(
+                width: SizeTokens.h60,
+                height: SizeTokens.h60,
+                child: student.image != null && student.image!.isNotEmpty
+                    ? Image.network(
+                        student.image!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            _buildPlaceholder(),
+                      )
+                    : _buildPlaceholder(),
+              ),
+            ),
+            SizedBox(width: SizeTokens.p16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    student.birthDate!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey,
-                      fontSize: SizeTokens.f12,
+                    '${student.name ?? ''} ${student.surname ?? ''}',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: SizeTokens.f16,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-              ],
+                  SizedBox(height: SizeTokens.p4),
+                  if (student.birthDate != null)
+                    Text(
+                      student.birthDate!,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey,
+                        fontSize: SizeTokens.f12,
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-          Icon(Icons.chevron_right, color: Colors.grey, size: SizeTokens.i24),
-        ],
+            Icon(Icons.chevron_right, color: Colors.grey, size: SizeTokens.i24),
+          ],
+        ),
       ),
     );
   }

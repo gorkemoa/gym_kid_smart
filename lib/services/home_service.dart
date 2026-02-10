@@ -5,6 +5,7 @@ import '../core/utils/logger.dart';
 import '../models/notice_model.dart';
 import '../models/student_model.dart';
 import '../models/class_model.dart';
+import '../models/daily_student_model.dart';
 
 class HomeService {
   final ApiClient _apiClient = ApiClient();
@@ -75,6 +76,39 @@ class HomeService {
       return Success([]);
     } catch (e) {
       AppLogger.error('Fetch classes failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<DailyStudentModel>>> getDailyStudent({
+    required int schoolId,
+    required String userKey,
+    required int studentId,
+    required String date,
+    required String part,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.dailyStudent,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'student_id': studentId,
+          'date': date,
+          'part': part,
+        },
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final items = data
+            .map((json) => DailyStudentModel.fromJson(json))
+            .toList();
+        return Success(items);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch daily student data failed', e);
       return Failure(e.toString());
     }
   }

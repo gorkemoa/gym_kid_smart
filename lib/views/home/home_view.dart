@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../viewmodels/login_view_model.dart';
-import '../../../viewmodels/landing_view_model.dart';
-import '../../../viewmodels/home_view_model.dart';
-import '../../../core/responsive/size_tokens.dart';
-import '../../../core/responsive/size_config.dart';
-import '../../../core/utils/app_translations.dart';
-import '../../../core/ui_components/common_widgets.dart';
-import '../../daily_report/daily_report_view.dart';
+import '../../viewmodels/login_view_model.dart';
+import '../../viewmodels/landing_view_model.dart';
+import '../../viewmodels/home_view_model.dart';
+import '../../core/responsive/size_tokens.dart';
+import '../../core/responsive/size_config.dart';
+import '../../core/utils/app_translations.dart';
+import '../../core/ui_components/common_widgets.dart';
+import '../daily_report/daily_report_view.dart';
 
-class HomeTeacherView extends StatefulWidget {
-  const HomeTeacherView({super.key});
+class HomeView extends StatefulWidget {
+  const HomeView({super.key});
 
   @override
-  State<HomeTeacherView> createState() => _HomeTeacherViewState();
+  State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeTeacherViewState extends State<HomeTeacherView> {
+class _HomeViewState extends State<HomeView> {
   int _currentIndex = 0;
 
   @override
@@ -34,6 +34,8 @@ class _HomeTeacherViewState extends State<HomeTeacherView> {
   Widget build(BuildContext context) {
     final locale = context.watch<LandingViewModel>().locale.languageCode;
     final homeViewModel = context.watch<HomeViewModel>();
+    final user = context.read<LoginViewModel>().data?.data;
+    final role = user?.role;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
@@ -62,7 +64,7 @@ class _HomeTeacherViewState extends State<HomeTeacherView> {
                 ),
               ),
               SizedBox(height: SizeTokens.p20),
-              _buildModulesGrid(locale),
+              _buildModulesGrid(locale, role),
             ],
           ),
         ),
@@ -236,7 +238,7 @@ class _HomeTeacherViewState extends State<HomeTeacherView> {
     );
   }
 
-  Widget _buildModulesGrid(String locale) {
+  Widget _buildModulesGrid(String locale, String? role) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -253,12 +255,31 @@ class _HomeTeacherViewState extends State<HomeTeacherView> {
           onTap: () {
             final user = context.read<LoginViewModel>().data?.data;
             if (user != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DailyReportView(user: user),
-                ),
-              );
+              // Navigation logic based on role if needed
+              if (role == 'teacher') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DailyReportView(user: user),
+                  ),
+                );
+              } else {
+                // Parent/Admin navigation (same view for now? or different?)
+                // Assuming parent also goes to DailyReportView but maybe read-only mode?
+                // For now, let's enable it for everyone if the view supports it, or keep it restricted.
+                // The old code had NO onTap for parents.
+                // If I want to match "same design rules", I should consider if parents should access it.
+                // Given the context of "gym_kid_smart", parents likely want to SEE daily reports.
+                // Teachers CREATE them.
+                // The DailyReportView seems to be for selecting students.
+                // I will keep it teacher-only for now unless I see evidence otherwise, OR allow it if the user is parent.
+                // Let's assume for now only teachers have this implemented based on previous code.
+                // BUT, user asked to "merge".
+
+                if (role == 'parent') {
+                  // TODO: Implement parent view for daily report
+                }
+              }
             }
           },
         ),

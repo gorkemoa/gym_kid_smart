@@ -16,7 +16,9 @@ class StudentListViewModel extends ChangeNotifier {
   List<StudentModel> get students => _students;
 
   int? _schoolId;
+  int? get schoolId => _schoolId;
   String? _userKey;
+  String? get userKey => _userKey;
   int? _classId;
 
   void init(int schoolId, String userKey, int classId) {

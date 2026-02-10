@@ -6,9 +6,7 @@ import '../../../core/utils/app_translations.dart';
 import '../../../core/utils/color_utils.dart';
 import '../../../viewmodels/landing_view_model.dart';
 import '../../../viewmodels/settings_view_model.dart';
-import '../../home/admin/home_admin_view.dart';
-import '../../home/teacher/home_teacher_view.dart';
-import '../../home/parent/home_parent_view.dart';
+import '../../home/home_view.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({super.key});
@@ -62,21 +60,11 @@ class LoginForm extends StatelessWidget {
                           schoolId: schoolId,
                         );
 
-                        final role = viewModel.data?.data?.role;
-
-                        Widget targetView;
-                        // Determine which view to navigate based on role
-                        if (role == 'superadmin' || role == 'admin') {
-                          targetView = const HomeAdminView();
-                        } else if (role == 'teacher') {
-                          targetView = const HomeTeacherView();
-                        } else {
-                          targetView = const HomeParentView();
-                        }
-
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => targetView),
+                          MaterialPageRoute(
+                            builder: (context) => const HomeView(),
+                          ),
                         );
                       }
                     },

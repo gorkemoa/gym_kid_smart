@@ -5,9 +5,6 @@ import '../../../viewmodels/login_view_model.dart';
 import '../../../core/utils/app_translations.dart';
 import '../../../viewmodels/landing_view_model.dart';
 import '../../../viewmodels/settings_view_model.dart';
-import '../../home/admin/home_admin_view.dart';
-import '../../home/teacher/home_teacher_view.dart';
-import '../../home/parent/home_parent_view.dart';
 
 class QuickLoginSection extends StatelessWidget {
   const QuickLoginSection({super.key});
@@ -94,14 +91,6 @@ class QuickLoginSection extends StatelessWidget {
       final role = viewModel.data?.data?.role;
 
       Widget targetView;
-      // Determine which view to navigate based on role
-      if (role == 'superadmin' || role == 'admin') {
-        targetView = const HomeAdminView();
-      } else if (role == 'teacher') {
-        targetView = const HomeTeacherView();
-      } else {
-        targetView = const HomeParentView();
-      }
 
       Navigator.pushReplacement(
         context,
