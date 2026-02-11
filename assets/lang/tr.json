@@ -50,5 +50,13 @@
     "time": "Saat",
     "status": "Durum",
     "ready_to_receive": "Almaya Hazır",
-    "not_ready": "Hazır Değil"
+    "not_ready": "Hazır Değil",
+    "title": "Başlık",
+    "value": "Durum/Puan",
+    "no_data_found": "Henüz veri girişi yapılmamış",
+    "note": "Not",
+    "manage_titles": "Başlıkları Yönet",
+    "save_as_template": "Şablon Olarak Kaydet",
+    "save_success": "Başarıyla kaydedildi",
+    "manage_values": "Puanları Yönet"
 }

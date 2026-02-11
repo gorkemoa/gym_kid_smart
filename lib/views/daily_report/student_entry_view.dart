@@ -186,20 +186,80 @@ class _StudentEntryContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextField(
-          controller: viewModel.titleController,
-          decoration: InputDecoration(
-            labelText: AppTranslations.translate('title', locale),
-            prefixIcon: const Icon(Icons.title),
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: TextField(
+                controller: viewModel.titleController,
+                decoration: InputDecoration(
+                  labelText: AppTranslations.translate('title', locale),
+                  prefixIcon: const Icon(Icons.title),
+                ),
+              ),
+            ),
+            if (viewModel.activityTitles.isNotEmpty)
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.arrow_drop_down_circle_outlined),
+                onSelected: (val) => viewModel.setTitle(val),
+                itemBuilder: (context) => viewModel.activityTitles
+                    .map(
+                      (t) => PopupMenuItem<String>(
+                        value: t.title,
+                        child: Text(t.title ?? ''),
+                      ),
+                    )
+                    .toList(),
+              ),
+            IconButton(
+              icon: const Icon(Icons.bookmark_add_outlined),
+              tooltip: AppTranslations.translate('save_as_template', locale),
+              onPressed: () async {
+                final result = await viewModel.saveTitleAsTemplate();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        result is Success
+                            ? AppTranslations.translate('save_success', locale)
+                            : (result as Failure).message,
+                      ),
+                      backgroundColor: result is Success
+                          ? Colors.green
+                          : Colors.red,
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
         ),
         SizedBox(height: SizeTokens.p16),
-        TextField(
-          controller: viewModel.valueController,
-          decoration: InputDecoration(
-            labelText: AppTranslations.translate('value', locale),
-            prefixIcon: const Icon(Icons.assessment_outlined),
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                value: viewModel.selectedActivityValue,
+                decoration: InputDecoration(
+                  labelText: AppTranslations.translate('value', locale),
+                  prefixIcon: const Icon(Icons.assessment_outlined),
+                ),
+                items: viewModel.activityValues.map((val) {
+                  return DropdownMenuItem<String>(
+                    value: val.value,
+                    child: Text(val.value ?? ''),
+                  );
+                }).toList(),
+                onChanged: (val) => viewModel.setSelectedActivityValue(val),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.add_task),
+              tooltip: AppTranslations.translate('add_value', locale),
+              onPressed: () => _showAddValueDialog(context, viewModel, locale),
+            ),
+          ],
         ),
         SizedBox(height: SizeTokens.p16),
         TextField(
@@ -260,6 +320,57 @@ class _StudentEntryContent extends StatelessWidget {
             value: viewModel.receivingStatus == 1,
             onChanged: (val) => viewModel.setReceivingStatus(val ? 1 : 0),
             activeColor: Theme.of(context).primaryColor,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddValueDialog(
+    BuildContext context,
+    StudentEntryViewModel viewModel,
+    String locale,
+  ) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppTranslations.translate('manage_values', locale)),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: AppTranslations.translate('value', locale),
+            hintText: "Örn: Yıldızlı Pekiyi",
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppTranslations.translate('cancel', locale)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (controller.text.isEmpty) return;
+              final result = await viewModel.saveValueAsTemplate(
+                controller.text,
+              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      result is Success
+                          ? AppTranslations.translate('save_success', locale)
+                          : (result as Failure).message,
+                    ),
+                    backgroundColor: result is Success
+                        ? Colors.green
+                        : Colors.red,
+                  ),
+                );
+                if (result is Success) Navigator.pop(context);
+              }
+            },
+            child: Text(AppTranslations.translate('save', locale)),
           ),
         ],
       ),

@@ -190,6 +190,38 @@ class StudentDetailViewModel extends ChangeNotifier {
     return result;
   }
 
+  Future<ApiResult<bool>> saveActivityTitle({
+    required String title,
+    int? id,
+  }) async {
+    if (_schoolId == null || _userKey == null) {
+      return Failure('Missing parameters');
+    }
+
+    return await _homeService.saveActivityTitle(
+      schoolId: _schoolId!,
+      userKey: _userKey!,
+      title: title,
+      id: id,
+    );
+  }
+
+  Future<ApiResult<bool>> saveActivityValue({
+    required String value,
+    int? id,
+  }) async {
+    if (_schoolId == null || _userKey == null) {
+      return Failure('Missing parameters');
+    }
+
+    return await _homeService.saveActivityValue(
+      schoolId: _schoolId!,
+      userKey: _userKey!,
+      value: value,
+      id: id,
+    );
+  }
+
   void refresh() {
     _fetchDailyData();
   }

@@ -1,11 +1,16 @@
+import '../app/api_constants.dart';
+import '../core/network/api_client.dart';
+import '../core/network/api_result.dart';
+import '../core/utils/logger.dart';
+import '../models/notice_model.dart';
+import '../models/student_model.dart';
+import '../models/class_model.dart';
+import '../models/daily_student_model.dart';
 import '../models/activity_value_model.dart';
+import '../models/activity_title_model.dart';
 
 class HomeService {
   final ApiClient _apiClient = ApiClient();
-
-  // Existing methods...
-  // (Assuming I should just append since replace_file_content is for contiguous blocks)
-  // I will scroll down and append to the end of the class.
 
   Future<ApiResult<List<NoticeModel>>> getAllNotices({
     required int schoolId,
@@ -135,7 +140,6 @@ class HomeService {
         },
       );
 
-      // API returns success message in 'success' and result in 'data'
       if (response['success'] != null || response['data'] == true) {
         return Success(true);
       }
@@ -220,6 +224,108 @@ class HomeService {
       );
     } catch (e) {
       AppLogger.error('Add daily activity failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<ActivityTitleModel>>> getAllActivitiesTitle({
+    required int schoolId,
+    required String userKey,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.allActivitiesTitle,
+        body: {'school_id': schoolId, 'user_key': userKey},
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final titles = data
+            .map((json) => ActivityTitleModel.fromJson(json))
+            .toList();
+        return Success(titles);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch activity titles failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<ActivityValueModel>>> getAllActivitiesValue({
+    required int schoolId,
+    required String userKey,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.allActivitiesValue,
+        body: {'school_id': schoolId, 'user_key': userKey},
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final values = data
+            .map((json) => ActivityValueModel.fromJson(json))
+            .toList();
+        return Success(values);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch activity values failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> saveActivityValue({
+    required int schoolId,
+    required String userKey,
+    required String value,
+    int? id,
+  }) async {
+    try {
+      final body = {'school_id': schoolId, 'user_key': userKey, 'value': value};
+      if (id != null) body['id'] = id;
+
+      final response = await _apiClient.post(
+        ApiConstants.activitiesValue,
+        body: body,
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Değer kaydedilemedi',
+      );
+    } catch (e) {
+      AppLogger.error('Save activity value failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> saveActivityTitle({
+    required int schoolId,
+    required String userKey,
+    required String title,
+    int? id,
+  }) async {
+    try {
+      final body = {'school_id': schoolId, 'user_key': userKey, 'title': title};
+      if (id != null) body['id'] = id;
+
+      final response = await _apiClient.post(
+        ApiConstants.activitiesTitle,
+        body: body,
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Başlık kaydedilemedi',
+      );
+    } catch (e) {
+      AppLogger.error('Save activity title failed', e);
       return Failure(e.toString());
     }
   }

@@ -3,6 +3,8 @@ import '../core/network/api_result.dart';
 import '../models/daily_student_model.dart';
 import '../models/user_model.dart';
 import '../models/student_model.dart';
+import '../models/activity_value_model.dart';
+import '../models/activity_title_model.dart';
 import '../services/home_service.dart';
 
 class StudentEntryViewModel extends ChangeNotifier {
@@ -19,6 +21,15 @@ class StudentEntryViewModel extends ChangeNotifier {
   final TextEditingController valueController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
+
+  List<ActivityValueModel> _activityValues = [];
+  List<ActivityValueModel> get activityValues => _activityValues;
+
+  List<ActivityTitleModel> _activityTitles = [];
+  List<ActivityTitleModel> get activityTitles => _activityTitles;
+
+  String? _selectedActivityValue;
+  String? get selectedActivityValue => _selectedActivityValue;
 
   int _receivingStatus = 0;
   int get receivingStatus => _receivingStatus;
@@ -48,8 +59,11 @@ class StudentEntryViewModel extends ChangeNotifier {
       _receivingStatus = existingData?.status ?? 0;
     } else if (categoryId == 'activities') {
       titleController.text = existingData?.title ?? '';
+      _selectedActivityValue = existingData?.value;
       valueController.text = existingData?.value ?? '';
       noteController.text = existingData?.note ?? '';
+      _fetchActivityValues();
+      _fetchActivityTitles();
     } else if (categoryId == 'noteLogs') {
       if (user.role == 'teacher') {
         noteController.text = existingData?.teacherNote ?? '';
@@ -64,6 +78,41 @@ class StudentEntryViewModel extends ChangeNotifier {
   void setReceivingStatus(int status) {
     _receivingStatus = status;
     notifyListeners();
+  }
+
+  void setSelectedActivityValue(String? value) {
+    _selectedActivityValue = value;
+    if (value != null) {
+      valueController.text = value;
+    }
+    notifyListeners();
+  }
+
+  void setTitle(String title) {
+    titleController.text = title;
+    notifyListeners();
+  }
+
+  Future<void> _fetchActivityTitles() async {
+    final result = await _homeService.getAllActivitiesTitle(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+    );
+    if (result is Success<List<ActivityTitleModel>>) {
+      _activityTitles = result.data;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _fetchActivityValues() async {
+    final result = await _homeService.getAllActivitiesValue(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+    );
+    if (result is Success<List<ActivityValueModel>>) {
+      _activityValues = result.data;
+      notifyListeners();
+    }
   }
 
   Future<ApiResult<bool>> save() async {
@@ -85,6 +134,28 @@ class StudentEntryViewModel extends ChangeNotifier {
     _isSaving = false;
     notifyListeners();
     return result;
+  }
+
+  Future<ApiResult<bool>> saveValueAsTemplate(String value) async {
+    if (value.isEmpty) return Failure('Puan/Değer boş olamaz');
+    final result = await _homeService.saveActivityValue(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+      value: value,
+    );
+    if (result is Success) {
+      await _fetchActivityValues();
+    }
+    return result;
+  }
+
+  Future<ApiResult<bool>> saveTitleAsTemplate() async {
+    if (titleController.text.isEmpty) return Failure('Başlık boş olamaz');
+    return await _homeService.saveActivityTitle(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+      title: titleController.text,
+    );
   }
 
   Future<ApiResult<bool>> _saveReceiving() async {

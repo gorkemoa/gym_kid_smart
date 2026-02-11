@@ -8,6 +8,7 @@ import '../../models/student_model.dart';
 import '../../models/daily_student_model.dart';
 import '../../viewmodels/student_detail_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
+import '../../core/network/api_result.dart';
 import 'package:flutter/cupertino.dart';
 import 'student_entry_view.dart';
 import 'widgets/student_detail_card.dart';
@@ -51,13 +52,30 @@ class _StudentDetailContent extends StatelessWidget {
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: BaseAppBar(
         title: Text(
-          '${student.name} ${student.surname}', // Use correct fields
+          '${student.name} ${student.surname}',
           style: TextStyle(
             color: Colors.black,
             fontSize: SizeTokens.f16,
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          if (viewModel.selectedPart == 'activities' &&
+              (user.role == 'teacher' || user.role == 'superadmin')) ...[
+            IconButton(
+              icon: const Icon(Icons.edit_note, color: Colors.black),
+              tooltip: AppTranslations.translate('manage_titles', locale),
+              onPressed: () =>
+                  _showManageTitlesDialog(context, viewModel, locale, user),
+            ),
+            IconButton(
+              icon: const Icon(Icons.grade_outlined, color: Colors.black),
+              tooltip: AppTranslations.translate('manage_values', locale),
+              onPressed: () =>
+                  _showManageValuesDialog(context, viewModel, locale, user),
+            ),
+          ],
+        ],
       ),
       body: Column(
         children: [
@@ -109,6 +127,110 @@ class _StudentDetailContent extends StatelessWidget {
     if (result == true) {
       viewModel.refresh();
     }
+  }
+
+  void _showManageTitlesDialog(
+    BuildContext context,
+    StudentDetailViewModel viewModel,
+    String locale,
+    UserModel user,
+  ) {
+    final titleController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppTranslations.translate('manage_titles', locale)),
+        content: TextField(
+          controller: titleController,
+          decoration: InputDecoration(
+            labelText: AppTranslations.translate('title', locale),
+            hintText: "Örn: Şarkı Söyleme",
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppTranslations.translate('cancel', locale)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (titleController.text.isEmpty) return;
+              final result = await viewModel.saveActivityTitle(
+                title: titleController.text,
+              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      result is Success
+                          ? AppTranslations.translate('save_success', locale)
+                          : (result as Failure).message,
+                    ),
+                    backgroundColor: result is Success
+                        ? Colors.green
+                        : Colors.red,
+                  ),
+                );
+                if (result is Success) Navigator.pop(context);
+              }
+            },
+            child: Text(AppTranslations.translate('save', locale)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showManageValuesDialog(
+    BuildContext context,
+    StudentDetailViewModel viewModel,
+    String locale,
+    UserModel user,
+  ) {
+    final valueController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppTranslations.translate('manage_values', locale)),
+        content: TextField(
+          controller: valueController,
+          decoration: InputDecoration(
+            labelText: AppTranslations.translate('value', locale),
+            hintText: "Örn: Süper İlgilendi",
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppTranslations.translate('cancel', locale)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (valueController.text.isEmpty) return;
+              final result = await viewModel.saveActivityValue(
+                value: valueController.text,
+              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      result is Success
+                          ? AppTranslations.translate('save_success', locale)
+                          : (result as Failure).message,
+                    ),
+                    backgroundColor: result is Success
+                        ? Colors.green
+                        : Colors.red,
+                  ),
+                );
+                if (result is Success) Navigator.pop(context);
+              }
+            },
+            child: Text(AppTranslations.translate('save', locale)),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildDateSelector(
