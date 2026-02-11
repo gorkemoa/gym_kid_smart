@@ -8,8 +8,9 @@ import '../../models/student_model.dart';
 import '../../models/daily_student_model.dart';
 import '../../viewmodels/student_detail_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
-import '../../core/network/api_result.dart';
 import 'package:flutter/cupertino.dart';
+import 'student_entry_view.dart';
+import 'widgets/student_detail_card.dart';
 
 class StudentDetailView extends StatelessWidget {
   final UserModel user;
@@ -67,20 +68,18 @@ class _StudentDetailContent extends StatelessWidget {
       ),
       floatingActionButton:
           (viewModel.selectedPart == 'noteLogs' ||
-              viewModel.selectedPart == 'receiving')
+              viewModel.selectedPart == 'receiving' ||
+              (viewModel.selectedPart == 'activities' &&
+                  (user.role == 'teacher' || user.role == 'superadmin')))
           ? FloatingActionButton(
-              onPressed: () {
-                if (viewModel.selectedPart == 'noteLogs') {
-                  _showNoteDialog(context, viewModel, locale, user);
-                } else {
-                  _showReceivingDialog(context, viewModel, locale, user);
-                }
-              },
+              onPressed: () => _navigateToEntryPage(context, viewModel, user),
               backgroundColor: Theme.of(context).primaryColor,
               child: Icon(
                 viewModel.selectedPart == 'noteLogs'
                     ? Icons.add_comment
-                    : Icons.person_add_alt_1,
+                    : viewModel.selectedPart == 'receiving'
+                    ? Icons.person_add_alt_1
+                    : Icons.sports_soccer,
                 color: Colors.white,
               ),
             )
@@ -88,186 +87,28 @@ class _StudentDetailContent extends StatelessWidget {
     );
   }
 
-  void _showReceivingDialog(
+  Future<void> _navigateToEntryPage(
     BuildContext context,
     StudentDetailViewModel viewModel,
-    String locale,
-    UserModel user,
-  ) {
-    DailyStudentModel? existing;
-    try {
-      existing = viewModel.dailyData.firstWhere(
-        (item) => item.recipient != null,
-      );
-    } catch (e) {
-      existing = null;
-    }
-
-    final recipientController = TextEditingController(
-      text: existing?.recipient ?? '',
-    );
-    final noteController = TextEditingController(text: existing?.note ?? '');
-    final timeController = TextEditingController(
-      text:
-          existing?.time ??
-          "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}",
-    );
-    int statusValue = existing?.status ?? 0;
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: Text(AppTranslations.translate('receiving', locale)),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: recipientController,
-                  decoration: InputDecoration(
-                    labelText: AppTranslations.translate('recipient', locale),
-                  ),
-                ),
-                TextField(
-                  controller: timeController,
-                  decoration: InputDecoration(
-                    labelText: AppTranslations.translate('time', locale),
-                    hintText: "HH:mm",
-                  ),
-                ),
-                TextField(
-                  controller: noteController,
-                  decoration: InputDecoration(labelText: "Not"),
-                ),
-                if (user.role == 'teacher' || user.role == 'superadmin')
-                  SwitchListTile(
-                    title: Text(AppTranslations.translate('status', locale)),
-                    subtitle: Text(
-                      statusValue == 1
-                          ? AppTranslations.translate(
-                              'ready_to_receive',
-                              locale,
-                            )
-                          : AppTranslations.translate('not_ready', locale),
-                    ),
-                    value: statusValue == 1,
-                    onChanged: (val) {
-                      setState(() {
-                        statusValue = val ? 1 : 0;
-                      });
-                    },
-                  ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(AppTranslations.translate('cancel', locale)),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final result = await viewModel.saveReceiving(
-                  time: timeController.text,
-                  recipient: recipientController.text,
-                  note: noteController.text,
-                  status: statusValue,
-                  userId: user.id ?? 0,
-                  role: user.role ?? 'parent',
-                );
-                if (context.mounted) {
-                  if (result is Success<bool>) {
-                    Navigator.pop(context);
-                  } else if (result is Failure<bool>) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(result.message),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                }
-              },
-              child: Text(AppTranslations.translate('save', locale)),
-            ),
-          ],
+    UserModel user, {
+    DailyStudentModel? existingData,
+  }) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StudentEntryView(
+          user: user,
+          student: student,
+          categoryId: viewModel.selectedPart,
+          date: viewModel.selectedDate,
+          existingData: existingData,
         ),
       ),
     );
-  }
 
-  void _showNoteDialog(
-    BuildContext context,
-    StudentDetailViewModel viewModel,
-    String locale,
-    UserModel user,
-  ) {
-    // Find existing note logs if any
-    DailyStudentModel? existingNote;
-    try {
-      existingNote = viewModel.dailyData.firstWhere(
-        (item) => item.teacherNote != null || item.parentNote != null,
-      );
-    } catch (e) {
-      existingNote = null;
+    if (result == true) {
+      viewModel.refresh();
     }
-
-    String initialContent = '';
-    if (user.role == 'teacher') {
-      initialContent = existingNote?.teacherNote ?? '';
-    } else if (user.role == 'parent') {
-      initialContent = existingNote?.parentNote ?? '';
-    } else {
-      initialContent = existingNote?.teacherNote ?? '';
-    }
-
-    final controller = TextEditingController(text: initialContent);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppTranslations.translate('add_note', locale)),
-        content: TextField(
-          controller: controller,
-          maxLines: 5,
-          decoration: InputDecoration(
-            hintText: AppTranslations.translate('enter_note', locale),
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppTranslations.translate('cancel', locale)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final result = await viewModel.saveNote(
-                content: controller.text,
-                role: user.role ?? 'teacher',
-              );
-              if (context.mounted) {
-                if (result is Success<bool>) {
-                  Navigator.pop(context);
-                } else if (result is Failure<bool>) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        result.message,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              }
-            },
-            child: Text(AppTranslations.translate('save', locale)),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildDateSelector(
@@ -501,10 +342,6 @@ class _StudentDetailContent extends StatelessWidget {
     }
 
     if (viewModel.errorMessage != null && viewModel.dailyData.isEmpty) {
-      // Only show error if no data, or maybe handle differently?
-      // The API might return no data for some days which is fine.
-      // Assuming empty array is success with no items.
-      // But if error message is present, show error.
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -527,7 +364,7 @@ class _StudentDetailContent extends StatelessWidget {
     if (viewModel.dailyData.isEmpty) {
       return Center(
         child: Text(
-          'Veri bulunamadı', // Should translate
+          AppTranslations.translate('no_data_found', locale),
           style: Theme.of(context).textTheme.bodyLarge,
         ),
       );
@@ -539,166 +376,16 @@ class _StudentDetailContent extends StatelessWidget {
       separatorBuilder: (context, index) => SizedBox(height: SizeTokens.p16),
       itemBuilder: (context, index) {
         final item = viewModel.dailyData[index];
-        return _buildDetailCard(context, item);
+        return StudentDetailCard(
+          item: item,
+          onEdit: () => _navigateToEntryPage(
+            context,
+            viewModel,
+            user,
+            existingData: item,
+          ),
+        );
       },
-    );
-  }
-
-  Widget _buildDetailCard(BuildContext context, DailyStudentModel item) {
-    final locale = context.read<LandingViewModel>().locale.languageCode;
-    String displayTitle = item.title ?? '';
-    String displayValue = item.value ?? '';
-
-    if (item.medicamentId != null && displayTitle.isEmpty) {
-      displayTitle = AppTranslations.translate('medicament', locale);
-      displayValue = '#${item.medicamentId}';
-    }
-
-    // Handle Note Logs
-    if (item.teacherNote != null || item.parentNote != null) {
-      if (displayTitle.isEmpty) {
-        displayTitle = AppTranslations.translate('noteLogs', locale);
-      }
-      displayValue = ''; // Clear value as we will show notes separately
-    }
-
-    // Handle Receiving (Teslim)
-    if (item.recipient != null) {
-      if (displayTitle.isEmpty) {
-        displayTitle = AppTranslations.translate('receiving', locale);
-      }
-      displayValue = item.time ?? '';
-    }
-
-    return Container(
-      padding: EdgeInsets.all(SizeTokens.p16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  displayTitle,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: SizeTokens.f16,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-              ),
-              if (item.status != null)
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: SizeTokens.p8,
-                    vertical: SizeTokens.p4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: item.status == 1
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.orange.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(SizeTokens.r8),
-                  ),
-                  child: Text(
-                    item.status == 1 ? 'Hazır' : 'Bekleniyor',
-                    style: TextStyle(
-                      color: item.status == 1 ? Colors.green : Colors.orange,
-                      fontWeight: FontWeight.bold,
-                      fontSize: SizeTokens.f12,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          if (displayValue.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p8),
-            Text(
-              displayValue,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
-            ),
-          ],
-          if (item.recipient != null && item.recipient!.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p8),
-            Row(
-              children: [
-                Icon(Icons.person, size: SizeTokens.i16, color: Colors.grey),
-                SizedBox(width: SizeTokens.p4),
-                Text(
-                  item.recipient!,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.black87),
-                ),
-              ],
-            ),
-          ],
-          if (item.teacherNote != null && item.teacherNote!.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p8),
-            Text(
-              '${AppTranslations.translate('teacher', locale)}: ${item.teacherNote}',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.black87),
-            ),
-          ],
-          if (item.parentNote != null && item.parentNote!.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p8),
-            Text(
-              '${AppTranslations.translate('parent', locale)}: ${item.parentNote}',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.black87),
-            ),
-          ],
-          if (item.note != null && item.note!.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p8),
-            Text(
-              'Not: ${item.note}',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontStyle: FontStyle.italic,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-          if (item.creator != null) ...[
-            SizedBox(height: SizeTokens.p8),
-            Divider(),
-            SizedBox(height: SizeTokens.p4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Icon(
-                  Icons.person_outline,
-                  size: SizeTokens.i16,
-                  color: Colors.grey,
-                ),
-                SizedBox(width: SizeTokens.p4),
-                Text(
-                  '${item.creator?.name ?? ''} ${item.creator?.surname ?? ''}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
     );
   }
 }

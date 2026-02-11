@@ -9,6 +9,7 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final bool centerTitle;
   final bool automaticallyImplyLeading;
+  final Widget? leading;
 
   const BaseAppBar({
     super.key,
@@ -16,6 +17,7 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions,
     this.centerTitle = true,
     this.automaticallyImplyLeading = true,
+    this.leading,
   });
 
   @override
@@ -28,6 +30,7 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       centerTitle: centerTitle,
       automaticallyImplyLeading: automaticallyImplyLeading,
+      leading: leading,
       title:
           title ??
           (logoUrl.isNotEmpty

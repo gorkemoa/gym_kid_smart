@@ -27,15 +27,16 @@ class StudentListView extends StatelessWidget {
       create: (_) =>
           StudentListViewModel()
             ..init(user.schoolId ?? 1, user.userKey ?? '', classId),
-      child: _StudentListContent(className: className),
+      child: _StudentListContent(className: className, user: user),
     );
   }
 }
 
 class _StudentListContent extends StatelessWidget {
   final String className;
+  final UserModel user;
 
-  const _StudentListContent({required this.className});
+  const _StudentListContent({required this.className, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -133,15 +134,8 @@ class _StudentListContent extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => StudentDetailView(
-                user: viewModel.userKey != null
-                    ? UserModel(
-                        schoolId: viewModel.schoolId,
-                        userKey: viewModel.userKey,
-                      )
-                    : UserModel(),
-                student: student,
-              ),
+              builder: (context) =>
+                  StudentDetailView(user: user, student: student),
             ),
           );
         },

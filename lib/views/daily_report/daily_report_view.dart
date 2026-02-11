@@ -5,6 +5,7 @@ import '../../core/ui_components/common_widgets.dart';
 import '../../core/utils/app_translations.dart';
 import '../../models/user_model.dart';
 import '../../viewmodels/daily_report_view_model.dart';
+import '../../viewmodels/login_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
 import '../../models/class_model.dart';
 import '../../views/daily_report/student_list_view.dart';
@@ -42,6 +43,10 @@ class _DailyReportContent extends StatelessWidget {
             fontSize: SizeTokens.f16,
             fontWeight: FontWeight.bold,
           ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: _buildBody(context, viewModel, locale),
@@ -102,7 +107,9 @@ class _DailyReportContent extends StatelessWidget {
         itemCount: viewModel.classes.length,
         itemBuilder: (context, index) {
           final classItem = viewModel.classes[index];
-          return _buildClassCard(context, classItem, viewModel);
+          final user = context.read<LoginViewModel>().data?.data;
+          if (user == null) return const SizedBox.shrink();
+          return _buildClassCard(context, classItem, viewModel, user);
         },
       ),
     );
@@ -112,6 +119,7 @@ class _DailyReportContent extends StatelessWidget {
     BuildContext context,
     ClassModel classItem,
     DailyReportViewModel viewModel,
+    UserModel user,
   ) {
     return Container(
       decoration: BoxDecoration(
@@ -135,12 +143,7 @@ class _DailyReportContent extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => StudentListView(
-                    user: viewModel.userKey != null
-                        ? UserModel(
-                            schoolId: viewModel.schoolId,
-                            userKey: viewModel.userKey,
-                          )
-                        : UserModel(), // Fallback or handle appropriately
+                    user: user,
                     classId: classItem.id!,
                     className: classItem.name ?? '',
                   ),

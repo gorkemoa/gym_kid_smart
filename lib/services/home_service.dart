@@ -1,14 +1,11 @@
-import '../app/api_constants.dart';
-import '../core/network/api_client.dart';
-import '../core/network/api_result.dart';
-import '../core/utils/logger.dart';
-import '../models/notice_model.dart';
-import '../models/student_model.dart';
-import '../models/class_model.dart';
-import '../models/daily_student_model.dart';
+import '../models/activity_value_model.dart';
 
 class HomeService {
   final ApiClient _apiClient = ApiClient();
+
+  // Existing methods...
+  // (Assuming I should just append since replace_file_content is for contiguous blocks)
+  // I will scroll down and append to the end of the class.
 
   Future<ApiResult<List<NoticeModel>>> getAllNotices({
     required int schoolId,
@@ -186,6 +183,43 @@ class HomeService {
       );
     } catch (e) {
       AppLogger.error('Add daily receiving failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> addDailyActivity({
+    required int schoolId,
+    required String userKey,
+    required int studentId,
+    required String title,
+    required String value,
+    required String note,
+    required String date,
+    required int userId,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.dailyActivity,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'student_id': studentId,
+          'title': title,
+          'value': value,
+          'note': note,
+          'date': date,
+          'user_id': userId,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Aktivite eklenemedi',
+      );
+    } catch (e) {
+      AppLogger.error('Add daily activity failed', e);
       return Failure(e.toString());
     }
   }
