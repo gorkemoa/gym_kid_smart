@@ -3,8 +3,9 @@ import '../core/network/api_result.dart';
 import '../models/daily_student_model.dart';
 import '../models/user_model.dart';
 import '../models/student_model.dart';
-import '../models/activity_value_model.dart';
 import '../models/activity_title_model.dart';
+import '../models/social_title_model.dart';
+import '../models/activity_value_model.dart';
 import '../services/home_service.dart';
 
 class StudentEntryViewModel extends ChangeNotifier {
@@ -27,6 +28,9 @@ class StudentEntryViewModel extends ChangeNotifier {
 
   List<ActivityTitleModel> _activityTitles = [];
   List<ActivityTitleModel> get activityTitles => _activityTitles;
+
+  List<SocialTitleModel> _socialTitles = [];
+  List<SocialTitleModel> get socialTitles => _socialTitles;
 
   String? _selectedActivityValue;
   String? get selectedActivityValue => _selectedActivityValue;
@@ -64,6 +68,13 @@ class StudentEntryViewModel extends ChangeNotifier {
       noteController.text = existingData?.note ?? '';
       _fetchActivityValues();
       _fetchActivityTitles();
+    } else if (categoryId == 'socials') {
+      titleController.text = existingData?.title ?? '';
+      _selectedActivityValue = existingData?.value;
+      valueController.text = existingData?.value ?? '';
+      noteController.text = existingData?.note ?? '';
+      _fetchSocialTitles();
+      _fetchActivityValues();
     } else if (categoryId == 'noteLogs') {
       if (user.role == 'teacher') {
         noteController.text = existingData?.teacherNote ?? '';
@@ -104,6 +115,17 @@ class StudentEntryViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> _fetchSocialTitles() async {
+    final result = await _homeService.getAllSocialsTitle(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+    );
+    if (result is Success<List<SocialTitleModel>>) {
+      _socialTitles = result.data;
+      notifyListeners();
+    }
+  }
+
   Future<void> _fetchActivityValues() async {
     final result = await _homeService.getAllActivitiesValue(
       schoolId: user.schoolId ?? 1,
@@ -125,6 +147,8 @@ class StudentEntryViewModel extends ChangeNotifier {
       result = await _saveReceiving();
     } else if (categoryId == 'activities') {
       result = await _saveActivity();
+    } else if (categoryId == 'socials') {
+      result = await _saveSocial();
     } else if (categoryId == 'noteLogs') {
       result = await _saveNote();
     } else {
@@ -152,6 +176,15 @@ class StudentEntryViewModel extends ChangeNotifier {
   Future<ApiResult<bool>> saveTitleAsTemplate() async {
     if (titleController.text.isEmpty) return Failure('Başlık boş olamaz');
     return await _homeService.saveActivityTitle(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+      title: titleController.text,
+    );
+  }
+
+  Future<ApiResult<bool>> saveSocialTitleAsTemplate() async {
+    if (titleController.text.isEmpty) return Failure('Başlık boş olamaz');
+    return await _homeService.saveSocialTitle(
       schoolId: user.schoolId ?? 1,
       userKey: user.userKey ?? '',
       title: titleController.text,
@@ -191,6 +224,23 @@ class StudentEntryViewModel extends ChangeNotifier {
     }
 
     return await _homeService.addDailyActivity(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+      studentId: student.id!,
+      title: titleController.text,
+      value: valueController.text,
+      note: noteController.text,
+      date: date,
+      userId: user.id ?? 0,
+    );
+  }
+
+  Future<ApiResult<bool>> _saveSocial() async {
+    if (user.role != 'teacher' && user.role != 'superadmin') {
+      return Failure('Sadece öğretmen veya yönetici sosyal ekleyebilir');
+    }
+
+    return await _homeService.addDailySocial(
       schoolId: user.schoolId ?? 1,
       userKey: user.userKey ?? '',
       studentId: student.id!,

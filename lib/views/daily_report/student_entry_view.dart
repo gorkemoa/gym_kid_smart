@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/cupertino.dart';
 import '../../core/responsive/size_tokens.dart';
 import '../../core/ui_components/common_widgets.dart';
 import '../../core/utils/app_translations.dart';
@@ -9,7 +10,11 @@ import '../../models/daily_student_model.dart';
 import '../../viewmodels/student_entry_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
 import '../../core/network/api_result.dart';
-import 'package:flutter/cupertino.dart';
+import 'widgets/student_header_widget.dart';
+import 'widgets/receiving_form_widget.dart';
+import 'widgets/activity_form_widget.dart';
+import 'widgets/social_form_widget.dart';
+import 'widgets/note_form_widget.dart';
 
 class StudentEntryView extends StatelessWidget {
   final UserModel user;
@@ -38,290 +43,128 @@ class StudentEntryView extends StatelessWidget {
           date: date,
           existingData: existingData,
         ),
-      child: _StudentEntryContent(),
+      child: const _StudentEntryContent(),
     );
   }
 }
 
 class _StudentEntryContent extends StatelessWidget {
+  const _StudentEntryContent();
+
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<StudentEntryViewModel>();
     final locale = context.watch<LandingViewModel>().locale.languageCode;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: BaseAppBar(
         title: Text(
-          AppTranslations.translate(viewModel.categoryId, locale),
-          style: TextStyle(
-            color: Colors.black,
+          AppTranslations.translate(viewModel.categoryId, locale).toUpperCase(),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontSize: SizeTokens.f16,
+            letterSpacing: 1.2,
             fontWeight: FontWeight.bold,
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(SizeTokens.p24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildStudentHeader(context, viewModel.student),
-            SizedBox(height: SizeTokens.p24),
-            if (viewModel.categoryId == 'receiving')
-              _buildReceivingForm(context, viewModel, locale)
-            else if (viewModel.categoryId == 'activities')
-              _buildActivityForm(context, viewModel, locale)
-            else if (viewModel.categoryId == 'noteLogs')
-              _buildNoteForm(context, viewModel, locale),
-            SizedBox(height: SizeTokens.p32),
-            ElevatedButton(
-              onPressed: viewModel.isSaving
-                  ? null
-                  : () => _onSave(context, viewModel, locale),
-              child: viewModel.isSaving
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : Text(AppTranslations.translate('save', locale)),
-            ),
-          ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-    );
-  }
-
-  Widget _buildStudentHeader(BuildContext context, StudentModel student) {
-    return Container(
-      padding: EdgeInsets.all(SizeTokens.p16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: SizeTokens.r24,
-            backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-            backgroundImage: student.image != null && student.image!.isNotEmpty
-                ? NetworkImage(student.image!)
-                : null,
-            child: student.image == null || student.image!.isEmpty
-                ? Icon(Icons.person, color: Theme.of(context).primaryColor)
-                : null,
-          ),
-          SizedBox(width: SizeTokens.p16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${student.name} ${student.surname}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: SizeTokens.f16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReceivingForm(
-    BuildContext context,
-    StudentEntryViewModel viewModel,
-    String locale,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextField(
-          controller: viewModel.recipientController,
-          decoration: InputDecoration(
-            labelText: AppTranslations.translate('recipient', locale),
-            prefixIcon: const Icon(Icons.person_outline),
-          ),
-        ),
-        SizedBox(height: SizeTokens.p16),
-        TextField(
-          controller: viewModel.timeController,
-          readOnly: true,
-          onTap: () => _selectTime(context, viewModel),
-          decoration: InputDecoration(
-            labelText: AppTranslations.translate('time', locale),
-            prefixIcon: const Icon(Icons.access_time),
-          ),
-        ),
-        SizedBox(height: SizeTokens.p16),
-        TextField(
-          controller: viewModel.noteController,
-          maxLines: 3,
-          decoration: InputDecoration(
-            labelText: "Not",
-            prefixIcon: const Icon(Icons.note_alt_outlined),
-          ),
-        ),
-        if (viewModel.user.role == 'teacher' ||
-            viewModel.user.role == 'superadmin') ...[
-          SizedBox(height: SizeTokens.p16),
-          _buildStatusToggle(context, viewModel, locale),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildActivityForm(
-    BuildContext context,
-    StudentEntryViewModel viewModel,
-    String locale,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: TextField(
-                controller: viewModel.titleController,
-                decoration: InputDecoration(
-                  labelText: AppTranslations.translate('title', locale),
-                  prefixIcon: const Icon(Icons.title),
-                ),
-              ),
-            ),
-            if (viewModel.activityTitles.isNotEmpty)
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.arrow_drop_down_circle_outlined),
-                onSelected: (val) => viewModel.setTitle(val),
-                itemBuilder: (context) => viewModel.activityTitles
-                    .map(
-                      (t) => PopupMenuItem<String>(
-                        value: t.title,
-                        child: Text(t.title ?? ''),
-                      ),
-                    )
-                    .toList(),
-              ),
-            IconButton(
-              icon: const Icon(Icons.bookmark_add_outlined),
-              tooltip: AppTranslations.translate('save_as_template', locale),
-              onPressed: () async {
-                final result = await viewModel.saveTitleAsTemplate();
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        result is Success
-                            ? AppTranslations.translate('save_success', locale)
-                            : (result as Failure).message,
-                      ),
-                      backgroundColor: result is Success
-                          ? Colors.green
-                          : Colors.red,
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
-        ),
-        SizedBox(height: SizeTokens.p16),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: DropdownButtonFormField<String>(
-                value: viewModel.selectedActivityValue,
-                decoration: InputDecoration(
-                  labelText: AppTranslations.translate('value', locale),
-                  prefixIcon: const Icon(Icons.assessment_outlined),
-                ),
-                items: viewModel.activityValues.map((val) {
-                  return DropdownMenuItem<String>(
-                    value: val.value,
-                    child: Text(val.value ?? ''),
-                  );
-                }).toList(),
-                onChanged: (val) => viewModel.setSelectedActivityValue(val),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.add_task),
-              tooltip: AppTranslations.translate('add_value', locale),
-              onPressed: () => _showAddValueDialog(context, viewModel, locale),
-            ),
-          ],
-        ),
-        SizedBox(height: SizeTokens.p16),
-        TextField(
-          controller: viewModel.noteController,
-          maxLines: 4,
-          decoration: InputDecoration(
-            labelText: AppTranslations.translate('note', locale),
-            alignLabelWithHint: true,
-            prefixIcon: const Icon(Icons.note_alt_outlined),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatusToggle(
-    BuildContext context,
-    StudentEntryViewModel viewModel,
-    String locale,
-  ) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: SizeTokens.p16,
-        vertical: SizeTokens.p8,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r12),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(SizeTokens.p20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                AppTranslations.translate('status', locale),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: SizeTokens.f14,
-                ),
-              ),
-              Text(
-                viewModel.receivingStatus == 1
-                    ? AppTranslations.translate('ready_to_receive', locale)
-                    : AppTranslations.translate('not_ready', locale),
-                style: TextStyle(
-                  color: viewModel.receivingStatus == 1
-                      ? Colors.green
-                      : Colors.orange,
-                  fontSize: SizeTokens.f12,
-                ),
-              ),
+              StudentHeaderWidget(student: viewModel.student),
+              SizedBox(height: SizeTokens.p24),
+              _buildForm(context, viewModel, locale),
+              SizedBox(height: SizeTokens.p40),
+              _buildSaveButton(context, viewModel, locale),
+              SizedBox(height: SizeTokens.p20),
             ],
           ),
-          Switch(
-            value: viewModel.receivingStatus == 1,
-            onChanged: (val) => viewModel.setReceivingStatus(val ? 1 : 0),
-            activeColor: Theme.of(context).primaryColor,
-          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForm(
+    BuildContext context,
+    StudentEntryViewModel viewModel,
+    String locale,
+  ) {
+    switch (viewModel.categoryId) {
+      case 'receiving':
+        return ReceivingFormWidget(
+          viewModel: viewModel,
+          locale: locale,
+          onTimeTap: () => _selectTime(context, viewModel),
+        );
+      case 'activities':
+        return ActivityFormWidget(
+          viewModel: viewModel,
+          locale: locale,
+          onAddValue: _showAddValueDialog,
+        );
+      case 'socials':
+        return SocialFormWidget(
+          viewModel: viewModel,
+          locale: locale,
+          onAddValue: _showAddValueDialog,
+        );
+      case 'noteLogs':
+        return NoteFormWidget(viewModel: viewModel, locale: locale);
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildSaveButton(
+    BuildContext context,
+    StudentEntryViewModel viewModel,
+    String locale,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(SizeTokens.r12),
+        boxShadow: [
+          if (!viewModel.isSaving)
+            BoxShadow(
+              color: Theme.of(context).primaryColor.withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
         ],
+      ),
+      child: ElevatedButton(
+        onPressed: viewModel.isSaving
+            ? null
+            : () => _onSave(context, viewModel, locale),
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.symmetric(vertical: SizeTokens.p16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(SizeTokens.r12),
+          ),
+        ),
+        child: viewModel.isSaving
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+            : Text(
+                AppTranslations.translate('save', locale).toUpperCase(),
+                style: const TextStyle(
+                  letterSpacing: 1.1,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
       ),
     );
   }
@@ -335,6 +178,9 @@ class _StudentEntryContent extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SizeTokens.r16),
+        ),
         title: Text(AppTranslations.translate('manage_values', locale)),
         content: TextField(
           controller: controller,
@@ -355,21 +201,11 @@ class _StudentEntryContent extends StatelessWidget {
                 controller.text,
               );
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      result is Success
-                          ? AppTranslations.translate('save_success', locale)
-                          : (result as Failure).message,
-                    ),
-                    backgroundColor: result is Success
-                        ? Colors.green
-                        : Colors.red,
-                  ),
-                );
+                _showSnackBar(context, result, locale);
                 if (result is Success) Navigator.pop(context);
               }
             },
+            style: ElevatedButton.styleFrom(minimumSize: const Size(80, 40)),
             child: Text(AppTranslations.translate('save', locale)),
           ),
         ],
@@ -377,17 +213,20 @@ class _StudentEntryContent extends StatelessWidget {
     );
   }
 
-  Widget _buildNoteForm(
-    BuildContext context,
-    StudentEntryViewModel viewModel,
-    String locale,
-  ) {
-    return TextField(
-      controller: viewModel.noteController,
-      maxLines: 10,
-      decoration: InputDecoration(
-        hintText: AppTranslations.translate('enter_note', locale),
-        alignLabelWithHint: true,
+  void _showSnackBar(BuildContext context, ApiResult result, String locale) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          result is Success
+              ? AppTranslations.translate('save_success', locale)
+              : (result as Failure).message,
+        ),
+        backgroundColor: result is Success ? Colors.green : Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SizeTokens.r10),
+        ),
+        margin: EdgeInsets.all(SizeTokens.p16),
       ),
     );
   }
@@ -397,7 +236,6 @@ class _StudentEntryContent extends StatelessWidget {
     StudentEntryViewModel viewModel,
   ) async {
     final locale = context.read<LandingViewModel>().locale.languageCode;
-    // Parse current time from controller or use now
     DateTime initial;
     try {
       final parts = viewModel.timeController.text.split(':');
@@ -424,14 +262,11 @@ class _StudentEntryContent extends StatelessWidget {
         ),
       ),
       builder: (context) => SizedBox(
-        height: 300,
+        height: 350,
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: SizeTokens.p16,
-                vertical: SizeTokens.p8,
-              ),
+              padding: EdgeInsets.all(SizeTokens.p16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -443,6 +278,13 @@ class _StudentEntryContent extends StatelessWidget {
                         color: Colors.red,
                         fontSize: SizeTokens.f16,
                       ),
+                    ),
+                  ),
+                  Text(
+                    AppTranslations.translate('time', locale),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: SizeTokens.f18,
                     ),
                   ),
                   TextButton(
@@ -463,14 +305,13 @@ class _StudentEntryContent extends StatelessWidget {
                 ],
               ),
             ),
+            const Divider(height: 1),
             Expanded(
               child: CupertinoDatePicker(
                 mode: CupertinoDatePickerMode.time,
                 use24hFormat: true,
                 initialDateTime: initial,
-                onDateTimeChanged: (val) {
-                  tempTime = val;
-                },
+                onDateTimeChanged: (val) => tempTime = val,
               ),
             ),
           ],
@@ -487,14 +328,9 @@ class _StudentEntryContent extends StatelessWidget {
     final result = await viewModel.save();
     if (context.mounted) {
       if (result is Success<bool>) {
-        Navigator.pop(
-          context,
-          true,
-        ); // Return true to indicate success for refresh
+        Navigator.pop(context, true);
       } else if (result is Failure<bool>) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result.message), backgroundColor: Colors.red),
-        );
+        _showSnackBar(context, result, locale);
       }
     }
   }

@@ -12,11 +12,13 @@ class SizeTokens {
   static double get p20 => 5.1.w;
   static double get p24 => 6.2.w;
   static double get p32 => 8.2.w;
+  static double get p40 => 10.2.w;
   static double get p48 => 12.3.w;
 
   // Radius
   static double get r4 => 1.0.w;
   static double get r8 => 2.0.w;
+  static double get r10 => 2.5.w;
   static double get r12 => 3.1.w;
   static double get r16 => 4.1.w;
   static double get r20 => 5.1.w;

@@ -17,7 +17,6 @@ void main() {
         ChangeNotifierProvider(create: (_) => LandingViewModel()),
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
-
         ChangeNotifierProvider(create: (_) => DailyReportViewModel()),
       ],
       child: const MyApp(),

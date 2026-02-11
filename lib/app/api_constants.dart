@@ -12,10 +12,13 @@ class ApiConstants {
   static const String dailyStudentsNote = '/Api/DailyStudentsNote';
   static const String dailyReceiving = '/Api/DailyReceiving';
   static const String dailyActivity = '/Api/DailyActivity';
+  static const String dailySocial = '/Api/DailySocial';
   static const String allActivitiesValue = '/Api/AllActivitiesValue';
   static const String activitiesValue = '/Api/ActivitiesValue';
   static const String activitiesTitle = '/Api/ActivitiesTitle';
   static const String allActivitiesTitle = '/Api/AllActivitiesTitle';
+  static const String socialsTitle = '/Api/SocialsTitle';
+  static const String allSocialsTitle = '/Api/AllSocialsTitle';
 
   // Headers
   static Map<String, String> get headers => {

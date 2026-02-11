@@ -8,6 +8,7 @@ import '../models/class_model.dart';
 import '../models/daily_student_model.dart';
 import '../models/activity_value_model.dart';
 import '../models/activity_title_model.dart';
+import '../models/social_title_model.dart';
 
 class HomeService {
   final ApiClient _apiClient = ApiClient();
@@ -228,6 +229,43 @@ class HomeService {
     }
   }
 
+  Future<ApiResult<bool>> addDailySocial({
+    required int schoolId,
+    required String userKey,
+    required int studentId,
+    required String title,
+    required String value,
+    required String note,
+    required String date,
+    required int userId,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.dailySocial,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'student_id': studentId,
+          'title': title,
+          'value': value,
+          'note': note,
+          'date': date,
+          'user_id': userId,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Sosyal eklenemedi',
+      );
+    } catch (e) {
+      AppLogger.error('Add daily social failed', e);
+      return Failure(e.toString());
+    }
+  }
+
   Future<ApiResult<List<ActivityTitleModel>>> getAllActivitiesTitle({
     required int schoolId,
     required String userKey,
@@ -326,6 +364,59 @@ class HomeService {
       );
     } catch (e) {
       AppLogger.error('Save activity title failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<SocialTitleModel>>> getAllSocialsTitle({
+    required int schoolId,
+    required String userKey,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.allSocialsTitle,
+        body: {'school_id': schoolId, 'user_key': userKey},
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final titles = data
+            .map((json) => SocialTitleModel.fromJson(json))
+            .toList();
+        return Success(titles);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch social titles failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> saveSocialTitle({
+    required int schoolId,
+    required String userKey,
+    required String title,
+    int? id,
+  }) async {
+    try {
+      final body = {'school_id': schoolId, 'user_key': userKey, 'title': title};
+      if (id != null) body['id'] = id;
+
+      final response = await _apiClient.post(
+        ApiConstants.socialsTitle,
+        body: body,
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ??
+            response['failure'] ??
+            'Sosyal başlık kaydedilemedi',
+      );
+    } catch (e) {
+      AppLogger.error('Save social title failed', e);
       return Failure(e.toString());
     }
   }
