@@ -65,14 +65,135 @@ class _StudentDetailContent extends StatelessWidget {
           Expanded(child: _buildContent(context, viewModel, locale)),
         ],
       ),
-      floatingActionButton: viewModel.selectedPart == 'noteLogs'
+      floatingActionButton:
+          (viewModel.selectedPart == 'noteLogs' ||
+              viewModel.selectedPart == 'receiving')
           ? FloatingActionButton(
-              onPressed: () =>
-                  _showNoteDialog(context, viewModel, locale, user),
+              onPressed: () {
+                if (viewModel.selectedPart == 'noteLogs') {
+                  _showNoteDialog(context, viewModel, locale, user);
+                } else {
+                  _showReceivingDialog(context, viewModel, locale, user);
+                }
+              },
               backgroundColor: Theme.of(context).primaryColor,
-              child: const Icon(Icons.add_comment, color: Colors.white),
+              child: Icon(
+                viewModel.selectedPart == 'noteLogs'
+                    ? Icons.add_comment
+                    : Icons.person_add_alt_1,
+                color: Colors.white,
+              ),
             )
           : null,
+    );
+  }
+
+  void _showReceivingDialog(
+    BuildContext context,
+    StudentDetailViewModel viewModel,
+    String locale,
+    UserModel user,
+  ) {
+    DailyStudentModel? existing;
+    try {
+      existing = viewModel.dailyData.firstWhere(
+        (item) => item.recipient != null,
+      );
+    } catch (e) {
+      existing = null;
+    }
+
+    final recipientController = TextEditingController(
+      text: existing?.recipient ?? '',
+    );
+    final noteController = TextEditingController(text: existing?.note ?? '');
+    final timeController = TextEditingController(
+      text:
+          existing?.time ??
+          "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}",
+    );
+    int statusValue = existing?.status ?? 0;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(AppTranslations.translate('receiving', locale)),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: recipientController,
+                  decoration: InputDecoration(
+                    labelText: AppTranslations.translate('recipient', locale),
+                  ),
+                ),
+                TextField(
+                  controller: timeController,
+                  decoration: InputDecoration(
+                    labelText: AppTranslations.translate('time', locale),
+                    hintText: "HH:mm",
+                  ),
+                ),
+                TextField(
+                  controller: noteController,
+                  decoration: InputDecoration(labelText: "Not"),
+                ),
+                if (user.role == 'teacher' || user.role == 'superadmin')
+                  SwitchListTile(
+                    title: Text(AppTranslations.translate('status', locale)),
+                    subtitle: Text(
+                      statusValue == 1
+                          ? AppTranslations.translate(
+                              'ready_to_receive',
+                              locale,
+                            )
+                          : AppTranslations.translate('not_ready', locale),
+                    ),
+                    value: statusValue == 1,
+                    onChanged: (val) {
+                      setState(() {
+                        statusValue = val ? 1 : 0;
+                      });
+                    },
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(AppTranslations.translate('cancel', locale)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final result = await viewModel.saveReceiving(
+                  time: timeController.text,
+                  recipient: recipientController.text,
+                  note: noteController.text,
+                  status: statusValue,
+                  userId: user.id ?? 0,
+                  role: user.role ?? 'parent',
+                );
+                if (context.mounted) {
+                  if (result is Success<bool>) {
+                    Navigator.pop(context);
+                  } else if (result is Failure<bool>) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(result.message),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: Text(AppTranslations.translate('save', locale)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

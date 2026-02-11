@@ -43,5 +43,10 @@
     "noteLogs": "Notes",
     "add_note": "Add Note",
     "enter_note": "Enter your note here...",
-    "save": "Save"
+    "save": "Save",
+    "recipient": "Recipient Name",
+    "time": "Time",
+    "status": "Status",
+    "ready_to_receive": "Ready to Receive",
+    "not_ready": "Not Ready"
 }

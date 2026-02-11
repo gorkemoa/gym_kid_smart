@@ -145,6 +145,51 @@ class StudentDetailViewModel extends ChangeNotifier {
     return result;
   }
 
+  Future<ApiResult<bool>> saveReceiving({
+    required String time,
+    required String recipient,
+    required String note,
+    required int status,
+    required int userId,
+    required String role,
+  }) async {
+    if (_schoolId == null || _userKey == null || _studentId == null) {
+      return Failure('Missing parameters');
+    }
+
+    // Role-based status and permission checks
+    int finalStatus = status;
+
+    // "İlk ekleniş sadece parent ve superadmin tarafından yapılabilir ve status mutlaka 0 gönderilmelidir."
+    bool exists = _dailyData.any((item) => item.recipient != null);
+    if (!exists) {
+      if (role != 'parent' && role != 'superadmin') {
+        return Failure(
+          'İlk ekleme sadece veli veya yönetici tarafından yapılabilir',
+        );
+      }
+      finalStatus = 0; // Forced to 0 on first entry
+    }
+
+    final result = await _homeService.addDailyReceiving(
+      schoolId: _schoolId!,
+      userKey: _userKey!,
+      studentId: _studentId!,
+      date: _selectedDate,
+      time: time,
+      recipient: recipient,
+      status: finalStatus,
+      userId: userId,
+      note: note,
+    );
+
+    if (result is Success<bool>) {
+      _fetchDailyData();
+    }
+
+    return result;
+  }
+
   void refresh() {
     _fetchDailyData();
   }

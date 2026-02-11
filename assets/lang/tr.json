@@ -45,5 +45,10 @@
     "noteLogs": "Notlar",
     "add_note": "Not Ekle",
     "enter_note": "Notunuzu buraya girin...",
-    "save": "Kaydet"
+    "save": "Kaydet",
+    "recipient": "Teslim Alacak Kişi",
+    "time": "Saat",
+    "status": "Durum",
+    "ready_to_receive": "Almaya Hazır",
+    "not_ready": "Hazır Değil"
 }
