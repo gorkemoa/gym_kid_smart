@@ -5,6 +5,8 @@ import '../models/user_model.dart';
 import '../models/student_model.dart';
 import '../models/activity_title_model.dart';
 import '../models/social_title_model.dart';
+import '../models/meal_title_model.dart';
+import '../models/meal_value_model.dart';
 import '../models/activity_value_model.dart';
 import '../services/home_service.dart';
 
@@ -31,6 +33,12 @@ class StudentEntryViewModel extends ChangeNotifier {
 
   List<SocialTitleModel> _socialTitles = [];
   List<SocialTitleModel> get socialTitles => _socialTitles;
+
+  List<MealTitleModel> _mealTitles = [];
+  List<MealTitleModel> get mealTitles => _mealTitles;
+
+  List<MealValueModel> _mealValues = [];
+  List<MealValueModel> get mealValues => _mealValues;
 
   String? _selectedActivityValue;
   String? get selectedActivityValue => _selectedActivityValue;
@@ -75,6 +83,13 @@ class StudentEntryViewModel extends ChangeNotifier {
       noteController.text = existingData?.note ?? '';
       _fetchSocialTitles();
       _fetchActivityValues();
+    } else if (categoryId == 'meals') {
+      titleController.text = existingData?.title ?? '';
+      _selectedActivityValue = existingData?.value;
+      valueController.text = existingData?.value ?? '';
+      noteController.text = existingData?.note ?? '';
+      _fetchMealTitles();
+      _fetchMealValues();
     } else if (categoryId == 'noteLogs') {
       if (user.role == 'teacher') {
         noteController.text = existingData?.teacherNote ?? '';
@@ -137,6 +152,28 @@ class StudentEntryViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> _fetchMealTitles() async {
+    final result = await _homeService.getAllMealsTitle(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+    );
+    if (result is Success<List<MealTitleModel>>) {
+      _mealTitles = result.data;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _fetchMealValues() async {
+    final result = await _homeService.getAllMealsValue(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+    );
+    if (result is Success<List<MealValueModel>>) {
+      _mealValues = result.data;
+      notifyListeners();
+    }
+  }
+
   Future<ApiResult<bool>> save() async {
     _isSaving = true;
     notifyListeners();
@@ -151,6 +188,8 @@ class StudentEntryViewModel extends ChangeNotifier {
       result = await _saveSocial();
     } else if (categoryId == 'noteLogs') {
       result = await _saveNote();
+    } else if (categoryId == 'meals') {
+      result = await _saveMeal();
     } else {
       result = Failure('Unsupported category');
     }
@@ -277,6 +316,19 @@ class StudentEntryViewModel extends ChangeNotifier {
       teacherStatus: teacherStatus,
       parentStatus: parentStatus,
       date: date,
+    );
+  }
+
+  Future<ApiResult<bool>> _saveMeal() async {
+    return await _homeService.addDailyMeal(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+      studentId: student.id!,
+      title: titleController.text,
+      value: valueController.text,
+      note: noteController.text,
+      date: date,
+      userId: user.id ?? 0,
     );
   }
 

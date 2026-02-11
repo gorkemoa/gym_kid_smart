@@ -70,6 +70,7 @@ class _StudentDetailContent extends StatelessWidget {
       floatingActionButton:
           (viewModel.selectedPart == 'noteLogs' ||
               viewModel.selectedPart == 'receiving' ||
+              viewModel.selectedPart == 'meals' ||
               ((viewModel.selectedPart == 'activities' ||
                       viewModel.selectedPart == 'socials') &&
                   (user.role == 'teacher' || user.role == 'superadmin')))
@@ -83,6 +84,8 @@ class _StudentDetailContent extends StatelessWidget {
                     ? Icons.person_add_alt_1
                     : viewModel.selectedPart == 'socials'
                     ? Icons.people_outline
+                    : viewModel.selectedPart == 'meals'
+                    ? Icons.restaurant
                     : Icons.sports_soccer,
                 color: Colors.white,
               ),

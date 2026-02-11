@@ -9,6 +9,8 @@ import '../models/daily_student_model.dart';
 import '../models/activity_value_model.dart';
 import '../models/activity_title_model.dart';
 import '../models/social_title_model.dart';
+import '../models/meal_title_model.dart';
+import '../models/meal_value_model.dart';
 
 class HomeService {
   final ApiClient _apiClient = ApiClient();
@@ -417,6 +419,91 @@ class HomeService {
       );
     } catch (e) {
       AppLogger.error('Save social title failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<MealTitleModel>>> getAllMealsTitle({
+    required int schoolId,
+    required String userKey,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.allMealsTitle,
+        body: {'school_id': schoolId, 'user_key': userKey},
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final titles = data
+            .map((json) => MealTitleModel.fromJson(json))
+            .toList();
+        return Success(titles);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch meal titles failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<MealValueModel>>> getAllMealsValue({
+    required int schoolId,
+    required String userKey,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.allMealsValue,
+        body: {'school_id': schoolId, 'user_key': userKey},
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final values = data
+            .map((json) => MealValueModel.fromJson(json))
+            .toList();
+        return Success(values);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch meal values failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> addDailyMeal({
+    required int schoolId,
+    required String userKey,
+    required int studentId,
+    required String title,
+    required String value,
+    required String note,
+    required String date,
+    required int userId,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.dailyMeal,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'student_id': studentId,
+          'title': title,
+          'value': value,
+          'note': note,
+          'date': date,
+          'user_id': userId,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Yemek eklenemedi',
+      );
+    } catch (e) {
+      AppLogger.error('Add daily meal failed', e);
       return Failure(e.toString());
     }
   }

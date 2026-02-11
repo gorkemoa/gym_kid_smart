@@ -13,6 +13,7 @@ import '../../core/network/api_result.dart';
 import 'widgets/student_header_widget.dart';
 import 'widgets/receiving_form_widget.dart';
 import 'widgets/activity_form_widget.dart';
+import 'widgets/meal_form_widget.dart';
 import 'widgets/social_form_widget.dart';
 import 'widgets/note_form_widget.dart';
 
@@ -102,6 +103,12 @@ class _StudentEntryContent extends StatelessWidget {
           viewModel: viewModel,
           locale: locale,
           onTimeTap: () => _selectTime(context, viewModel),
+        );
+      case 'meals':
+        return MealFormWidget(
+          viewModel: viewModel,
+          locale: locale,
+          onAddValue: _showAddValueDialog,
         );
       case 'activities':
         return ActivityFormWidget(
