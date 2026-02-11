@@ -12,6 +12,7 @@ import '../models/social_title_model.dart';
 import '../models/meal_title_model.dart';
 import '../models/meal_value_model.dart';
 import '../models/student_medicament_model.dart';
+import '../models/calendar_detail_model.dart';
 
 import '../models/meal_menu_model.dart';
 
@@ -657,6 +658,36 @@ class HomeService {
       );
     } catch (e) {
       AppLogger.error('Delete meal menu failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<CalendarDetailModel>> getCalendarDetail({
+    required int schoolId,
+    required String userKey,
+    required String date,
+    required int classId,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.calendarDetail,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'date': date,
+          'class_id': classId,
+        },
+      );
+
+      if (response['data'] != null) {
+        final data = CalendarDetailModel.fromJson(response['data']);
+        return Success(data);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Veri bulunamadı',
+      );
+    } catch (e) {
+      AppLogger.error('Fetch calendar detail failed', e);
       return Failure(e.toString());
     }
   }

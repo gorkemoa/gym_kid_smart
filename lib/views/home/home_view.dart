@@ -9,6 +9,7 @@ import '../../core/utils/app_translations.dart';
 import '../../core/ui_components/common_widgets.dart';
 import '../daily_report/daily_report_view.dart';
 import '../food_list/food_list_view.dart';
+import '../calendar/calendar_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -270,6 +271,17 @@ class _HomeViewState extends State<HomeView> {
           title: AppTranslations.translate('calendar', locale),
           subtitle: AppTranslations.translate('calendar_desc', locale),
           color: const Color(0xFFF7941D),
+          onTap: () {
+            final user = context.read<LoginViewModel>().data?.data;
+            if (user != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CalendarView(user: user),
+                ),
+              );
+            }
+          },
         ),
         _buildModuleItem(
           icon: Icons.restaurant_menu,

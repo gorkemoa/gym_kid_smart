@@ -70,5 +70,14 @@
     "delete": "Sil",
     "delete_confirmation": "Bu öğeyi silmek istediğinize emin misiniz?",
     "success_message": "İşlem başarılı",
-    "no_food_list_found": "Bu tarihe ait yemek listesi bulunmamaktadır."
+    "no_food_list_found": "Bu tarihe ait yemek listesi bulunmamaktadır.",
+    "time_table": "Ders Programı",
+    "gallery_title": "Galeri",
+    "select_class": "Sınıf Seçiniz",
+    "lesson_program": "Ders Programı",
+    "meal_menu_title": "Yemek Menüsü",
+    "no_lesson_found": "Ders programı bulunamadı",
+    "no_menu_found": "Menü bulunamadı",
+    "no_gallery_found": "Galeri görseli bulunamadı",
+    "teacher_name": "Öğretmen"
 }

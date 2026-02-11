@@ -61,6 +61,34 @@ class FoodListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<ApiResult<bool>> deleteMealMenu({
+    required String time,
+    required String date,
+    required String role,
+  }) async {
+    if (_schoolId == null || _userKey == null) {
+      return Failure('Missing parameters');
+    }
+
+    if (role != 'superadmin' && role != 'teacher') {
+      return Failure('Yetkisiz işlem');
+    }
+
+    final result = await _homeService.deleteMealMenu(
+      schoolId: _schoolId!,
+      userKey: _userKey!,
+      time: time,
+      date: date,
+    );
+
+    if (result is Success<bool>) {
+      await _fetchMealMenus();
+      notifyListeners();
+    }
+
+    return result;
+  }
+
   void refresh() {
     _fetchMealMenus();
   }

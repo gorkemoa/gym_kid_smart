@@ -224,8 +224,21 @@ class _FoodListViewContent extends StatelessWidget {
                         ],
                       ),
                     ),
+                  if ((user.role == 'superadmin' || user.role == 'teacher') &&
+                      menu.id != null)
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _confirmDeleteMealMenu(
+                        context,
+                        viewModel,
+                        menu.time ?? '',
+                        viewModel.selectedDate.toString().split(' ')[0],
+                        user.role ?? '',
+                      ),
+                    ),
                 ],
               ),
+              SizedBox(height: SizeTokens.p12),
               SizedBox(height: SizeTokens.p12),
               Text(
                 menu.menu ?? '',
@@ -239,5 +252,61 @@ class _FoodListViewContent extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _confirmDeleteMealMenu(
+    BuildContext context,
+    FoodListViewModel viewModel,
+    String time,
+    String date,
+    String role,
+  ) async {
+    final locale = context.read<LandingViewModel>().locale.languageCode;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppTranslations.translate('delete', locale)),
+        content: Text(AppTranslations.translate('delete_confirmation', locale)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppTranslations.translate('cancel', locale)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              AppTranslations.translate('delete', locale),
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      final result = await viewModel.deleteMealMenu(
+        time: time,
+        date: date,
+        role: role,
+      );
+
+      result.when(
+        success: (_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                AppTranslations.translate('success_message', locale),
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+        },
+        failure: (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error), backgroundColor: Colors.red),
+          );
+        },
+      );
+    }
   }
 }
