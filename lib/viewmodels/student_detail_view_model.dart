@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/network/api_result.dart';
 import '../../models/daily_student_model.dart';
+import '../../models/student_medicament_model.dart';
 import '../../services/home_service.dart';
 
 class StudentDetailViewModel extends ChangeNotifier {
@@ -14,6 +15,9 @@ class StudentDetailViewModel extends ChangeNotifier {
 
   List<DailyStudentModel> _dailyData = [];
   List<DailyStudentModel> get dailyData => _dailyData;
+
+  List<StudentMedicamentModel> _medicaments = [];
+  List<StudentMedicamentModel> get medicaments => _medicaments;
 
   // Parameters
   int? _schoolId;
@@ -29,10 +33,14 @@ class StudentDetailViewModel extends ChangeNotifier {
     required int schoolId,
     required String userKey,
     required int studentId,
+    String? initialDate,
   }) {
     _schoolId = schoolId;
     _userKey = userKey;
     _studentId = studentId;
+    if (initialDate != null) {
+      _selectedDate = initialDate;
+    }
     _fetchDailyData();
   }
 
@@ -84,10 +92,77 @@ class StudentDetailViewModel extends ChangeNotifier {
       }
     }
 
+    if (_selectedPart == 'medicament') {
+      await _fetchStudentMedicaments();
+    }
+
     _isLoading = false;
     if (!_isDisposed) {
       notifyListeners();
     }
+  }
+
+  Future<void> _fetchStudentMedicaments() async {
+    if (_schoolId == null || _userKey == null || _studentId == null) return;
+
+    final result = await _homeService.getStudentMedicament(
+      schoolId: _schoolId!,
+      userKey: _userKey!,
+      studentId: _studentId!,
+    );
+
+    if (_isDisposed) return;
+
+    if (result is Success<List<StudentMedicamentModel>>) {
+      _medicaments = result.data;
+    }
+  }
+
+  Future<ApiResult<bool>> toggleMedicament({
+    required int medicamentId,
+    required int userId,
+  }) async {
+    if (_schoolId == null || _userKey == null || _studentId == null) {
+      return Failure('Missing parameters');
+    }
+
+    final result = await _homeService.toggleDailyMedicament(
+      schoolId: _schoolId!,
+      userKey: _userKey!,
+      studentId: _studentId!,
+      date: _selectedDate,
+      userId: userId,
+      medicamentId: medicamentId,
+    );
+
+    if (result is Success<bool>) {
+      _fetchDailyData();
+    }
+
+    return result;
+  }
+
+  Future<ApiResult<bool>> deleteMedicament(int id) async {
+    if (_schoolId == null || _userKey == null || _studentId == null) {
+      return Failure('Missing parameters');
+    }
+
+    final result = await _homeService.addStudentMedicament(
+      schoolId: _schoolId!,
+      userKey: _userKey!,
+      studentId: _studentId!,
+      name: '',
+      time: '',
+      note: '',
+      status: 0,
+      id: id,
+    );
+
+    if (result is Success<bool>) {
+      _fetchDailyData();
+    }
+
+    return result;
   }
 
   Future<ApiResult<bool>> saveNote({

@@ -11,6 +11,7 @@ import '../models/activity_title_model.dart';
 import '../models/social_title_model.dart';
 import '../models/meal_title_model.dart';
 import '../models/meal_value_model.dart';
+import '../models/student_medicament_model.dart';
 
 class HomeService {
   final ApiClient _apiClient = ApiClient();
@@ -504,6 +505,105 @@ class HomeService {
       );
     } catch (e) {
       AppLogger.error('Add daily meal failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<StudentMedicamentModel>>> getStudentMedicament({
+    required int schoolId,
+    required String userKey,
+    required int studentId,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.studentMedicament,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'student_id': studentId,
+        },
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final items = data
+            .map((json) => StudentMedicamentModel.fromJson(json))
+            .toList();
+        return Success(items);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch student medicament failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> addStudentMedicament({
+    required int schoolId,
+    required String userKey,
+    required int studentId,
+    required String name,
+    required String time,
+    required String note,
+    required int status,
+    required int id,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.addStudentMedicament,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'student_id': studentId,
+          'name': name,
+          'time': time,
+          'note': note,
+          'status': status,
+          'id': id,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'İşlem başarısız',
+      );
+    } catch (e) {
+      AppLogger.error('Add/Delete student medicament failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> toggleDailyMedicament({
+    required int schoolId,
+    required String userKey,
+    required int studentId,
+    required String date,
+    required int userId,
+    required int medicamentId,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.dailyMedicament,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'student_id': studentId,
+          'date': date,
+          'user_id': userId,
+          'medicament_id': medicamentId,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'İşlem başarısız',
+      );
+    } catch (e) {
+      AppLogger.error('Toggle daily medicament failed', e);
       return Failure(e.toString());
     }
   }

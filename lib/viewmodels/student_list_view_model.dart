@@ -21,11 +21,19 @@ class StudentListViewModel extends ChangeNotifier {
   String? get userKey => _userKey;
   int? _classId;
 
+  String _selectedDate = DateTime.now().toString().split(' ')[0];
+  String get selectedDate => _selectedDate;
+
   void init(int schoolId, String userKey, int classId) {
     _schoolId = schoolId;
     _userKey = userKey;
     _classId = classId;
     _fetchStudents();
+  }
+
+  void setDate(DateTime date) {
+    _selectedDate = date.toString().split(' ')[0];
+    notifyListeners();
   }
 
   Future<void> _fetchStudents() async {

@@ -6,6 +6,7 @@ import '../../core/utils/app_translations.dart';
 import '../../models/user_model.dart';
 import '../../viewmodels/student_list_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
+import 'package:flutter/cupertino.dart';
 import '../../models/student_model.dart';
 import 'student_detail_view.dart';
 
@@ -55,7 +56,155 @@ class _StudentListContent extends StatelessWidget {
           ),
         ),
       ),
-      body: _buildBody(context, viewModel, locale),
+      body: Column(
+        children: [
+          _buildDateSelector(context, viewModel, locale),
+          Expanded(child: _buildBody(context, viewModel, locale)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateSelector(
+    BuildContext context,
+    StudentListViewModel viewModel,
+    String locale,
+  ) {
+    final date = DateTime.parse(viewModel.selectedDate);
+    return Container(
+      color: Colors.white,
+      padding: EdgeInsets.symmetric(
+        vertical: SizeTokens.p16,
+        horizontal: SizeTokens.p24,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            onPressed: () {
+              viewModel.setDate(date.subtract(const Duration(days: 1)));
+            },
+            icon: Icon(
+              Icons.chevron_left,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+          GestureDetector(
+            onTap: () => _showDatePicker(context, viewModel, locale),
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: SizeTokens.p12,
+                vertical: SizeTokens.p8,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(SizeTokens.r12),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.calendar_today,
+                    size: SizeTokens.i16,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  SizedBox(width: SizeTokens.p8),
+                  Text(
+                    viewModel.selectedDate,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: SizeTokens.f16,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              viewModel.setDate(date.add(const Duration(days: 1)));
+            },
+            icon: Icon(
+              Icons.chevron_right,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDatePicker(
+    BuildContext context,
+    StudentListViewModel viewModel,
+    String locale,
+  ) {
+    final currentDate = DateTime.parse(viewModel.selectedDate);
+    DateTime tempDate = currentDate;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(SizeTokens.r24),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: 300,
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: SizeTokens.p16,
+                  vertical: SizeTokens.p8,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        AppTranslations.translate('cancel', locale),
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: SizeTokens.f16,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        viewModel.setDate(tempDate);
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        AppTranslations.translate('done', locale),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: SizeTokens.f16,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.date,
+                  initialDateTime: currentDate,
+                  maximumDate: DateTime.now().add(const Duration(days: 365)),
+                  minimumDate: DateTime(2020),
+                  onDateTimeChanged: (val) {
+                    tempDate = val;
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -134,8 +283,11 @@ class _StudentListContent extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  StudentDetailView(user: user, student: student),
+              builder: (context) => StudentDetailView(
+                user: user,
+                student: student,
+                initialDate: viewModel.selectedDate,
+              ),
             ),
           );
         },

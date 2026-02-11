@@ -58,5 +58,14 @@
     "manage_titles": "Başlıkları Yönet",
     "save_as_template": "Şablon Olarak Kaydet",
     "save_success": "Başarıyla kaydedildi",
-    "manage_values": "Puanları Yönet"
+    "manage_values": "Puanları Yönet",
+    "medicament_name": "İlaç/Alerji Adı",
+    "medicament_name_hint": "İlaç veya alerji adını girin",
+    "allergy": "Alerji",
+    "important": "Önemli",
+    "less_important": "Az Önemli",
+    "no_medicaments_found": "Tanımlı ilaç veya alerji bulunamadı",
+    "delete_medicament": "İlacı Sil",
+    "confirm_delete_medicament": "Bu ilaç/alerji bilgisini silmek istediğinize emin misiniz?",
+    "delete": "Sil"
 }

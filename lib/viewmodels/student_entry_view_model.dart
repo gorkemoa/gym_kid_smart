@@ -46,6 +46,9 @@ class StudentEntryViewModel extends ChangeNotifier {
   int _receivingStatus = 0;
   int get receivingStatus => _receivingStatus;
 
+  int _medicamentStatus = 0;
+  int get medicamentStatus => _medicamentStatus;
+
   bool _isSaving = false;
   bool get isSaving => _isSaving;
 
@@ -98,6 +101,11 @@ class StudentEntryViewModel extends ChangeNotifier {
       } else {
         noteController.text = existingData?.teacherNote ?? '';
       }
+    } else if (categoryId == 'medicament') {
+      titleController.text = existingData?.title ?? '';
+      noteController.text = existingData?.note ?? '';
+      timeController.text = existingData?.time ?? '';
+      _medicamentStatus = existingData?.status ?? 0;
     }
   }
 
@@ -111,6 +119,11 @@ class StudentEntryViewModel extends ChangeNotifier {
     if (value != null) {
       valueController.text = value;
     }
+    notifyListeners();
+  }
+
+  void setMedicamentStatus(int status) {
+    _medicamentStatus = status;
     notifyListeners();
   }
 
@@ -190,6 +203,8 @@ class StudentEntryViewModel extends ChangeNotifier {
       result = await _saveNote();
     } else if (categoryId == 'meals') {
       result = await _saveMeal();
+    } else if (categoryId == 'medicament') {
+      result = await _saveMedicament();
     } else {
       result = Failure('Unsupported category');
     }
@@ -329,6 +344,23 @@ class StudentEntryViewModel extends ChangeNotifier {
       note: noteController.text,
       date: date,
       userId: user.id ?? 0,
+    );
+  }
+
+  Future<ApiResult<bool>> _saveMedicament() async {
+    if (user.role != 'parent' && user.role != 'superadmin') {
+      return Failure('Sadece veli veya yönetici ilaç/alerji ekleyebilir');
+    }
+
+    return await _homeService.addStudentMedicament(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+      studentId: student.id!,
+      name: titleController.text,
+      time: timeController.text,
+      note: noteController.text,
+      status: _medicamentStatus,
+      id: 0, // 0 for new record
     );
   }
 

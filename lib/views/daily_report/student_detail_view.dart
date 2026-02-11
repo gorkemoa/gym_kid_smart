@@ -11,15 +11,18 @@ import '../../viewmodels/landing_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'student_entry_view.dart';
 import 'widgets/student_detail_card.dart';
+import 'widgets/medicament_tracking_widget.dart';
 
 class StudentDetailView extends StatelessWidget {
   final UserModel user;
   final StudentModel student;
+  final String? initialDate;
 
   const StudentDetailView({
     super.key,
     required this.user,
     required this.student,
+    this.initialDate,
   });
 
   @override
@@ -30,6 +33,7 @@ class StudentDetailView extends StatelessWidget {
           schoolId: user.schoolId ?? 1,
           userKey: user.userKey ?? '',
           studentId: student.id!,
+          initialDate: initialDate,
         ),
       child: _StudentDetailContent(user: user, student: student),
     );
@@ -73,7 +77,9 @@ class _StudentDetailContent extends StatelessWidget {
               viewModel.selectedPart == 'meals' ||
               ((viewModel.selectedPart == 'activities' ||
                       viewModel.selectedPart == 'socials') &&
-                  (user.role == 'teacher' || user.role == 'superadmin')))
+                  (user.role == 'teacher' || user.role == 'superadmin')) ||
+              ((viewModel.selectedPart == 'medicament') &&
+                  (user.role == 'parent' || user.role == 'superadmin')))
           ? FloatingActionButton(
               onPressed: () => _navigateToEntryPage(context, viewModel, user),
               backgroundColor: Theme.of(context).primaryColor,
@@ -86,6 +92,8 @@ class _StudentDetailContent extends StatelessWidget {
                     ? Icons.people_outline
                     : viewModel.selectedPart == 'meals'
                     ? Icons.restaurant
+                    : viewModel.selectedPart == 'medicament'
+                    ? Icons.medication_outlined
                     : Icons.sports_soccer,
                 color: Colors.white,
               ),
@@ -346,6 +354,10 @@ class _StudentDetailContent extends StatelessWidget {
   ) {
     if (viewModel.isLoading) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (viewModel.selectedPart == 'medicament') {
+      return MedicamentTrackingWidget(user: user);
     }
 
     if (viewModel.errorMessage != null && viewModel.dailyData.isEmpty) {

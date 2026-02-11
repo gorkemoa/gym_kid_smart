@@ -56,5 +56,14 @@
     "manage_titles": "Manage Titles",
     "save_as_template": "Save as Template",
     "save_success": "Successfully saved",
-    "manage_values": "Manage Values"
+    "manage_values": "Manage Values",
+    "medicament_name": "Medication/Allergy Name",
+    "medicament_name_hint": "Enter medication or allergy name",
+    "allergy": "Allergy",
+    "important": "Important",
+    "less_important": "Less Important",
+    "no_medicaments_found": "No medications or allergies defined",
+    "delete_medicament": "Delete Medication",
+    "confirm_delete_medicament": "Are you sure you want to delete this medication/allergy info?",
+    "delete": "Delete"
 }
