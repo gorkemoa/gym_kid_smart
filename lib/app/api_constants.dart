@@ -9,6 +9,8 @@ class ApiConstants {
   static const String allStudents = '/Api/AllStudents';
   static const String allClasses = '/Api/AllClasses';
   static const String dailyStudent = '/Api/DailyStudent';
+  static const String dailyStudentsNote = '/Api/DailyStudentsNote';
+  static const String dailyReceiving = '/Api/DailyReceiving';
 
   // Headers
   static Map<String, String> get headers => {

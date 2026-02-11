@@ -40,5 +40,8 @@
     "medicament": "Medication",
     "receiving": "Delivery",
     "mealMenu": "Menu",
-    "noteLogs": "Notes"
+    "noteLogs": "Notes",
+    "add_note": "Add Note",
+    "enter_note": "Enter your note here...",
+    "save": "Save"
 }

@@ -42,5 +42,8 @@
     "medicament": "İlaç",
     "receiving": "Teslim",
     "mealMenu": "Menü",
-    "noteLogs": "Notlar"
+    "noteLogs": "Notlar",
+    "add_note": "Not Ekle",
+    "enter_note": "Notunuzu buraya girin...",
+    "save": "Kaydet"
 }

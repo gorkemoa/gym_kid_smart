@@ -17,6 +17,11 @@ class AppLogger {
       _logger.e(message, error: error, stackTrace: stackTrace);
   static void warning(String message) => _logger.w(message);
   static void debug(String message) => _logger.d(message);
-  static void request(String message) => _logger.i('REQUEST: $message');
-  static void response(String message) => _logger.i('RESPONSE: $message');
+  static void request(String message) {
+    _logger.i('🌐 API REQUEST\n${"━" * 40}\n$message${"━" * 40}');
+  }
+
+  static void response(String message) {
+    _logger.i('✅ API RESPONSE\n${"━" * 40}\n$message${"━" * 40}');
+  }
 }

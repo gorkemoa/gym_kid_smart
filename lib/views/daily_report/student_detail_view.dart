@@ -8,6 +8,7 @@ import '../../models/student_model.dart';
 import '../../models/daily_student_model.dart';
 import '../../viewmodels/student_detail_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
+import '../../core/network/api_result.dart';
 import 'package:flutter/cupertino.dart';
 
 class StudentDetailView extends StatelessWidget {
@@ -29,15 +30,16 @@ class StudentDetailView extends StatelessWidget {
           userKey: user.userKey ?? '',
           studentId: student.id!,
         ),
-      child: _StudentDetailContent(student: student),
+      child: _StudentDetailContent(user: user, student: student),
     );
   }
 }
 
 class _StudentDetailContent extends StatelessWidget {
+  final UserModel user;
   final StudentModel student;
 
-  const _StudentDetailContent({required this.student});
+  const _StudentDetailContent({required this.user, required this.student});
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +63,87 @@ class _StudentDetailContent extends StatelessWidget {
           _buildDateSelector(context, viewModel, locale),
           _buildCategoryTabs(context, viewModel, locale),
           Expanded(child: _buildContent(context, viewModel, locale)),
+        ],
+      ),
+      floatingActionButton: viewModel.selectedPart == 'noteLogs'
+          ? FloatingActionButton(
+              onPressed: () =>
+                  _showNoteDialog(context, viewModel, locale, user),
+              backgroundColor: Theme.of(context).primaryColor,
+              child: const Icon(Icons.add_comment, color: Colors.white),
+            )
+          : null,
+    );
+  }
+
+  void _showNoteDialog(
+    BuildContext context,
+    StudentDetailViewModel viewModel,
+    String locale,
+    UserModel user,
+  ) {
+    // Find existing note logs if any
+    DailyStudentModel? existingNote;
+    try {
+      existingNote = viewModel.dailyData.firstWhere(
+        (item) => item.teacherNote != null || item.parentNote != null,
+      );
+    } catch (e) {
+      existingNote = null;
+    }
+
+    String initialContent = '';
+    if (user.role == 'teacher') {
+      initialContent = existingNote?.teacherNote ?? '';
+    } else if (user.role == 'parent') {
+      initialContent = existingNote?.parentNote ?? '';
+    } else {
+      initialContent = existingNote?.teacherNote ?? '';
+    }
+
+    final controller = TextEditingController(text: initialContent);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppTranslations.translate('add_note', locale)),
+        content: TextField(
+          controller: controller,
+          maxLines: 5,
+          decoration: InputDecoration(
+            hintText: AppTranslations.translate('enter_note', locale),
+            border: const OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppTranslations.translate('cancel', locale)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final result = await viewModel.saveNote(
+                content: controller.text,
+                role: user.role ?? 'teacher',
+              );
+              if (context.mounted) {
+                if (result is Success<bool>) {
+                  Navigator.pop(context);
+                } else if (result is Failure<bool>) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        result.message,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: Text(AppTranslations.translate('save', locale)),
+          ),
         ],
       ),
     );
@@ -358,6 +441,14 @@ class _StudentDetailContent extends StatelessWidget {
       displayValue = ''; // Clear value as we will show notes separately
     }
 
+    // Handle Receiving (Teslim)
+    if (item.recipient != null) {
+      if (displayTitle.isEmpty) {
+        displayTitle = AppTranslations.translate('receiving', locale);
+      }
+      displayValue = item.time ?? '';
+    }
+
     return Container(
       padding: EdgeInsets.all(SizeTokens.p16),
       decoration: BoxDecoration(
@@ -374,13 +465,41 @@ class _StudentDetailContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            displayTitle,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              fontSize: SizeTokens.f16,
-              color: Theme.of(context).primaryColor,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  displayTitle,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: SizeTokens.f16,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+              if (item.status != null)
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: SizeTokens.p8,
+                    vertical: SizeTokens.p4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: item.status == 1
+                        ? Colors.green.withOpacity(0.1)
+                        : Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(SizeTokens.r8),
+                  ),
+                  child: Text(
+                    item.status == 1 ? 'Hazır' : 'Bekleniyor',
+                    style: TextStyle(
+                      color: item.status == 1 ? Colors.green : Colors.orange,
+                      fontWeight: FontWeight.bold,
+                      fontSize: SizeTokens.f12,
+                    ),
+                  ),
+                ),
+            ],
           ),
           if (displayValue.isNotEmpty) ...[
             SizedBox(height: SizeTokens.p8),
@@ -390,6 +509,21 @@ class _StudentDetailContent extends StatelessWidget {
                 fontWeight: FontWeight.w500,
                 color: Colors.black87,
               ),
+            ),
+          ],
+          if (item.recipient != null && item.recipient!.isNotEmpty) ...[
+            SizedBox(height: SizeTokens.p8),
+            Row(
+              children: [
+                Icon(Icons.person, size: SizeTokens.i16, color: Colors.grey),
+                SizedBox(width: SizeTokens.p4),
+                Text(
+                  item.recipient!,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.black87),
+                ),
+              ],
             ),
           ],
           if (item.teacherNote != null && item.teacherNote!.isNotEmpty) ...[

@@ -97,15 +97,28 @@ class ApiClient {
 
   void _logResponse(http.Response response) {
     final request = response.request;
-    String requestDetails = '${request?.method} ${request?.url}';
+    StringBuffer requestLog = StringBuffer();
+    requestLog.writeln('${request?.method} ${request?.url}');
+    requestLog.writeln('Headers: ${request?.headers}');
 
     if (request is http.Request) {
-      requestDetails += '\nHeaders: ${request.headers}\nBody: ${request.body}';
-    } else if (request != null) {
-      requestDetails += '\nHeaders: ${request.headers}';
+      if (request.body.isNotEmpty) {
+        requestLog.writeln('Body: ${request.body}');
+      }
+    } else if (request is http.MultipartRequest) {
+      if (request.fields.isNotEmpty) {
+        requestLog.writeln('Fields: ${request.fields}');
+      }
+      if (request.files.isNotEmpty) {
+        requestLog.writeln(
+          'Files: ${request.files.map((f) => '${f.field}: ${f.filename}').toList()}',
+        );
+      }
     }
 
-    AppLogger.request(requestDetails);
-    AppLogger.response('Status: ${response.statusCode} Body: ${response.body}');
+    AppLogger.request(requestLog.toString());
+    AppLogger.response(
+      'Status: ${response.statusCode}\nBody: ${response.body}',
+    );
   }
 }

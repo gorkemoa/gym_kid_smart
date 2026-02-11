@@ -112,4 +112,81 @@ class HomeService {
       return Failure(e.toString());
     }
   }
+
+  Future<ApiResult<bool>> addDailyStudentsNote({
+    required int schoolId,
+    required String userKey,
+    required int studentId,
+    required String teacherNote,
+    required String parentNote,
+    required int teacherStatus,
+    required int parentStatus,
+    required String date,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.dailyStudentsNote,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'student_id': studentId,
+          'teacher_note': teacherNote,
+          'parent_note': parentNote,
+          'teacher_status': teacherStatus,
+          'parent_status': parentStatus,
+          'date': date,
+        },
+      );
+
+      // API returns success message in 'success' and result in 'data'
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Not eklenemedi',
+      );
+    } catch (e) {
+      AppLogger.error('Add daily student note failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> addDailyReceiving({
+    required int schoolId,
+    required String userKey,
+    required int studentId,
+    required String date,
+    required String time,
+    required String recipient,
+    required int status,
+    required int userId,
+    required String note,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.dailyReceiving,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'student_id': studentId,
+          'date': date,
+          'time': time,
+          'recipient': recipient,
+          'status': status,
+          'user_id': userId,
+          'note': note,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'İşlem başarısız',
+      );
+    } catch (e) {
+      AppLogger.error('Add daily receiving failed', e);
+      return Failure(e.toString());
+    }
+  }
 }

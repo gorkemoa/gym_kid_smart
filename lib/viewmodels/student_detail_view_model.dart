@@ -90,6 +90,61 @@ class StudentDetailViewModel extends ChangeNotifier {
     }
   }
 
+  Future<ApiResult<bool>> saveNote({
+    required String content,
+    required String role,
+  }) async {
+    if (_schoolId == null || _userKey == null || _studentId == null) {
+      return Failure('Missing parameters');
+    }
+
+    // Find existing note logs if any
+    DailyStudentModel? existingNote;
+    try {
+      existingNote = _dailyData.firstWhere(
+        (item) => item.teacherNote != null || item.parentNote != null,
+      );
+    } catch (e) {
+      existingNote = null;
+    }
+
+    String teacherNote = existingNote?.teacherNote ?? '';
+    String parentNote = existingNote?.parentNote ?? '';
+    int teacherStatus = existingNote?.teacherStatus ?? 0;
+    int parentStatus = existingNote?.parentStatus ?? 0;
+
+    if (role == 'teacher') {
+      teacherNote = content;
+      parentStatus = 0;
+    } else if (role == 'parent') {
+      parentNote = content;
+      teacherStatus = 0;
+    } else if (role == 'superadmin') {
+      // Superadmin logic: If it's a new entry, send 0, otherwise send existing status
+      // In this case, we'll assume content goes to teacherNote or we could have
+      // a more complex UI for superadmin. For now, following the prompt.
+      // prompt says "Superadmin değişiklik yapacağında durumları önceden nasılsa, aynı şekilde gönderilmeli. İlk defa ekleyecekse durumları 0 göndermeli"
+      teacherNote = content;
+    }
+
+    final result = await _homeService.addDailyStudentsNote(
+      schoolId: _schoolId!,
+      userKey: _userKey!,
+      studentId: _studentId!,
+      teacherNote: teacherNote,
+      parentNote: parentNote,
+      teacherStatus: teacherStatus,
+      parentStatus: parentStatus,
+      date: _selectedDate,
+    );
+
+    if (result is Success<bool>) {
+      _fetchDailyData();
+    }
+
+    return result;
+  }
+
   void refresh() {
     _fetchDailyData();
   }
