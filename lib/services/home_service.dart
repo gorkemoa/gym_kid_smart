@@ -13,6 +13,8 @@ import '../models/meal_title_model.dart';
 import '../models/meal_value_model.dart';
 import '../models/student_medicament_model.dart';
 
+import '../models/meal_menu_model.dart';
+
 class HomeService {
   final ApiClient _apiClient = ApiClient();
 
@@ -604,6 +606,57 @@ class HomeService {
       );
     } catch (e) {
       AppLogger.error('Toggle daily medicament failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<MealMenuModel>>> getMealMenus({
+    required int schoolId,
+    required String userKey,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.allMealMenus,
+        body: {'school_id': schoolId, 'user_key': userKey},
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final items = data.map((json) => MealMenuModel.fromJson(json)).toList();
+        return Success(items);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch meal menus failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> deleteMealMenu({
+    required int schoolId,
+    required String userKey,
+    required String time,
+    required String date,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.deleteMealMenu,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'time': time,
+          'date': date,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Silme işlemi başarısız',
+      );
+    } catch (e) {
+      AppLogger.error('Delete meal menu failed', e);
       return Failure(e.toString());
     }
   }

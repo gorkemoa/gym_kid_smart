@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/network/api_result.dart';
 import '../../models/daily_student_model.dart';
 import '../../models/student_medicament_model.dart';
+import '../../models/meal_menu_model.dart';
 import '../../services/home_service.dart';
 
 class StudentDetailViewModel extends ChangeNotifier {
@@ -18,6 +19,9 @@ class StudentDetailViewModel extends ChangeNotifier {
 
   List<StudentMedicamentModel> _medicaments = [];
   List<StudentMedicamentModel> get medicaments => _medicaments;
+
+  List<MealMenuModel> _mealMenus = [];
+  List<MealMenuModel> get mealMenus => _mealMenus;
 
   // Parameters
   int? _schoolId;
@@ -69,6 +73,13 @@ class StudentDetailViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
+    if (_selectedPart == 'mealMenu') {
+      await _fetchMealMenus();
+      _isLoading = false;
+      if (!_isDisposed) notifyListeners();
+      return;
+    }
+
     final result = await _homeService.getDailyStudent(
       schoolId: _schoolId!,
       userKey: _userKey!,
@@ -99,6 +110,22 @@ class StudentDetailViewModel extends ChangeNotifier {
     _isLoading = false;
     if (!_isDisposed) {
       notifyListeners();
+    }
+  }
+
+  Future<void> _fetchMealMenus() async {
+    final result = await _homeService.getMealMenus(
+      schoolId: _schoolId!,
+      userKey: _userKey!,
+    );
+
+    if (_isDisposed) return;
+
+    if (result is Success<List<MealMenuModel>>) {
+      _mealMenus = result.data;
+      // Filter for selected date if needed, or pass all
+      // For now, let's keep all and filter in View if required,
+      // but based on API it returns a list. User might want to see menu for the day.
     }
   }
 
@@ -295,6 +322,35 @@ class StudentDetailViewModel extends ChangeNotifier {
       value: value,
       id: id,
     );
+  }
+
+  Future<ApiResult<bool>> deleteMealMenu({
+    required String time,
+    required String date,
+    required String role,
+  }) async {
+    if (_schoolId == null || _userKey == null) {
+      return Failure('Missing parameters');
+    }
+
+    if (role != 'superadmin' && role != 'teacher') {
+      return Failure('Yetkisiz işlem');
+    }
+
+    final result = await _homeService.deleteMealMenu(
+      schoolId: _schoolId!,
+      userKey: _userKey!,
+      time: time,
+      date: date,
+    );
+
+    if (result is Success<bool>) {
+      // Refresh the list to remove the deleted item
+      await _fetchMealMenus();
+      notifyListeners();
+    }
+
+    return result;
   }
 
   void refresh() {

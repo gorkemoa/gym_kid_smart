@@ -25,6 +25,8 @@ class ApiConstants {
   static const String studentMedicament = '/Api/StudentMedicament';
   static const String addStudentMedicament = '/Api/AddStudentMedicament';
   static const String dailyMedicament = '/Api/DailyMedicament';
+  static const String allMealMenus = '/Api/allMealMenus';
+  static const String deleteMealMenu = '/Api/deleteMealMenu';
 
   // Headers
   static Map<String, String> get headers => {

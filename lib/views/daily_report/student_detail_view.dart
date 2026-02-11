@@ -291,10 +291,6 @@ class _StudentDetailContent extends StatelessWidget {
         'label': AppTranslations.translate('receiving', locale),
       },
       {
-        'id': 'mealMenu',
-        'label': AppTranslations.translate('mealMenu', locale),
-      },
-      {
         'id': 'noteLogs',
         'label': AppTranslations.translate('noteLogs', locale),
       },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_kid_smart/viewmodels/daily_report_view_model.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'core/responsive/size_config.dart';
 import 'viewmodels/login_view_model.dart';
@@ -8,8 +9,9 @@ import 'viewmodels/landing_view_model.dart';
 import 'viewmodels/home_view_model.dart';
 import 'views/landing/landing_view.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting();
   runApp(
     MultiProvider(
       providers: [

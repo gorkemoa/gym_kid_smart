@@ -67,5 +67,8 @@
     "no_medicaments_found": "Tanımlı ilaç veya alerji bulunamadı",
     "delete_medicament": "İlacı Sil",
     "confirm_delete_medicament": "Bu ilaç/alerji bilgisini silmek istediğinize emin misiniz?",
-    "delete": "Sil"
+    "delete": "Sil",
+    "delete_confirmation": "Bu öğeyi silmek istediğinize emin misiniz?",
+    "success_message": "İşlem başarılı",
+    "no_food_list_found": "Bu tarihe ait yemek listesi bulunmamaktadır."
 }

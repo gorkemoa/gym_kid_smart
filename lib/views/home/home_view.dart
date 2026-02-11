@@ -8,6 +8,7 @@ import '../../core/responsive/size_config.dart';
 import '../../core/utils/app_translations.dart';
 import '../../core/ui_components/common_widgets.dart';
 import '../daily_report/daily_report_view.dart';
+import '../food_list/food_list_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -275,6 +276,17 @@ class _HomeViewState extends State<HomeView> {
           title: AppTranslations.translate('food_list', locale),
           subtitle: AppTranslations.translate('food_list_desc', locale),
           color: const Color(0xFFF7941D),
+          onTap: () {
+            final user = context.read<LoginViewModel>().data?.data;
+            if (user != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FoodListView(user: user),
+                ),
+              );
+            }
+          },
         ),
         _buildModuleItem(
           icon: Icons.chat_bubble_outline,
