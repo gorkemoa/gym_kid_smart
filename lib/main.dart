@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_kid_smart/viewmodels/chat_detail_view_model.dart';
 import 'package:gym_kid_smart/viewmodels/daily_report_view_model.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +21,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => DailyReportViewModel()),
+        ChangeNotifierProvider(create: (_) => ChatDetailViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -34,7 +36,7 @@ class MyApp extends StatelessWidget {
     final settingsViewModel = context.watch<SettingsViewModel>();
 
     return MaterialApp(
-      title: 'GyBoree SmartKid',
+      title: 'GymBoree SmartKid',
       debugShowCheckedModeBanner: false,
       theme: settingsViewModel.themeData,
       builder: (context, child) {

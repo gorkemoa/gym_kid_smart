@@ -5,9 +5,13 @@ import 'size_config.dart';
 // iPhone 13 (390x844) referans alınmıştır.
 class SizeTokens {
   // Padding & Margin
+  static double get p2 => 0.5.w;
   static double get p4 => 1.0.w;
+  static double get p6 => 1.5.w;
   static double get p8 => 2.0.w;
+  static double get p10 => 2.5.w;
   static double get p12 => 3.1.w;
+  static double get p14 => 3.4.w;
   static double get p16 => 4.1.w; // ~16px on 390px
   static double get p20 => 5.1.w;
   static double get p24 => 6.2.w;
@@ -42,8 +46,10 @@ class SizeTokens {
   static double get i16 => 4.1.w;
   static double get i20 => 5.1.w;
   static double get i24 => 6.2.w;
+  static double get i28 => 7.2.w;
   static double get i32 => 8.2.w;
   static double get i48 => 12.3.w;
+  static double get i64 => 16.4.w;
 
   // Height & Width tokens
   static double get h12 => 3.1.w;
@@ -51,6 +57,8 @@ class SizeTokens {
   static double get h24 => 6.2.w;
   static double get h32 => 8.2.w;
   static double get h48 => 12.3.w;
+  static double get h50 => 12.8.w;
+  static double get w50 => 12.8.w;
   static double get h52 => 13.3.w;
   static double get h60 => 15.4.w;
   static double get h80 => 20.5.w;

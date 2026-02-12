@@ -37,6 +37,14 @@ class ApiConstants {
   static const String deleteDailySocial = '/Api/deleteDailySocial';
   static const String deleteDailyActivity = '/Api/deleteDailyActivity';
   static const String deleteDailyMeal = '/Api/deleteDailyMeal';
+  static const String getChatRoom = '/Api/getChatRoom';
+  static const String getChatDetail = '/Api/getChatDetail';
+  static const String addChatDetail = '/Api/addChatDetail';
+  static const String addChatRoom = '/Api/addChatRoom';
+  static const String allTeachers = '/Api/AllTeachers';
+  static const String allParents = '/Api/AllParents';
+  static const String allAdmin = '/Api/AllAdmin';
+  static const String updateStatusChat = '/Api/updateStatusChat';
 
   // Headers
   static Map<String, String> get headers => {

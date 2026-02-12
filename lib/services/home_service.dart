@@ -14,8 +14,10 @@ import '../models/meal_title_model.dart';
 import '../models/meal_value_model.dart';
 import '../models/student_medicament_model.dart';
 import '../models/calendar_detail_model.dart';
-
+import '../models/chat_message_model.dart';
+import '../models/chat_room_model.dart';
 import '../models/meal_menu_model.dart';
+import '../models/user_model.dart';
 
 class HomeService {
   final ApiClient _apiClient = ApiClient();
@@ -969,6 +971,201 @@ class HomeService {
       );
     } catch (e) {
       AppLogger.error('Delete daily meal failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<ChatRoomModel>>> getChatRooms({
+    required int schoolId,
+    required String userKey,
+    required int id,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.getChatRoom,
+        body: {'school_id': schoolId, 'user_key': userKey, 'id': id},
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final chatRooms = data
+            .map((json) => ChatRoomModel.fromJson(json))
+            .toList();
+        return Success(chatRooms);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch chat rooms failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<ChatMessageModel>>> getChatDetail({
+    required int schoolId,
+    required String userKey,
+    required int id,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.getChatDetail,
+        body: {'school_id': schoolId, 'user_key': userKey, 'id': id},
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final messages = data
+            .map((json) => ChatMessageModel.fromJson(json))
+            .toList();
+        return Success(messages);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch chat detail failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> addChatDetail({
+    required int schoolId,
+    required String userKey,
+    required int id,
+    required String description,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.addChatDetail,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'id': id,
+          'description': description,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(response['message'] ?? 'Mesaj gönderilemedi');
+    } catch (e) {
+      AppLogger.error('Add chat detail failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> addChatRoom({
+    required int schoolId,
+    required String userKey,
+    required int recipientUser,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.addChatRoom,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'recipient_user': recipientUser,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(response['message'] ?? 'Sohbet başlatılamadı');
+    } catch (e) {
+      AppLogger.error('Add chat room failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<UserModel>>> getAllTeachers({
+    required int schoolId,
+    required String userKey,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.allTeachers,
+        body: {'school_id': schoolId, 'user_key': userKey},
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final teachers = data.map((json) => UserModel.fromJson(json)).toList();
+        return Success(teachers);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch all teachers failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<UserModel>>> getAllParents({
+    required int schoolId,
+    required String userKey,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.allParents,
+        body: {'school_id': schoolId, 'user_key': userKey},
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final parents = data.map((json) => UserModel.fromJson(json)).toList();
+        return Success(parents);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch all parents failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<UserModel>>> getAllAdmins({
+    required int schoolId,
+    required String userKey,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.allAdmin,
+        body: {'school_id': schoolId, 'user_key': userKey},
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final admins = data.map((json) => UserModel.fromJson(json)).toList();
+        return Success(admins);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch all admins failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> updateStatusChat({
+    required int schoolId,
+    required String userKey,
+    required int id,
+    required int status,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.updateStatusChat,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'id': id,
+          'status': status,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(response['message'] ?? 'Durum güncellenemedi');
+    } catch (e) {
+      AppLogger.error('Update chat status failed', e);
       return Failure(e.toString());
     }
   }
