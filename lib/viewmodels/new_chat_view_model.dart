@@ -88,8 +88,8 @@ class NewChatViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> startChat(int recipientId) async {
-    if (_schoolId == null || _userKey == null) return false;
+  Future<int?> startChat(int recipientId) async {
+    if (_schoolId == null || _userKey == null) return null;
 
     _isLoading = true;
     notifyListeners();
@@ -101,10 +101,13 @@ class NewChatViewModel extends ChangeNotifier {
         recipientUser: recipientId,
       );
 
-      return result is Success<bool>;
+      if (result is Success<int>) {
+        return result.data;
+      }
+      return null;
     } catch (e) {
       AppLogger.error('Start chat failed', e);
-      return false;
+      return null;
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -10,6 +10,7 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool centerTitle;
   final bool automaticallyImplyLeading;
   final Widget? leading;
+  final PreferredSizeWidget? bottom;
 
   const BaseAppBar({
     super.key,
@@ -18,6 +19,7 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.centerTitle = true,
     this.automaticallyImplyLeading = true,
     this.leading,
+    this.bottom,
   });
 
   @override
@@ -47,11 +49,13 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
                       const Text('GYBOREE'),
                 )),
       actions: actions,
+      bottom: bottom,
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize =>
+      Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0));
 }
 
 class BaseBottomNavBar extends StatelessWidget {

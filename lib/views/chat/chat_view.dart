@@ -6,7 +6,6 @@ import '../../models/user_model.dart';
 import '../../viewmodels/chat_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
 import 'chat_detail_view.dart';
-import 'new_chat_view.dart';
 
 class ChatView extends StatelessWidget {
   final UserModel user;
@@ -26,21 +25,6 @@ class ChatView extends StatelessWidget {
           return Scaffold(
             backgroundColor: const Color(0xFFF9F9F9),
             body: _buildBody(context, viewModel, locale),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NewChatView(currentUser: user),
-                  ),
-                );
-                if (result == true) {
-                  viewModel.refresh();
-                }
-              },
-              backgroundColor: Theme.of(context).primaryColor,
-              child: const Icon(Icons.add_comment_rounded, color: Colors.white),
-            ),
           );
         },
       ),
@@ -188,12 +172,14 @@ class ChatView extends StatelessWidget {
                             Row(
                               children: [
                                 Text(
-                                  data?.role?.toUpperCase() ?? '',
+                                  AppTranslations.translate(
+                                    data?.role ?? '',
+                                    locale,
+                                  ),
                                   style: TextStyle(
                                     color: Theme.of(context).primaryColor,
                                     fontSize: SizeTokens.f10,
                                     fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.1,
                                   ),
                                 ),
                                 SizedBox(width: SizeTokens.p8),

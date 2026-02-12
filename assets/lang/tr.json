@@ -15,7 +15,7 @@
     "parent_panel": "Veli Paneli",
     "welcome": "Hoş geldin",
     "role_label": "Rol",
-    "superadmin": "Süper Yönetici",
+    "superadmin": "Yönetici",
     "admin": "Yönetici",
     "teacher": "Öğretmen",
     "parent": "Veli",
@@ -35,6 +35,7 @@
     "write_message": "Mesaj yazın...",
     "send": "Gönder",
     "start_new_chat": "Yeni Sohbet Başlat",
+    "new_message": "Yeni Mesaj",
     "waiting": "Bekliyor",
     "approved": "Onaylandı",
     "cancelled": "İptal Edildi",
@@ -117,5 +118,9 @@
     "notice_description": "Duyuru İçeriği",
     "date": "Tarih",
     "active": "Aktif",
-    "passive": "Pasif"
+    "passive": "Pasif",
+    "add_photo": "Fotoğraf Ekle",
+    "add_meal": "Öğün Ekle",
+    "add_lesson": "Ders Ekle",
+    "no_photo_found": "Görsel bulunamadı"
 }

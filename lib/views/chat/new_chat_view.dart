@@ -6,15 +6,27 @@ import '../../core/utils/app_translations.dart';
 import '../../models/user_model.dart';
 import '../../viewmodels/landing_view_model.dart';
 import '../../viewmodels/new_chat_view_model.dart';
+import 'chat_detail_view.dart';
 
 class NewChatView extends StatelessWidget {
   final UserModel currentUser;
 
   const NewChatView({super.key, required this.currentUser});
 
+  List<String> _getTargetRoles(String? userRole) {
+    if (userRole == 'parent') {
+      return ['teacher', 'admin'];
+    } else if (userRole == 'teacher') {
+      return ['parent', 'admin'];
+    } else {
+      return ['parent', 'teacher'];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<LandingViewModel>().locale.languageCode;
+    final targetRoles = _getTargetRoles(currentUser.role);
 
     return ChangeNotifierProvider(
       create: (_) => NewChatViewModel()
@@ -23,41 +35,83 @@ class NewChatView extends StatelessWidget {
           currentUser.userKey ?? '',
           currentUser.role ?? '',
         ),
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF9F9F9),
-        appBar: BaseAppBar(
-          title: Text(
-            AppTranslations.translate('start_new_chat', locale),
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: SizeTokens.f16,
-              fontWeight: FontWeight.bold,
+      child: DefaultTabController(
+        length: targetRoles.length,
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF9F9F9),
+          appBar: BaseAppBar(
+            title: Text(
+              AppTranslations.translate('start_new_chat', locale),
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: SizeTokens.f16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            leading: IconButton(
+              icon: const Icon(Icons.close_rounded, color: Colors.black),
+              onPressed: () => Navigator.pop(context),
+            ),
+            bottom: TabBar(
+              labelColor: Theme.of(context).primaryColor,
+              unselectedLabelColor: Colors.grey,
+              indicatorColor: Theme.of(context).primaryColor,
+              labelStyle: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: SizeTokens.f14,
+              ),
+              tabs: targetRoles
+                  .map(
+                    (role) =>
+                        Tab(text: AppTranslations.translate(role, locale)),
+                  )
+                  .toList(),
             ),
           ),
-          leading: IconButton(
-            icon: const Icon(Icons.close_rounded, color: Colors.black),
-            onPressed: () => Navigator.pop(context),
+          body: Consumer<NewChatViewModel>(
+            builder: (context, viewModel, child) {
+              if (viewModel.isLoading && viewModel.participants.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (viewModel.errorMessage != null) {
+                return Center(child: Text(viewModel.errorMessage!));
+              }
+
+              return TabBarView(
+                children: targetRoles.map((role) {
+                  final filteredParticipants = viewModel.participants
+                      .where(
+                        (u) => role == 'admin'
+                            ? (u.role == 'admin' || u.role == 'superadmin')
+                            : u.role == role,
+                      )
+                      .toList();
+
+                  if (filteredParticipants.isEmpty) {
+                    return Center(
+                      child: Text(
+                        AppTranslations.translate('no_data_found', locale),
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: SizeTokens.f14,
+                        ),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: EdgeInsets.all(SizeTokens.p16),
+                    itemCount: filteredParticipants.length,
+                    itemBuilder: (context, index) {
+                      final user = filteredParticipants[index];
+                      return _buildUserTile(context, viewModel, user, locale);
+                    },
+                  );
+                }).toList(),
+              );
+            },
           ),
-        ),
-        body: Consumer<NewChatViewModel>(
-          builder: (context, viewModel, child) {
-            if (viewModel.isLoading && viewModel.participants.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (viewModel.errorMessage != null) {
-              return Center(child: Text(viewModel.errorMessage!));
-            }
-
-            return ListView.builder(
-              padding: EdgeInsets.all(SizeTokens.p16),
-              itemCount: viewModel.participants.length,
-              itemBuilder: (context, index) {
-                final user = viewModel.participants[index];
-                return _buildUserTile(context, viewModel, user);
-              },
-            );
-          },
         ),
       ),
     );
@@ -67,6 +121,7 @@ class NewChatView extends StatelessWidget {
     BuildContext context,
     NewChatViewModel viewModel,
     UserModel user,
+    String locale,
   ) {
     return Container(
       margin: EdgeInsets.only(bottom: SizeTokens.p12),
@@ -99,7 +154,7 @@ class NewChatView extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          user.role?.toUpperCase() ?? '',
+          AppTranslations.translate(user.role ?? '', locale),
           style: TextStyle(
             color: Theme.of(context).primaryColor,
             fontSize: SizeTokens.f10,
@@ -107,9 +162,19 @@ class NewChatView extends StatelessWidget {
           ),
         ),
         onTap: () async {
-          final success = await viewModel.startChat(user.id ?? 0);
-          if (success && context.mounted) {
-            Navigator.pop(context, true);
+          final chatId = await viewModel.startChat(user.id ?? 0);
+          if (chatId != null && context.mounted) {
+            // Success, open chat detail
+            await Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatDetailView(
+                  currentUser: currentUser,
+                  chatRoomId: chatId,
+                  otherUserName: '${user.name ?? ''} ${user.surname ?? ''}',
+                ),
+              ),
+            );
           }
         },
       ),

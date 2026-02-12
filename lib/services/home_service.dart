@@ -1093,6 +1093,9 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Hata')) {
+        return const Success([]);
+      }
       AppLogger.error('Fetch chat detail failed', e);
       return Failure(e.toString());
     }
@@ -1125,7 +1128,7 @@ class HomeService {
     }
   }
 
-  Future<ApiResult<bool>> addChatRoom({
+  Future<ApiResult<int>> addChatRoom({
     required int schoolId,
     required String userKey,
     required int recipientUser,
@@ -1140,10 +1143,18 @@ class HomeService {
         },
       );
 
-      if (response['success'] != null || response['data'] == true) {
-        return Success(true);
+      // Check multiple possible fields for room ID
+      final rawId =
+          response['id'] ?? response['message_id'] ?? response['data'];
+
+      if (rawId != null) {
+        final id = int.tryParse(rawId.toString());
+        if (id != null && id != 0) {
+          return Success(id);
+        }
       }
-      return Failure(response['message'] ?? 'Sohbet başlatılamadı');
+
+      return Failure(response['message'] ?? 'Sohbet ID alınamadı');
     } catch (e) {
       AppLogger.error('Add chat room failed', e);
       return Failure(e.toString());

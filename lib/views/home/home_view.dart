@@ -11,6 +11,7 @@ import '../daily_report/daily_report_view.dart';
 import '../food_list/food_list_view.dart';
 import '../calendar/calendar_view.dart';
 import '../chat/chat_view.dart';
+import '../chat/new_chat_view.dart';
 import '../notice_detail/notice_detail_view.dart';
 import '../notice/notice_view.dart';
 
@@ -56,6 +57,36 @@ class _HomeViewState extends State<HomeView> {
                   color: Colors.black,
                 ),
               ),
+        actions: _currentIndex == 2
+            ? [
+                TextButton.icon(
+                  onPressed: () async {
+                    if (user != null) {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NewChatView(currentUser: user),
+                        ),
+                      );
+                    }
+                  },
+                  icon: Icon(
+                    Icons.add_circle_outline_rounded,
+                    color: Theme.of(context).primaryColor,
+                    size: SizeTokens.i20,
+                  ),
+                  label: Text(
+                    AppTranslations.translate('new_message', locale),
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontSize: SizeTokens.f14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(width: SizeTokens.p8),
+              ]
+            : null,
       ),
       body: _currentIndex == 0
           ? LayoutBuilder(
@@ -113,7 +144,7 @@ class _HomeViewState extends State<HomeView> {
           : _currentIndex == 1
           ? CalendarView(user: user, showAppBar: false)
           : _currentIndex == 2
-          ? ChatView(user: user!, id: homeViewModel.students.first.id ?? 0)
+          ? ChatView(user: user!, id: user.id ?? 0)
           : _currentIndex == 3
           ? NoticeView(user: user!, showAppBar: false)
           : Center(

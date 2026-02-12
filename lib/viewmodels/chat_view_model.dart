@@ -42,7 +42,23 @@ class ChatViewModel extends ChangeNotifier {
       );
 
       if (result is Success<List<ChatRoomModel>>) {
-        _chatRooms = result.data;
+        final List<ChatRoomModel> rooms = result.data;
+        // Sort by dateAdded descending (newest first)
+        rooms.sort((a, b) {
+          final dateA = a.dateAdded != null
+              ? DateTime.tryParse(a.dateAdded!)
+              : null;
+          final dateB = b.dateAdded != null
+              ? DateTime.tryParse(b.dateAdded!)
+              : null;
+
+          if (dateA == null && dateB == null) return 0;
+          if (dateA == null) return 1;
+          if (dateB == null) return -1;
+
+          return dateB.compareTo(dateA);
+        });
+        _chatRooms = rooms;
       } else if (result is Failure<List<ChatRoomModel>>) {
         _errorMessage = result.message;
       }

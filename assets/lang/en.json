@@ -35,6 +35,7 @@
     "write_message": "Write a message...",
     "send": "Send",
     "start_new_chat": "Start New Chat",
+    "new_message": "New Message",
     "waiting": "Waiting",
     "approved": "Approved",
     "cancelled": "Cancelled",
@@ -102,5 +103,9 @@
     "notice_description": "Announcement Description",
     "date": "Date",
     "active": "Active",
-    "passive": "Passive"
+    "passive": "Passive",
+    "add_photo": "Add Photo",
+    "add_meal": "Add Meal",
+    "add_lesson": "Add Lesson",
+    "no_photo_found": "No photos found"
 }
