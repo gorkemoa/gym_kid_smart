@@ -155,14 +155,6 @@ class StudentDetailViewModel extends ChangeNotifier {
     _sectionLoading[part] = true;
     if (!_isDisposed) notifyListeners();
 
-    if (part == 'medicament') {
-      await _fetchStudentMedicaments();
-      _sectionLoading[part] = false;
-      _allSectionsData[part] = [];
-      if (!_isDisposed) notifyListeners();
-      return;
-    }
-
     final result = await _homeService.getDailyStudent(
       schoolId: _schoolId!,
       userKey: _userKey!,
@@ -175,7 +167,11 @@ class StudentDetailViewModel extends ChangeNotifier {
 
     if (result is Success<List<DailyStudentModel>>) {
       _allSectionsData[part] = result.data;
-    } else if (result is Failure<List<DailyStudentModel>>) {
+      if (part == 'medicament') {
+        // Also ensure medicaments definitions are fresh
+        await _fetchStudentMedicaments();
+      }
+    } else {
       _allSectionsData[part] = [];
     }
 

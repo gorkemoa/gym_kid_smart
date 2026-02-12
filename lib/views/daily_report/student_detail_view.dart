@@ -531,10 +531,11 @@ class _StudentDetailContent extends StatelessWidget {
   }
 
   // ─── ACCORDION BODY ────────────────────────────────────────────────
-  Widget _buildAccordionBody(
+  Widget _buildScrollableBody(
     BuildContext context,
     StudentDetailViewModel viewModel,
     String locale,
+    StudentModel currentStudent,
   ) {
     final categories = [
       {
@@ -569,13 +570,32 @@ class _StudentDetailContent extends StatelessWidget {
       },
     ];
 
+    // Build header items list
+    final headerWidgets = <Widget>[];
+    if (viewModel.classmates.length > 1) {
+      headerWidgets.add(
+        _buildClassmatesList(context, viewModel, currentStudent),
+      );
+    }
+    headerWidgets.add(_buildStudentInfoCard(context, currentStudent));
+    headerWidgets.add(_buildDateSelector(context, viewModel, locale));
+
+    final totalItems = headerWidgets.length + categories.length;
+
     return RefreshIndicator(
       onRefresh: () async => viewModel.refresh(),
       child: ListView.builder(
-        padding: EdgeInsets.all(SizeTokens.p16),
-        itemCount: categories.length,
+        padding: EdgeInsets.only(bottom: SizeTokens.p16),
+        itemCount: totalItems,
         itemBuilder: (context, index) {
-          final category = categories[index];
+          // Render header widgets first
+          if (index < headerWidgets.length) {
+            return headerWidgets[index];
+          }
+
+          // Then render accordion sections
+          final catIndex = index - headerWidgets.length;
+          final category = categories[catIndex];
           final partId = category['id'] as String;
           final label = category['label'] as String;
           final icon = category['icon'] as IconData;
@@ -583,16 +603,19 @@ class _StudentDetailContent extends StatelessWidget {
           final isLoadingSection = viewModel.sectionLoading[partId] ?? false;
           final sectionData = viewModel.allSectionsData[partId] ?? [];
 
-          return _buildAccordionSection(
-            context: context,
-            viewModel: viewModel,
-            locale: locale,
-            partId: partId,
-            label: label,
-            icon: icon,
-            isExpanded: isExpanded,
-            isLoading: isLoadingSection,
-            data: sectionData,
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: SizeTokens.p16),
+            child: _buildAccordionSection(
+              context: context,
+              viewModel: viewModel,
+              locale: locale,
+              partId: partId,
+              label: label,
+              icon: icon,
+              isExpanded: isExpanded,
+              isLoading: isLoadingSection,
+              data: sectionData,
+            ),
           );
         },
       ),

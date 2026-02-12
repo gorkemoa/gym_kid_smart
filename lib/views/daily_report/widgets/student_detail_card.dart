@@ -59,8 +59,9 @@ class StudentDetailCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   displayTitle,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
+                    fontSize: SizeTokens.f14,
                     color: Theme.of(context).primaryColor,
                   ),
                 ),
@@ -72,7 +73,7 @@ class StudentDetailCard extends StatelessWidget {
                     Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: SizeTokens.p8,
-                        vertical: SizeTokens.p4,
+                        vertical: SizeTokens.p2,
                       ),
                       decoration: BoxDecoration(
                         color: item.status == 1
@@ -92,23 +93,27 @@ class StudentDetailCard extends StatelessWidget {
                               ? Colors.green
                               : Colors.orange,
                           fontWeight: FontWeight.w600,
-                          fontSize: SizeTokens.f12,
+                          fontSize: SizeTokens.f10,
                         ),
                       ),
                     ),
                   if (onEdit != null)
                     IconButton(
                       visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                       icon: Icon(
                         Icons.edit_outlined,
                         size: SizeTokens.i16,
-                        color: Colors.grey[500],
+                        color: Colors.grey[400],
                       ),
                       onPressed: onEdit,
                     ),
                   if (onDelete != null)
                     IconButton(
                       visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.only(left: SizeTokens.p8),
+                      constraints: const BoxConstraints(),
                       icon: Icon(
                         Icons.delete_outline,
                         size: SizeTokens.i16,
@@ -124,82 +129,129 @@ class StudentDetailCard extends StatelessWidget {
             SizedBox(height: SizeTokens.p4),
             Text(
               displayValue,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              style: TextStyle(
                 fontWeight: FontWeight.w500,
+                fontSize: SizeTokens.f12,
                 color: Colors.black87,
               ),
             ),
           ],
           if (item.recipient != null && item.recipient!.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p4),
+            SizedBox(height: SizeTokens.p6),
             Row(
               children: [
                 Icon(
-                  Icons.person_outline,
-                  size: SizeTokens.i16,
+                  Icons.person_pin_circle_outlined,
+                  size: SizeTokens.i12,
                   color: Colors.grey[400],
                 ),
                 SizedBox(width: SizeTokens.p4),
                 Text(
                   item.recipient!,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.black87),
+                  style: TextStyle(
+                    fontSize: SizeTokens.f12,
+                    color: Colors.grey[700],
+                  ),
                 ),
               ],
             ),
           ],
-          if (item.teacherNote != null && item.teacherNote!.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p4),
-            Text(
-              '${AppTranslations.translate('teacher', locale)}: ${item.teacherNote}',
-              style: Theme.of(
+          if ((item.teacherNote != null && item.teacherNote!.isNotEmpty) ||
+              (item.parentNote != null && item.parentNote!.isNotEmpty) ||
+              (item.note != null && item.note!.isNotEmpty)) ...[
+            SizedBox(height: SizeTokens.p10),
+            if (item.teacherNote != null && item.teacherNote!.isNotEmpty)
+              _buildNoteBox(
                 context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.black87),
-            ),
-          ],
-          if (item.parentNote != null && item.parentNote!.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p4),
-            Text(
-              '${AppTranslations.translate('parent', locale)}: ${item.parentNote}',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.black87),
-            ),
-          ],
-          if (item.note != null && item.note!.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p4),
-            Text(
-              'Not: ${item.note}',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontStyle: FontStyle.italic,
-                color: Colors.grey[500],
+                '${AppTranslations.translate('teacher', locale)}:',
+                item.teacherNote!,
+                Colors.amber.shade50,
+                Colors.amber.shade700,
               ),
-            ),
+            if (item.parentNote != null && item.parentNote!.isNotEmpty)
+              _buildNoteBox(
+                context,
+                '${AppTranslations.translate('parent', locale)}:',
+                item.parentNote!,
+                Colors.blue.shade50,
+                Colors.blue.shade700,
+              ),
+            if (item.note != null && item.note!.isNotEmpty)
+              _buildNoteBox(
+                context,
+                'Not:',
+                item.note!,
+                Colors.grey.shade50,
+                Colors.grey.shade700,
+                italic: true,
+              ),
           ],
           if (item.creator != null) ...[
-            SizedBox(height: SizeTokens.p8),
-            Divider(height: 1, color: Colors.grey.shade200),
-            SizedBox(height: SizeTokens.p8),
+            SizedBox(height: SizeTokens.p12),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Icon(
-                  Icons.person_outline,
-                  size: SizeTokens.i16,
-                  color: Colors.grey[400],
-                ),
-                SizedBox(width: SizeTokens.p4),
-                Text(
-                  '${item.creator?.name ?? ''} ${item.creator?.surname ?? ''}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
+                const Expanded(child: Divider(height: 1)),
+                Padding(
+                  padding: EdgeInsets.only(left: SizeTokens.p8),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.history_edu_outlined,
+                        size: SizeTokens.i12,
+                        color: Colors.grey[300],
+                      ),
+                      SizedBox(width: SizeTokens.p4),
+                      Text(
+                        '${item.creator?.name ?? ''} ${item.creator?.surname ?? ''}',
+                        style: TextStyle(
+                          fontSize: SizeTokens.f10,
+                          color: Colors.grey[400],
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildNoteBox(
+    BuildContext context,
+    String prefix,
+    String note,
+    Color bgColor,
+    Color textColor, {
+    bool italic = false,
+  }) {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(bottom: SizeTokens.p4),
+      padding: EdgeInsets.all(SizeTokens.p8),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(SizeTokens.r4),
+      ),
+      child: RichText(
+        text: TextSpan(
+          style: TextStyle(
+            fontSize: SizeTokens.f12,
+            color: Colors.black87,
+            height: 1.4,
+            fontStyle: italic ? FontStyle.italic : FontStyle.normal,
+          ),
+          children: [
+            TextSpan(
+              text: '$prefix ',
+              style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
+            ),
+            TextSpan(text: note),
+          ],
+        ),
       ),
     );
   }

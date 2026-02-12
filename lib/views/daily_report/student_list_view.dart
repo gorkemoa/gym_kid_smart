@@ -360,17 +360,11 @@ class _StudentListContent extends StatelessWidget {
 
   Widget _buildStudentListCard(BuildContext context, StudentModel student) {
     return Container(
-      padding: EdgeInsets.all(SizeTokens.p16),
+      padding: EdgeInsets.all(SizeTokens.p12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(SizeTokens.r8),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: InkWell(
         onTap: () => _navigateToDetail(context, student),
@@ -416,14 +410,8 @@ class _StudentListContent extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(SizeTokens.r16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(SizeTokens.r8),
+          border: Border.all(color: Colors.grey.shade200),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -198,21 +198,16 @@ class _DailyReportContentState extends State<_DailyReportContent> {
     UserModel user,
   ) {
     return Container(
+      padding: EdgeInsets.all(SizeTokens.p12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(SizeTokens.r8),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(SizeTokens.r16),
+          borderRadius: BorderRadius.circular(SizeTokens.r8),
           onTap: () {
             if (classItem.id != null) {
               Navigator.push(
@@ -234,7 +229,7 @@ class _DailyReportContentState extends State<_DailyReportContent> {
                 flex: 3,
                 child: ClipRRect(
                   borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(SizeTokens.r16),
+                    top: Radius.circular(SizeTokens.r8),
                   ),
                   child: classItem.image != null && classItem.image!.isNotEmpty
                       ? Image.network(
