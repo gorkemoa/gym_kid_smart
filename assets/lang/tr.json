@@ -102,5 +102,6 @@
     "meal_title": "Yemek Başlığı",
     "meal_content": "Yemek İçeriği",
     "add_meal_menu": "Yemek Menüsü Ekle",
-    "read_more": "Devamını Oku"
+    "read_more": "Devamını Oku",
+    "no_students_found": "Bu sınıfa ait kayıtlı öğrenci bulunamadı."
 }

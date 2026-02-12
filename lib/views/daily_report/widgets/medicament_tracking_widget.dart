@@ -19,7 +19,33 @@ class MedicamentTrackingWidget extends StatelessWidget {
 
     if (viewModel.medicaments.isEmpty) {
       return Center(
-        child: Text(AppTranslations.translate('no_medicaments_found', locale)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(SizeTokens.p24),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.medical_services_outlined,
+                size: SizeTokens.i64,
+                color: Colors.blue[300],
+              ),
+            ),
+            SizedBox(height: SizeTokens.p24),
+            Text(
+              AppTranslations.translate('no_medicaments_found', locale),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w600,
+                fontSize: SizeTokens.f16,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       );
     }
 

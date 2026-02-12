@@ -6,7 +6,6 @@ import '../../core/utils/app_translations.dart';
 import '../../models/user_model.dart';
 import '../../viewmodels/student_list_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
-import 'package:flutter/cupertino.dart';
 import '../../models/student_model.dart';
 import 'student_detail_view.dart';
 
@@ -55,156 +54,29 @@ class _StudentListContent extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-      ),
-      body: Column(
-        children: [
-          _buildDateSelector(context, viewModel, locale),
-          Expanded(child: _buildBody(context, viewModel, locale)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDateSelector(
-    BuildContext context,
-    StudentListViewModel viewModel,
-    String locale,
-  ) {
-    final date = DateTime.parse(viewModel.selectedDate);
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.symmetric(
-        vertical: SizeTokens.p16,
-        horizontal: SizeTokens.p24,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            onPressed: () {
-              viewModel.setDate(date.subtract(const Duration(days: 1)));
-            },
-            icon: Icon(
-              Icons.chevron_left,
-              color: Theme.of(context).primaryColor,
-            ),
-          ),
-          GestureDetector(
-            onTap: () => _showDatePicker(context, viewModel, locale),
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: SizeTokens.p12,
-                vertical: SizeTokens.p8,
+        actions: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            transitionBuilder: (child, animation) =>
+                ScaleTransition(scale: animation, child: child),
+            child: IconButton(
+              key: ValueKey(viewModel.isGridView),
+              onPressed: viewModel.toggleViewMode,
+              icon: Icon(
+                viewModel.isGridView
+                    ? Icons.view_list_rounded
+                    : Icons.grid_view_rounded,
+                color: Theme.of(context).primaryColor,
+                size: SizeTokens.i24,
               ),
-              decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(SizeTokens.r12),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.calendar_today,
-                    size: SizeTokens.i16,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  SizedBox(width: SizeTokens.p8),
-                  Text(
-                    viewModel.selectedDate,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: SizeTokens.f16,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          IconButton(
-            onPressed: () {
-              viewModel.setDate(date.add(const Duration(days: 1)));
-            },
-            icon: Icon(
-              Icons.chevron_right,
-              color: Theme.of(context).primaryColor,
+              tooltip: viewModel.isGridView
+                  ? 'Liste Görünümü'
+                  : 'Grid Görünümü',
             ),
           ),
         ],
       ),
-    );
-  }
-
-  void _showDatePicker(
-    BuildContext context,
-    StudentListViewModel viewModel,
-    String locale,
-  ) {
-    final currentDate = DateTime.parse(viewModel.selectedDate);
-    DateTime tempDate = currentDate;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(SizeTokens.r24),
-        ),
-      ),
-      builder: (BuildContext context) {
-        return SizedBox(
-          height: 300,
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: SizeTokens.p16,
-                  vertical: SizeTokens.p8,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(
-                        AppTranslations.translate('cancel', locale),
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: SizeTokens.f16,
-                        ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        viewModel.setDate(tempDate);
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        AppTranslations.translate('done', locale),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: SizeTokens.f16,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.date,
-                  initialDateTime: currentDate,
-                  maximumDate: DateTime.now().add(const Duration(days: 365)),
-                  minimumDate: DateTime(2020),
-                  onDateTimeChanged: (val) {
-                    tempDate = val;
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+      body: _buildBody(context, viewModel, locale),
     );
   }
 
@@ -219,52 +91,134 @@ class _StudentListContent extends StatelessWidget {
 
     if (viewModel.errorMessage != null) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              viewModel.errorMessage!,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.red, fontSize: SizeTokens.f16),
-            ),
-            SizedBox(height: SizeTokens.p16),
-            ElevatedButton(
-              onPressed: viewModel.refresh,
-              child: Text(AppTranslations.translate('retry', locale)),
-            ),
-          ],
+        child: Padding(
+          padding: EdgeInsets.all(SizeTokens.p32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline_rounded,
+                size: SizeTokens.i64,
+                color: Colors.red[300],
+              ),
+              SizedBox(height: SizeTokens.p16),
+              Text(
+                viewModel.errorMessage!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey[800],
+                  fontSize: SizeTokens.f16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: SizeTokens.p24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: viewModel.refresh,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: SizeTokens.p12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(SizeTokens.r12),
+                    ),
+                  ),
+                  child: Text(
+                    AppTranslations.translate('retry', locale),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
     if (viewModel.students.isEmpty) {
       return Center(
-        child: Text(
-          AppTranslations.translate('no_students_found', locale),
-          style: Theme.of(context).textTheme.bodyLarge,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(SizeTokens.p24),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.group_outlined,
+                size: SizeTokens.i64,
+                color: Colors.grey[400],
+              ),
+            ),
+            SizedBox(height: SizeTokens.p24),
+            Text(
+              AppTranslations.translate('no_students_found', locale),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w600,
+                fontSize: SizeTokens.f18,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: SizeTokens.p8),
+            Text(
+              AppTranslations.translate('no_data_found', locale),
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontSize: SizeTokens.f14,
+              ),
+            ),
+          ],
         ),
       );
     }
 
     return RefreshIndicator(
       onRefresh: () async => viewModel.refresh(),
-      child: ListView.separated(
-        padding: EdgeInsets.all(SizeTokens.p16),
-        itemCount: viewModel.students.length,
-        separatorBuilder: (context, index) => SizedBox(height: SizeTokens.p16),
-        itemBuilder: (context, index) {
-          final student = viewModel.students[index];
-          return _buildStudentCard(context, student, viewModel);
-        },
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: viewModel.isGridView
+            ? _buildGridView(context, viewModel)
+            : _buildListView(context, viewModel),
       ),
     );
   }
 
-  Widget _buildStudentCard(
-    BuildContext context,
-    StudentModel student,
-    StudentListViewModel viewModel,
-  ) {
+  Widget _buildListView(BuildContext context, StudentListViewModel viewModel) {
+    return ListView.separated(
+      key: const ValueKey('list_view'),
+      padding: EdgeInsets.all(SizeTokens.p16),
+      itemCount: viewModel.students.length,
+      separatorBuilder: (context, index) => SizedBox(height: SizeTokens.p16),
+      itemBuilder: (context, index) {
+        final student = viewModel.students[index];
+        return _buildStudentListCard(context, student);
+      },
+    );
+  }
+
+  Widget _buildGridView(BuildContext context, StudentListViewModel viewModel) {
+    return GridView.builder(
+      key: const ValueKey('grid_view'),
+      padding: EdgeInsets.all(SizeTokens.p16),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: SizeTokens.p10,
+        mainAxisSpacing: SizeTokens.p10,
+        childAspectRatio: 0.75,
+      ),
+      itemCount: viewModel.students.length,
+      itemBuilder: (context, index) {
+        final student = viewModel.students[index];
+        return _buildStudentGridCard(context, student);
+      },
+    );
+  }
+
+  Widget _buildStudentListCard(BuildContext context, StudentModel student) {
     return Container(
       padding: EdgeInsets.all(SizeTokens.p16),
       decoration: BoxDecoration(
@@ -279,34 +233,10 @@ class _StudentListContent extends StatelessWidget {
         ],
       ),
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => StudentDetailView(
-                user: user,
-                student: student,
-                initialDate: viewModel.selectedDate,
-              ),
-            ),
-          );
-        },
+        onTap: () => _navigateToDetail(context, student),
         child: Row(
           children: [
-            ClipOval(
-              child: SizedBox(
-                width: SizeTokens.h60,
-                height: SizeTokens.h60,
-                child: student.image != null && student.image!.isNotEmpty
-                    ? Image.network(
-                        student.image!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            _buildPlaceholder(),
-                      )
-                    : _buildPlaceholder(),
-              ),
-            ),
+            _buildAvatar(student, SizeTokens.h60),
             SizedBox(width: SizeTokens.p16),
             Expanded(
               child: Column(
@@ -340,10 +270,98 @@ class _StudentListContent extends StatelessWidget {
     );
   }
 
-  Widget _buildPlaceholder() {
+  Widget _buildStudentGridCard(BuildContext context, StudentModel student) {
+    return GestureDetector(
+      onTap: () => _navigateToDetail(context, student),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(SizeTokens.r16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildAvatar(student, SizeTokens.h48),
+            SizedBox(height: SizeTokens.p6),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: SizeTokens.p4),
+              child: Text(
+                '${student.name ?? ''}',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: SizeTokens.f12,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: SizeTokens.p4),
+              child: Text(
+                '${student.surname ?? ''}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[600],
+                  fontSize: SizeTokens.f10,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            if (student.birthDate != null) ...[
+              SizedBox(height: SizeTokens.p4),
+              Text(
+                student.birthDate!,
+                style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: SizeTokens.f10,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvatar(StudentModel student, double size) {
+    return ClipOval(
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: student.image != null && student.image!.isNotEmpty
+            ? Image.network(
+                student.image!,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    _buildPlaceholder(size),
+              )
+            : _buildPlaceholder(size),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholder(double size) {
     return Container(
       color: Colors.grey[200],
-      child: Icon(Icons.person, size: SizeTokens.i32, color: Colors.grey[400]),
+      child: Icon(Icons.person, size: size * 0.5, color: Colors.grey[400]),
+    );
+  }
+
+  void _navigateToDetail(BuildContext context, StudentModel student) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StudentDetailView(user: user, student: student),
+      ),
     );
   }
 }

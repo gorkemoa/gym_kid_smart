@@ -25,8 +25,21 @@ class DailyReportView extends StatelessWidget {
   }
 }
 
-class _DailyReportContent extends StatelessWidget {
+class _DailyReportContent extends StatefulWidget {
   const _DailyReportContent();
+
+  @override
+  State<_DailyReportContent> createState() => _DailyReportContentState();
+}
+
+class _DailyReportContentState extends State<_DailyReportContent> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +116,7 @@ class _DailyReportContent extends StatelessWidget {
             SizeTokens.p8,
           ),
           child: TextField(
+            controller: _searchController,
             onChanged: viewModel.updateSearchQuery,
             decoration: InputDecoration(
               hintText: AppTranslations.translate('search', locale),
@@ -110,7 +124,10 @@ class _DailyReportContent extends StatelessWidget {
               suffixIcon: viewModel.searchQuery.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear),
-                      onPressed: () => viewModel.updateSearchQuery(''),
+                      onPressed: () {
+                        _searchController.clear();
+                        viewModel.updateSearchQuery('');
+                      },
                     )
                   : null,
               filled: true,

@@ -359,29 +359,86 @@ class _StudentDetailContent extends StatelessWidget {
 
     if (viewModel.errorMessage != null && viewModel.dailyData.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              viewModel.errorMessage!,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.red, fontSize: SizeTokens.f16),
-            ),
-            SizedBox(height: SizeTokens.p16),
-            ElevatedButton(
-              onPressed: viewModel.refresh,
-              child: Text(AppTranslations.translate('retry', locale)),
-            ),
-          ],
+        child: Padding(
+          padding: EdgeInsets.all(SizeTokens.p32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline_rounded,
+                size: SizeTokens.i64,
+                color: Colors.red[300],
+              ),
+              SizedBox(height: SizeTokens.p16),
+              Text(
+                viewModel.errorMessage!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey[800],
+                  fontSize: SizeTokens.f16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: SizeTokens.p24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: viewModel.refresh,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: SizeTokens.p12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(SizeTokens.r12),
+                    ),
+                  ),
+                  child: Text(
+                    AppTranslations.translate('retry', locale),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
     if (viewModel.dailyData.isEmpty) {
       return Center(
-        child: Text(
-          AppTranslations.translate('no_data_found', locale),
-          style: Theme.of(context).textTheme.bodyLarge,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(SizeTokens.p24),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                viewModel.selectedPart == 'meals'
+                    ? Icons.restaurant_menu_outlined
+                    : viewModel.selectedPart == 'activities'
+                    ? Icons.sports_soccer_outlined
+                    : viewModel.selectedPart == 'socials'
+                    ? Icons.people_outline
+                    : viewModel.selectedPart == 'receiving'
+                    ? Icons.badge_outlined
+                    : Icons.notes_outlined,
+                size: SizeTokens.i64,
+                color: Colors.grey[400],
+              ),
+            ),
+            SizedBox(height: SizeTokens.p24),
+            Text(
+              AppTranslations.translate('no_data_found', locale),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w600,
+                fontSize: SizeTokens.f16,
+              ),
+            ),
+          ],
         ),
       );
     }

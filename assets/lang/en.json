@@ -86,5 +86,6 @@
     "meal_content": "Meal Content",
     "add_meal_menu": "Add Meal Menu",
     "search": "Search...",
-    "read_more": "Read More"
+    "read_more": "Read More",
+    "no_students_found": "No students found in this class."
 }

@@ -40,6 +40,9 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Bulunamadı')) {
+        return const Success([]);
+      }
       AppLogger.error('Fetch notices failed', e);
       return Failure(e.toString());
     }
@@ -65,6 +68,9 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Öğrenci Bulunamadı')) {
+        return const Success([]);
+      }
       AppLogger.error('Fetch students failed', e);
       return Failure(e.toString());
     }
@@ -87,6 +93,9 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Bulunamadı')) {
+        return const Success([]);
+      }
       AppLogger.error('Fetch classes failed', e);
       return Failure(e.toString());
     }
@@ -120,6 +129,9 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Bulunamadı')) {
+        return const Success([]);
+      }
       AppLogger.error('Fetch daily student data failed', e);
       return Failure(e.toString());
     }
@@ -294,6 +306,9 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Bulunamadı')) {
+        return const Success([]);
+      }
       AppLogger.error('Fetch activity titles failed', e);
       return Failure(e.toString());
     }
@@ -318,6 +333,9 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Bulunamadı')) {
+        return const Success([]);
+      }
       AppLogger.error('Fetch activity values failed', e);
       return Failure(e.toString());
     }
@@ -396,6 +414,9 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Bulunamadı')) {
+        return const Success([]);
+      }
       AppLogger.error('Fetch social titles failed', e);
       return Failure(e.toString());
     }
@@ -449,6 +470,9 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Bulunamadı')) {
+        return const Success([]);
+      }
       AppLogger.error('Fetch meal titles failed', e);
       return Failure(e.toString());
     }
@@ -473,6 +497,9 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Bulunamadı')) {
+        return const Success([]);
+      }
       AppLogger.error('Fetch meal values failed', e);
       return Failure(e.toString());
     }
@@ -539,6 +566,9 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Bulunamadı')) {
+        return const Success([]);
+      }
       AppLogger.error('Fetch student medicament failed', e);
       return Failure(e.toString());
     }
@@ -631,6 +661,9 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Bulunamadı')) {
+        return const Success([]);
+      }
       AppLogger.error('Fetch meal menus failed', e);
       return Failure(e.toString());
     }
@@ -771,6 +804,9 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Bulunamadı')) {
+        return const Success([]);
+      }
       AppLogger.error('Fetch lessons failed', e);
       return Failure(e.toString());
     }
