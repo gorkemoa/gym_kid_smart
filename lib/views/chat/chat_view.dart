@@ -254,7 +254,7 @@ class ChatView extends StatelessWidget {
         label = AppTranslations.translate('cancelled', locale);
         break;
       default:
-        color = Colors.orange;
+        color = Theme.of(context).primaryColor;
         label = AppTranslations.translate('waiting', locale);
     }
 

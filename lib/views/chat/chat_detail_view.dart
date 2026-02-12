@@ -223,7 +223,7 @@ class ChatDetailView extends StatelessWidget {
             viewModel,
             0,
             AppTranslations.translate('waiting', locale),
-            Colors.orange,
+            Theme.of(context).primaryColor,
           ),
           _buildStatusButton(
             context,

@@ -99,7 +99,7 @@ class MedicamentFormWidget extends StatelessWidget {
       {
         'value': 1,
         'label': AppTranslations.translate('important', locale),
-        'color': Colors.orange,
+        'color': Theme.of(context).primaryColor,
       },
       {
         'value': 2,

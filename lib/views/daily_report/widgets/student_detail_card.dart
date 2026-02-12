@@ -78,12 +78,12 @@ class StudentDetailCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: item.status == 1
                             ? Colors.green.shade50
-                            : Colors.orange.shade50,
+                            : Theme.of(context).primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(SizeTokens.r4),
                         border: Border.all(
                           color: item.status == 1
                               ? Colors.green.shade200
-                              : Colors.orange.shade200,
+                              : Theme.of(context).primaryColor.withOpacity(0.3),
                         ),
                       ),
                       child: Text(
@@ -91,7 +91,7 @@ class StudentDetailCard extends StatelessWidget {
                         style: TextStyle(
                           color: item.status == 1
                               ? Colors.green
-                              : Colors.orange,
+                              : Theme.of(context).primaryColor,
                           fontWeight: FontWeight.w600,
                           fontSize: SizeTokens.f10,
                         ),

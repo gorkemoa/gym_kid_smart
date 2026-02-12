@@ -88,7 +88,7 @@ class MedicamentTrackingWidget extends StatelessWidget {
         statusText = AppTranslations.translate('allergy', locale);
         break;
       case 1:
-        statusColor = Colors.orange;
+        statusColor = Theme.of(context).primaryColor;
         statusText = AppTranslations.translate('important', locale);
         break;
       case 2:

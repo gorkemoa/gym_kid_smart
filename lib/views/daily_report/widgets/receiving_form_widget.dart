@@ -124,7 +124,9 @@ class ReceivingFormWidget extends StatelessWidget {
                       ? AppTranslations.translate('ready_to_receive', locale)
                       : AppTranslations.translate('not_ready', locale),
                   style: TextStyle(
-                    color: isReady ? Colors.green : Colors.orange,
+                    color: isReady
+                        ? Colors.green
+                        : Theme.of(context).primaryColor,
                     fontSize: SizeTokens.f12,
                   ),
                 ),
