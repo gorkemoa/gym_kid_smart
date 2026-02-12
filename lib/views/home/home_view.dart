@@ -42,35 +42,44 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: const BaseAppBar(automaticallyImplyLeading: false),
-      body: RefreshIndicator(
-        onRefresh: () => homeViewModel.refresh(),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(SizeTokens.p24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                AppTranslations.translate('upcoming_events', locale),
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: const Color(0xFF4A4A4A),
+      body: _currentIndex == 0
+          ? RefreshIndicator(
+              onRefresh: () => homeViewModel.refresh(),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.all(SizeTokens.p24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      AppTranslations.translate('upcoming_events', locale),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: const Color(0xFF4A4A4A),
+                      ),
+                    ),
+                    SizedBox(height: SizeTokens.p16),
+                    _buildNoticeSection(homeViewModel, locale),
+                    SizedBox(height: SizeTokens.p32),
+                    Text(
+                      AppTranslations.translate('tracking_modules', locale),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: const Color(0xFF4A4A4A),
+                      ),
+                    ),
+                    SizedBox(height: SizeTokens.p20),
+                    _buildModulesGrid(locale, role),
+                  ],
                 ),
               ),
-              SizedBox(height: SizeTokens.p16),
-              _buildNoticeSection(homeViewModel, locale),
-              SizedBox(height: SizeTokens.p32),
-              Text(
-                AppTranslations.translate('tracking_modules', locale),
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: const Color(0xFF4A4A4A),
-                ),
+            )
+          : _currentIndex == 1
+          ? CalendarView(user: user, showAppBar: false)
+          : Center(
+              child: Text(
+                AppTranslations.translate('messages', locale),
+                style: Theme.of(context).textTheme.titleLarge,
               ),
-              SizedBox(height: SizeTokens.p20),
-              _buildModulesGrid(locale, role),
-            ],
-          ),
-        ),
-      ),
+            ),
       bottomNavigationBar: BaseBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {

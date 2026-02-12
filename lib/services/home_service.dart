@@ -1,3 +1,4 @@
+import 'dart:io';
 import '../app/api_constants.dart';
 import '../core/network/api_client.dart';
 import '../core/network/api_result.dart';
@@ -633,6 +634,39 @@ class HomeService {
     }
   }
 
+  Future<ApiResult<bool>> addDailyMealMenu({
+    required int schoolId,
+    required String userKey,
+    required String title,
+    required String menu,
+    required String time,
+    required String date,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.dailyMealMenus,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'title': title,
+          'menu': menu,
+          'time': time,
+          'date': date,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Yemek menüsü eklenemedi',
+      );
+    } catch (e) {
+      AppLogger.error('Add daily meal menu failed', e);
+      return Failure(e.toString());
+    }
+  }
+
   Future<ApiResult<bool>> deleteMealMenu({
     required int schoolId,
     required String userKey,
@@ -658,6 +692,160 @@ class HomeService {
       );
     } catch (e) {
       AppLogger.error('Delete meal menu failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> addDailyGallery({
+    required int schoolId,
+    required String userKey,
+    required int classId,
+    required File image,
+    required String date,
+    required int userId,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.dailyGallery,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'class_id': classId,
+          'date': date,
+          'user_id': userId,
+        },
+        files: {'image': image},
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Galeri eklenemedi',
+      );
+    } catch (e) {
+      AppLogger.error('Add daily gallery failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> deleteGallery({
+    required int schoolId,
+    required String userKey,
+    required int id,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.deleteGallery,
+        body: {'school_id': schoolId, 'user_key': userKey, 'id': id},
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Silme işlemi başarısız',
+      );
+    } catch (e) {
+      AppLogger.error('Delete gallery failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<List<LessonModel>>> getAllLessons({
+    required int schoolId,
+    required String userKey,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.allLessons,
+        body: {'school_id': schoolId, 'user_key': userKey},
+      );
+
+      if (response['data'] != null && response['data'] is List) {
+        final List<dynamic> data = response['data'];
+        final items = data.map((json) => LessonModel.fromJson(json)).toList();
+        return Success(items);
+      }
+      return Success([]);
+    } catch (e) {
+      AppLogger.error('Fetch lessons failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> addDailyTimeTable({
+    required int schoolId,
+    required String userKey,
+    required int classId,
+    required int lessonId,
+    required String description,
+    required String date,
+    required String startTime,
+    required String endTime,
+    required int userId,
+    File? file,
+  }) async {
+    try {
+      final body = {
+        'school_id': schoolId,
+        'user_key': userKey,
+        'class_id': classId,
+        'lesson_id': lessonId,
+        'description': description,
+        'date': date,
+        'start_time': startTime,
+        'end_time': endTime,
+        'user_id': userId,
+      };
+
+      final response = await _apiClient.post(
+        ApiConstants.dailyTimeTable,
+        body: body,
+        files: file != null ? {'file': file} : null,
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ??
+            response['failure'] ??
+            'Ders programı eklenemedi',
+      );
+    } catch (e) {
+      AppLogger.error('Add daily time table failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> deleteTimeTable({
+    required int schoolId,
+    required String userKey,
+    required int classId,
+    required int lessonId,
+    required String date,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.deleteTimeTable,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'class_id': classId,
+          'lesson_id': lessonId,
+          'date': date,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Silme işlemi başarısız',
+      );
+    } catch (e) {
+      AppLogger.error('Delete time table failed', e);
       return Failure(e.toString());
     }
   }

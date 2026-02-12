@@ -77,5 +77,16 @@
     "no_lesson_found": "No lesson program found",
     "no_menu_found": "No menu found",
     "no_gallery_found": "No images found",
-    "teacher_name": "Teacher"
+    "teacher_name": "Teacher",
+    "upload_success": "Image uploaded successfully",
+    "delete_success": "Image deleted successfully",
+    "add_time_table": "Add Time Table",
+    "lesson": "Lesson",
+    "description": "Description",
+    "start_time": "Start Time",
+    "end_time": "End Time",
+    "attach_pdf": "Attach PDF",
+    "meal_title": "Meal Title",
+    "meal_content": "Meal Content",
+    "add_meal_menu": "Add Meal Menu"
 }

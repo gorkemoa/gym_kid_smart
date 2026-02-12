@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Bu uygulama galeriye erişerek öğrenci fotoğrafları yüklemenize olanak tanır.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Bu uygulama kamerayı kullanarak öğrenci fotoğrafları çekmenize olanak tanır.</string>
 </dict>
 </plist>

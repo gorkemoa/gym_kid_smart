@@ -79,5 +79,16 @@
     "no_lesson_found": "Ders programı bulunamadı",
     "no_menu_found": "Menü bulunamadı",
     "no_gallery_found": "Galeri görseli bulunamadı",
-    "teacher_name": "Öğretmen"
+    "teacher_name": "Öğretmen",
+    "upload_success": "Görsel başarıyla yüklendi",
+    "delete_success": "Görsel başarıyla silindi",
+    "add_time_table": "Ders Programı Ekle",
+    "lesson": "Ders",
+    "description": "Açıklama",
+    "start_time": "Başlangıç Saati",
+    "end_time": "Bitiş Saati",
+    "attach_pdf": "PDF Dosyası Ekle",
+    "meal_title": "Yemek Başlığı",
+    "meal_content": "Yemek İçeriği",
+    "add_meal_menu": "Yemek Menüsü Ekle"
 }

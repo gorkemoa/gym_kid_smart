@@ -25,8 +25,14 @@ class ApiConstants {
   static const String studentMedicament = '/Api/StudentMedicament';
   static const String addStudentMedicament = '/Api/AddStudentMedicament';
   static const String dailyMedicament = '/Api/DailyMedicament';
+  static const String dailyMealMenus = '/Api/DailyMealMenus';
   static const String allMealMenus = '/Api/allMealMenus';
   static const String deleteMealMenu = '/Api/deleteMealMenu';
+  static const String dailyGallery = '/Api/DailyGallery';
+  static const String deleteGallery = '/Api/deleteGallery';
+  static const String dailyTimeTable = '/Api/DailyTimeTable';
+  static const String deleteTimeTable = '/Api/deleteTimeTable';
+  static const String allLessons = '/Api/AllLessons';
   static const String calendarDetail = '/Api/CalendarDetail';
 
   // Headers

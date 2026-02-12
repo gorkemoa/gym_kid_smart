@@ -21,6 +21,7 @@ class ApiClient {
     String endpoint, {
     Map<String, dynamic>? body,
     Map<String, String>? headers,
+    Map<String, File>? files,
   }) async {
     try {
       final combinedHeaders = _combineHeaders(headers);
@@ -33,6 +34,20 @@ class ApiClient {
         body.forEach((key, value) {
           request.fields[key] = value.toString();
         });
+      }
+
+      if (files != null) {
+        for (var entry in files.entries) {
+          final stream = http.ByteStream(entry.value.openRead());
+          final length = await entry.value.length();
+          final multipartFile = http.MultipartFile(
+            entry.key,
+            stream,
+            length,
+            filename: entry.value.path.split('/').last,
+          );
+          request.files.add(multipartFile);
+        }
       }
 
       final streamedResponse = await request.send();
