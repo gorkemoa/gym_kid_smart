@@ -76,27 +76,39 @@ class StudentDetailViewModel extends ChangeNotifier {
     if (initialDate != null) {
       _selectedDate = initialDate;
     }
-    // Expand meals by default
-    _expandedSections.add('meals');
+    // Expand meals by default if not already set
+    if (_expandedSections.isEmpty) {
+      _expandedSections.add('meals');
+    }
     _selectedPart = 'meals';
-    _fetchSectionData('meals');
+
+    // Initial fetch for expanded sections
+    for (var part in _expandedSections) {
+      _fetchSectionData(part);
+    }
+
     _fetchStudentMedicaments();
     if (_classId != null) {
       _fetchClassmates();
     }
   }
 
+  bool _isDisposed = false;
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
   Future<void> _fetchClassmates() async {
     if (_schoolId == null || _userKey == null || _classId == null) return;
-
     final result = await _homeService.getAllStudents(
       schoolId: _schoolId!,
       userKey: _userKey!,
       classId: _classId!,
     );
-
     if (_isDisposed) return;
-
     if (result is Success<List<StudentModel>>) {
       _classmates = result.data;
       notifyListeners();
@@ -121,6 +133,7 @@ class StudentDetailViewModel extends ChangeNotifier {
     for (final part in Set<String>.from(_expandedSections)) {
       _fetchSectionData(part);
     }
+    notifyListeners();
   }
 
   void setPart(String part) {
@@ -134,26 +147,21 @@ class StudentDetailViewModel extends ChangeNotifier {
     } else {
       _expandedSections.add(part);
       _selectedPart = part;
-      if (!_allSectionsData.containsKey(part)) {
+      if (!_allSectionsData.containsKey(part) ||
+          _allSectionsData[part]!.isEmpty) {
         _fetchSectionData(part);
       }
     }
     notifyListeners();
   }
 
-  bool _isDisposed = false;
-
-  @override
-  void dispose() {
-    _isDisposed = true;
-    super.dispose();
-  }
-
-  Future<void> _fetchSectionData(String part) async {
+  Future<void> _fetchSectionData(String part, {bool silent = false}) async {
     if (_schoolId == null || _userKey == null || _studentId == null) return;
 
-    _sectionLoading[part] = true;
-    if (!_isDisposed) notifyListeners();
+    if (!silent) {
+      _sectionLoading[part] = true;
+      if (!_isDisposed) notifyListeners();
+    }
 
     final result = await _homeService.getDailyStudent(
       schoolId: _schoolId!,
@@ -168,7 +176,6 @@ class StudentDetailViewModel extends ChangeNotifier {
     if (result is Success<List<DailyStudentModel>>) {
       _allSectionsData[part] = result.data;
       if (part == 'medicament') {
-        // Also ensure medicaments definitions are fresh
         await _fetchStudentMedicaments();
       }
     } else {
@@ -183,32 +190,17 @@ class StudentDetailViewModel extends ChangeNotifier {
     if (!_isDisposed) notifyListeners();
   }
 
-  Future<void> _fetchMealMenus() async {
-    final result = await _homeService.getMealMenus(
-      schoolId: _schoolId!,
-      userKey: _userKey!,
-    );
-
-    if (_isDisposed) return;
-
-    if (result is Success<List<MealMenuModel>>) {
-      _mealMenus = result.data;
-    }
-  }
-
   Future<void> _fetchStudentMedicaments() async {
     if (_schoolId == null || _userKey == null || _studentId == null) return;
-
     final result = await _homeService.getStudentMedicament(
       schoolId: _schoolId!,
       userKey: _userKey!,
       studentId: _studentId!,
     );
-
     if (_isDisposed) return;
-
     if (result is Success<List<StudentMedicamentModel>>) {
       _medicaments = result.data;
+      notifyListeners();
     }
   }
 
@@ -220,6 +212,28 @@ class StudentDetailViewModel extends ChangeNotifier {
       return Failure('Missing parameters');
     }
 
+    // 1. Optimistic Update
+    final medicamentData = List<DailyStudentModel>.from(
+      _allSectionsData['medicament'] ?? [],
+    );
+    final alreadyExistsIdx = medicamentData.indexWhere(
+      (d) => d.medicamentId == medicamentId,
+    );
+
+    if (alreadyExistsIdx != -1) {
+      medicamentData.removeAt(alreadyExistsIdx);
+    } else {
+      medicamentData.add(
+        DailyStudentModel(
+          medicamentId: medicamentId,
+          dateAdded: DateTime.now().toIso8601String(),
+        ),
+      );
+    }
+    _allSectionsData['medicament'] = medicamentData;
+    notifyListeners();
+
+    // 2. Execute API Call
     final result = await _homeService.toggleDailyMedicament(
       schoolId: _schoolId!,
       userKey: _userKey!,
@@ -229,18 +243,15 @@ class StudentDetailViewModel extends ChangeNotifier {
       medicamentId: medicamentId,
     );
 
-    if (result is Success<bool>) {
-      _fetchSectionData('medicament');
-    }
+    // 3. Silent refresh to ensure data integrity
+    await _fetchSectionData('medicament', silent: true);
 
     return result;
   }
 
   Future<ApiResult<bool>> deleteMedicament(int id) async {
-    if (_schoolId == null || _userKey == null || _studentId == null) {
+    if (_schoolId == null || _userKey == null || _studentId == null)
       return Failure('Missing parameters');
-    }
-
     final result = await _homeService.addStudentMedicament(
       schoolId: _schoolId!,
       userKey: _userKey!,
@@ -251,11 +262,9 @@ class StudentDetailViewModel extends ChangeNotifier {
       status: 0,
       id: id,
     );
-
     if (result is Success<bool>) {
       _fetchSectionData('medicament');
     }
-
     return result;
   }
 
@@ -263,12 +272,11 @@ class StudentDetailViewModel extends ChangeNotifier {
     required String content,
     required String role,
   }) async {
-    if (_schoolId == null || _userKey == null || _studentId == null) {
+    if (_schoolId == null || _userKey == null || _studentId == null)
       return Failure('Missing parameters');
-    }
 
-    DailyStudentModel? existingNote;
     final noteData = _allSectionsData['noteLogs'] ?? [];
+    DailyStudentModel? existingNote;
     try {
       existingNote = noteData.firstWhere(
         (item) => item.teacherNote != null || item.parentNote != null,
@@ -306,7 +314,6 @@ class StudentDetailViewModel extends ChangeNotifier {
     if (result is Success<bool>) {
       _fetchSectionData('noteLogs');
     }
-
     return result;
   }
 
@@ -318,21 +325,15 @@ class StudentDetailViewModel extends ChangeNotifier {
     required int userId,
     required String role,
   }) async {
-    if (_schoolId == null || _userKey == null || _studentId == null) {
+    if (_schoolId == null || _userKey == null || _studentId == null)
       return Failure('Missing parameters');
-    }
-
-    int finalStatus = status;
 
     final receivingData = _allSectionsData['receiving'] ?? [];
     bool exists = receivingData.any((item) => item.recipient != null);
-    if (!exists) {
-      if (role != 'parent' && role != 'superadmin') {
-        return Failure(
-          'İlk ekleme sadece veli veya yönetici tarafından yapılabilir',
-        );
-      }
-      finalStatus = 0;
+    if (!exists && role != 'parent' && role != 'superadmin') {
+      return Failure(
+        'İlk ekleme sadece veli veya yönetici tarafından yapılabilir',
+      );
     }
 
     final result = await _homeService.addDailyReceiving(
@@ -342,7 +343,7 @@ class StudentDetailViewModel extends ChangeNotifier {
       date: _selectedDate,
       time: time,
       recipient: recipient,
-      status: finalStatus,
+      status: status,
       userId: userId,
       note: note,
     );
@@ -350,67 +351,6 @@ class StudentDetailViewModel extends ChangeNotifier {
     if (result is Success<bool>) {
       _fetchSectionData('receiving');
     }
-
-    return result;
-  }
-
-  Future<ApiResult<bool>> saveActivityTitle({
-    required String title,
-    int? id,
-  }) async {
-    if (_schoolId == null || _userKey == null) {
-      return Failure('Missing parameters');
-    }
-
-    return await _homeService.saveActivityTitle(
-      schoolId: _schoolId!,
-      userKey: _userKey!,
-      title: title,
-      id: id,
-    );
-  }
-
-  Future<ApiResult<bool>> saveActivityValue({
-    required String value,
-    int? id,
-  }) async {
-    if (_schoolId == null || _userKey == null) {
-      return Failure('Missing parameters');
-    }
-
-    return await _homeService.saveActivityValue(
-      schoolId: _schoolId!,
-      userKey: _userKey!,
-      value: value,
-      id: id,
-    );
-  }
-
-  Future<ApiResult<bool>> deleteMealMenu({
-    required String time,
-    required String date,
-    required String role,
-  }) async {
-    if (_schoolId == null || _userKey == null) {
-      return Failure('Missing parameters');
-    }
-
-    if (role != 'superadmin' && role != 'teacher') {
-      return Failure('Yetkisiz işlem');
-    }
-
-    final result = await _homeService.deleteMealMenu(
-      schoolId: _schoolId!,
-      userKey: _userKey!,
-      time: time,
-      date: date,
-    );
-
-    if (result is Success<bool>) {
-      await _fetchMealMenus();
-      notifyListeners();
-    }
-
     return result;
   }
 
@@ -418,14 +358,10 @@ class StudentDetailViewModel extends ChangeNotifier {
     required String title,
     required String role,
   }) async {
-    if (_schoolId == null || _userKey == null || _studentId == null) {
+    if (_schoolId == null || _userKey == null || _studentId == null)
       return Failure('Missing parameters');
-    }
-
-    if (role != 'superadmin' && role != 'teacher') {
+    if (role != 'superadmin' && role != 'teacher')
       return Failure('Yetkisiz işlem');
-    }
-
     final result = await _homeService.deleteDailySocial(
       schoolId: _schoolId!,
       userKey: _userKey!,
@@ -433,11 +369,7 @@ class StudentDetailViewModel extends ChangeNotifier {
       title: title,
       date: _selectedDate,
     );
-
-    if (result is Success<bool>) {
-      _fetchSectionData('socials');
-    }
-
+    if (result is Success<bool>) _fetchSectionData('socials');
     return result;
   }
 
@@ -445,14 +377,10 @@ class StudentDetailViewModel extends ChangeNotifier {
     required String title,
     required String role,
   }) async {
-    if (_schoolId == null || _userKey == null || _studentId == null) {
+    if (_schoolId == null || _userKey == null || _studentId == null)
       return Failure('Missing parameters');
-    }
-
-    if (role != 'superadmin' && role != 'teacher') {
+    if (role != 'superadmin' && role != 'teacher')
       return Failure('Yetkisiz işlem');
-    }
-
     final result = await _homeService.deleteDailyActivity(
       schoolId: _schoolId!,
       userKey: _userKey!,
@@ -460,19 +388,13 @@ class StudentDetailViewModel extends ChangeNotifier {
       title: title,
       date: _selectedDate,
     );
-
-    if (result is Success<bool>) {
-      _fetchSectionData('activities');
-    }
-
+    if (result is Success<bool>) _fetchSectionData('activities');
     return result;
   }
 
   Future<ApiResult<bool>> deleteDailyMeal({required String title}) async {
-    if (_schoolId == null || _userKey == null || _studentId == null) {
+    if (_schoolId == null || _userKey == null || _studentId == null)
       return Failure('Missing parameters');
-    }
-
     final result = await _homeService.deleteDailyMeal(
       schoolId: _schoolId!,
       userKey: _userKey!,
@@ -480,18 +402,13 @@ class StudentDetailViewModel extends ChangeNotifier {
       title: title,
       date: _selectedDate,
     );
-
-    if (result is Success<bool>) {
-      _fetchSectionData('meals');
-    }
-
+    if (result is Success<bool>) _fetchSectionData('meals');
     return result;
   }
 
   void refresh() {
-    _allSectionsData.clear();
-    for (final part in Set<String>.from(_expandedSections)) {
-      _fetchSectionData(part);
+    for (final part in _expandedSections) {
+      _fetchSectionData(part, silent: true);
     }
     _fetchStudentMedicaments();
   }

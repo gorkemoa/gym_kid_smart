@@ -585,6 +585,7 @@ class _StudentDetailContent extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: () async => viewModel.refresh(),
       child: ListView.builder(
+        key: PageStorageKey('student_detail_${currentStudent.id}'),
         padding: EdgeInsets.only(bottom: SizeTokens.p16),
         itemCount: totalItems,
         itemBuilder: (context, index) {
@@ -604,6 +605,7 @@ class _StudentDetailContent extends StatelessWidget {
           final sectionData = viewModel.allSectionsData[partId] ?? [];
 
           return Padding(
+            key: ValueKey('section_$partId'),
             padding: EdgeInsets.symmetric(horizontal: SizeTokens.p16),
             child: _buildAccordionSection(
               context: context,
