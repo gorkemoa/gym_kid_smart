@@ -402,7 +402,10 @@ class _StudentDetailContent extends StatelessWidget {
           ),
           onDelete:
               (viewModel.selectedPart == 'socials' &&
-                  (user.role == 'teacher' || user.role == 'superadmin'))
+                      (user.role == 'teacher' || user.role == 'superadmin')) ||
+                  (viewModel.selectedPart == 'activities' &&
+                      (user.role == 'teacher' || user.role == 'superadmin')) ||
+                  (viewModel.selectedPart == 'meals')
               ? () => _showDeleteConfirmation(context, viewModel, item, locale)
               : null,
         );
@@ -431,10 +434,24 @@ class _StudentDetailContent extends StatelessWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              final result = await viewModel.deleteDailySocial(
-                title: item.title ?? '',
-                role: user.role ?? '',
-              );
+              late ApiResult<bool> result;
+
+              if (viewModel.selectedPart == 'socials') {
+                result = await viewModel.deleteDailySocial(
+                  title: item.title ?? '',
+                  role: user.role ?? '',
+                );
+              } else if (viewModel.selectedPart == 'activities') {
+                result = await viewModel.deleteDailyActivity(
+                  title: item.title ?? '',
+                  role: user.role ?? '',
+                );
+              } else if (viewModel.selectedPart == 'meals') {
+                result = await viewModel.deleteDailyMeal(
+                  title: item.title ?? '',
+                );
+              }
+
               if (context.mounted) {
                 if (result is Success) {
                   ScaffoldMessenger.of(context).showSnackBar(

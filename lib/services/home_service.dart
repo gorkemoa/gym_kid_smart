@@ -910,4 +910,66 @@ class HomeService {
       return Failure(e.toString());
     }
   }
+
+  Future<ApiResult<bool>> deleteDailyActivity({
+    required int schoolId,
+    required String userKey,
+    required int studentId,
+    required String title,
+    required String date,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.deleteDailyActivity,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'student_id': studentId,
+          'title': title,
+          'date': date,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Silme işlemi başarısız',
+      );
+    } catch (e) {
+      AppLogger.error('Delete daily activity failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> deleteDailyMeal({
+    required int schoolId,
+    required String userKey,
+    required int studentId,
+    required String title,
+    required String date,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.deleteDailyMeal,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'student_id': studentId,
+          'title': title,
+          'date': date,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Silme işlemi başarısız',
+      );
+    } catch (e) {
+      AppLogger.error('Delete daily meal failed', e);
+      return Failure(e.toString());
+    }
+  }
 }

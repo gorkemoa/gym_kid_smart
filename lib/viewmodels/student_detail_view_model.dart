@@ -380,6 +380,53 @@ class StudentDetailViewModel extends ChangeNotifier {
     return result;
   }
 
+  Future<ApiResult<bool>> deleteDailyActivity({
+    required String title,
+    required String role,
+  }) async {
+    if (_schoolId == null || _userKey == null || _studentId == null) {
+      return Failure('Missing parameters');
+    }
+
+    if (role != 'superadmin' && role != 'teacher') {
+      return Failure('Yetkisiz işlem');
+    }
+
+    final result = await _homeService.deleteDailyActivity(
+      schoolId: _schoolId!,
+      userKey: _userKey!,
+      studentId: _studentId!,
+      title: title,
+      date: _selectedDate,
+    );
+
+    if (result is Success<bool>) {
+      _fetchDailyData();
+    }
+
+    return result;
+  }
+
+  Future<ApiResult<bool>> deleteDailyMeal({required String title}) async {
+    if (_schoolId == null || _userKey == null || _studentId == null) {
+      return Failure('Missing parameters');
+    }
+
+    final result = await _homeService.deleteDailyMeal(
+      schoolId: _schoolId!,
+      userKey: _userKey!,
+      studentId: _studentId!,
+      title: title,
+      date: _selectedDate,
+    );
+
+    if (result is Success<bool>) {
+      _fetchDailyData();
+    }
+
+    return result;
+  }
+
   void refresh() {
     _fetchDailyData();
   }
