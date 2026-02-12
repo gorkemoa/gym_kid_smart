@@ -85,33 +85,92 @@ class _DailyReportContent extends StatelessWidget {
     if (viewModel.classes.isEmpty) {
       return Center(
         child: Text(
-          AppTranslations.translate(
-            'no_classes_found',
-            locale,
-          ), // Ensure translation exists or fallback
+          AppTranslations.translate('no_classes_found', locale),
           style: Theme.of(context).textTheme.bodyLarge,
         ),
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: () async => viewModel.refresh(),
-      child: GridView.builder(
-        padding: EdgeInsets.all(SizeTokens.p16),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: SizeTokens.p16,
-          mainAxisSpacing: SizeTokens.p16,
-          childAspectRatio: 0.8,
+    final filtered = viewModel.filteredClasses;
+
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            SizeTokens.p16,
+            SizeTokens.p16,
+            SizeTokens.p16,
+            SizeTokens.p8,
+          ),
+          child: TextField(
+            onChanged: viewModel.updateSearchQuery,
+            decoration: InputDecoration(
+              hintText: AppTranslations.translate('search', locale),
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: viewModel.searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => viewModel.updateSearchQuery(''),
+                    )
+                  : null,
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: SizeTokens.p16,
+                vertical: SizeTokens.p12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(SizeTokens.r16),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(SizeTokens.r16),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(SizeTokens.r16),
+                borderSide: BorderSide(
+                  color: Theme.of(context).primaryColor,
+                  width: 2,
+                ),
+              ),
+            ),
+          ),
         ),
-        itemCount: viewModel.classes.length,
-        itemBuilder: (context, index) {
-          final classItem = viewModel.classes[index];
-          final user = context.read<LoginViewModel>().data?.data;
-          if (user == null) return const SizedBox.shrink();
-          return _buildClassCard(context, classItem, viewModel, user);
-        },
-      ),
+        Expanded(
+          child: filtered.isEmpty
+              ? Center(
+                  child: Text(
+                    AppTranslations.translate('no_classes_found', locale),
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: () async => viewModel.refresh(),
+                  child: GridView.builder(
+                    padding: EdgeInsets.all(SizeTokens.p16),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: SizeTokens.p16,
+                      mainAxisSpacing: SizeTokens.p16,
+                      childAspectRatio: 0.8,
+                    ),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final classItem = filtered[index];
+                      final user = context.read<LoginViewModel>().data?.data;
+                      if (user == null) return const SizedBox.shrink();
+                      return _buildClassCard(
+                        context,
+                        classItem,
+                        viewModel,
+                        user,
+                      );
+                    },
+                  ),
+                ),
+        ),
+      ],
     );
   }
 

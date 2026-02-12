@@ -84,7 +84,7 @@ class _HomeViewState extends State<HomeView> {
                             ),
                             SizedBox(height: SizeTokens.p16),
                             Expanded(
-                              flex: 52,
+                              flex: 55,
                               child: _buildModulesGrid(locale, role),
                             ),
                           ],
@@ -98,12 +98,7 @@ class _HomeViewState extends State<HomeView> {
           : _currentIndex == 1
           ? CalendarView(user: user, showAppBar: false)
           : _currentIndex == 2
-          ? ChatView(
-              user: user!,
-              id: homeViewModel.students.isNotEmpty
-                  ? homeViewModel.students.first.id ?? 11
-                  : 11,
-            )
+          ? ChatView(user: user!, id: homeViewModel.students.first.id ?? 0)
           : Center(
               child: Text(
                 AppTranslations.translate('messages', locale),
@@ -125,7 +120,7 @@ class _HomeViewState extends State<HomeView> {
     return Row(
       children: [
         Container(
-          width: 4,
+          width: SizeTokens.r4,
           height: SizeTokens.h24,
           decoration: BoxDecoration(
             color: Theme.of(context).primaryColor,
@@ -136,7 +131,7 @@ class _HomeViewState extends State<HomeView> {
         Text(
           title,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: const Color(0xFF2D2D2D),
+            color: Theme.of(context).textTheme.titleLarge?.color,
             fontWeight: FontWeight.w700,
             letterSpacing: -0.5,
           ),
@@ -159,10 +154,7 @@ class _HomeViewState extends State<HomeView> {
           children: [
             Container(
               padding: EdgeInsets.all(SizeTokens.p12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
+
               child: Icon(
                 Icons.notifications_none_rounded,
                 size: SizeTokens.i32,
@@ -177,7 +169,9 @@ class _HomeViewState extends State<HomeView> {
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF4A4A4A),
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.color?.withOpacity(0.8),
                 ),
               ),
             ),
@@ -222,8 +216,8 @@ class _HomeViewState extends State<HomeView> {
           padding: EdgeInsets.all(SizeTokens.p20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(SizeTokens.r24),
-            border: Border.all(color: Colors.grey.shade50),
+            borderRadius: BorderRadius.circular(SizeTokens.f10),
+            border: Border.all(color: Colors.grey.shade200),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.03),
@@ -238,13 +232,6 @@ class _HomeViewState extends State<HomeView> {
               Row(
                 children: [
                   Container(
-                    padding: EdgeInsets.all(SizeTokens.p8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.secondary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(SizeTokens.r10),
-                    ),
                     child: Icon(
                       Icons.campaign_rounded,
                       size: SizeTokens.i20,
@@ -261,7 +248,9 @@ class _HomeViewState extends State<HomeView> {
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF212121),
+                                color: Theme.of(
+                                  context,
+                                ).textTheme.titleMedium?.color,
                                 fontSize: SizeTokens.f16,
                               ),
                           maxLines: 1,
@@ -284,7 +273,9 @@ class _HomeViewState extends State<HomeView> {
               Text(
                 notice.description ?? '',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF555555),
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withOpacity(0.9),
                   height: 1.4,
                   fontSize: SizeTokens.f14,
                 ),
@@ -417,55 +408,56 @@ class _HomeViewState extends State<HomeView> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(SizeTokens.p20),
+        padding: EdgeInsets.all(SizeTokens.p16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(SizeTokens.r24),
-          border: Border.all(color: Colors.grey.shade100, width: 1),
+          borderRadius: BorderRadius.circular(SizeTokens.r12),
+          border: Border.all(color: Colors.grey.shade100, width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 15,
-              offset: const Offset(0, 6),
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: EdgeInsets.all(SizeTokens.p14),
+              padding: EdgeInsets.all(SizeTokens.p12),
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(SizeTokens.r20),
-              ),
-              child: Icon(
-                icon,
                 color: Theme.of(context).primaryColor,
-                size: SizeTokens.i28,
+                borderRadius: BorderRadius.circular(SizeTokens.r16),
               ),
+              child: Icon(icon, color: Colors.white, size: SizeTokens.i24),
             ),
-            SizedBox(height: SizeTokens.p16),
+            SizedBox(height: SizeTokens.p10),
             Text(
               title,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF2D2D2D),
+                color: Theme.of(context).textTheme.bodyLarge?.color,
                 letterSpacing: -0.2,
               ),
               textAlign: TextAlign.center,
               maxLines: 1,
             ),
             SizedBox(height: SizeTokens.p4),
-            Text(
-              subtitle,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: const Color(0xFF757575),
-                fontWeight: FontWeight.w500,
+            Flexible(
+              child: Text(
+                subtitle,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.color?.withOpacity(0.7),
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

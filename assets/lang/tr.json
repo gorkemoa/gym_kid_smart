@@ -41,6 +41,7 @@
     "quick_login": "Hızlı Giriş",
     "retry": "Tekrar Dene",
     "no_classes_found": "Sınıf Bulunamadı",
+    "search": "Ara...",
     "done": "Tamam",
     "cancel": "İptal",
     "meals": "Yemek",
@@ -100,5 +101,6 @@
     "attach_pdf": "PDF Dosyası Ekle",
     "meal_title": "Yemek Başlığı",
     "meal_content": "Yemek İçeriği",
-    "add_meal_menu": "Yemek Menüsü Ekle"
+    "add_meal_menu": "Yemek Menüsü Ekle",
+    "read_more": "Devamını Oku"
 }

@@ -84,5 +84,7 @@
     "attach_pdf": "Attach PDF",
     "meal_title": "Meal Title",
     "meal_content": "Meal Content",
-    "add_meal_menu": "Add Meal Menu"
+    "add_meal_menu": "Add Meal Menu",
+    "search": "Search...",
+    "read_more": "Read More"
 }

@@ -70,7 +70,23 @@ class HomeViewModel extends ChangeNotifier {
       );
 
       if (noticeResult is Success<List<NoticeModel>>) {
-        _notices = noticeResult.data;
+        final List<NoticeModel> noticeList = noticeResult.data;
+        // Duyuruları yeniden eskiye sıralama (noticeDate'e göre)
+        noticeList.sort((a, b) {
+          final dateA = a.noticeDate != null
+              ? DateTime.tryParse(a.noticeDate!)
+              : null;
+          final dateB = b.noticeDate != null
+              ? DateTime.tryParse(b.noticeDate!)
+              : null;
+
+          if (dateA == null && dateB == null) return 0;
+          if (dateA == null) return 1;
+          if (dateB == null) return -1;
+
+          return dateB.compareTo(dateA); // Yeniden eskiye
+        });
+        _notices = noticeList;
       } else if (noticeResult is Failure<List<NoticeModel>>) {
         _errorMessage = noticeResult.message;
       }

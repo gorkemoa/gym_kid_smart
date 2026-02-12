@@ -15,6 +15,24 @@ class DailyReportViewModel extends ChangeNotifier {
   List<ClassModel> _classes = [];
   List<ClassModel> get classes => _classes;
 
+  String _searchQuery = '';
+  String get searchQuery => _searchQuery;
+
+  List<ClassModel> get filteredClasses {
+    if (_searchQuery.isEmpty) return _classes;
+    return _classes
+        .where(
+          (c) =>
+              (c.name ?? '').toLowerCase().contains(_searchQuery.toLowerCase()),
+        )
+        .toList();
+  }
+
+  void updateSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
+
   int? _schoolId;
   int? get schoolId => _schoolId;
   String? _userKey;
@@ -39,7 +57,8 @@ class DailyReportViewModel extends ChangeNotifier {
     );
 
     if (result is Success<List<ClassModel>>) {
-      _classes = result.data;
+      _classes = result.data
+        ..sort((a, b) => (a.name ?? '').compareTo(b.name ?? ''));
     } else if (result is Failure<List<ClassModel>>) {
       _errorMessage = result.message;
     }
