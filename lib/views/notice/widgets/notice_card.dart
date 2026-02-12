@@ -7,8 +7,14 @@ import '../../notice_detail/notice_detail_view.dart';
 class NoticeCard extends StatelessWidget {
   final NoticeModel notice;
   final String locale;
+  final VoidCallback? onEdit;
 
-  const NoticeCard({super.key, required this.notice, required this.locale});
+  const NoticeCard({
+    super.key,
+    required this.notice,
+    required this.locale,
+    this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +78,15 @@ class NoticeCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (onEdit != null)
+                  IconButton(
+                    onPressed: onEdit,
+                    icon: Icon(
+                      Icons.edit_note_rounded,
+                      color: Theme.of(context).primaryColor,
+                      size: SizeTokens.i24,
+                    ),
+                  ),
               ],
             ),
             SizedBox(height: SizeTokens.p12),

@@ -8,6 +8,7 @@ import '../../core/responsive/size_tokens.dart';
 import '../../core/utils/app_translations.dart';
 import '../../core/ui_components/common_widgets.dart';
 import 'widgets/notice_card.dart';
+import 'notice_form_view.dart';
 
 class NoticeView extends StatelessWidget {
   final UserModel user;
@@ -19,14 +20,15 @@ class NoticeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => NoticeViewModel()..init(user),
-      child: _NoticeContent(showAppBar: showAppBar),
+      child: _NoticeContent(showAppBar: showAppBar, user: user),
     );
   }
 }
 
 class _NoticeContent extends StatelessWidget {
   final bool showAppBar;
-  const _NoticeContent({required this.showAppBar});
+  final UserModel user;
+  const _NoticeContent({required this.showAppBar, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +61,26 @@ class _NoticeContent extends StatelessWidget {
           ),
         ],
       ),
+      floatingActionButton:
+          (user.role == 'superadmin' || user.role == 'teacher')
+          ? FloatingActionButton(
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NoticeFormView(
+                      user: user,
+                      classes: viewModel.classes,
+                      initialClassId: viewModel.selectedClass?.id,
+                    ),
+                  ),
+                );
+                if (result == true) viewModel.refresh();
+              },
+              backgroundColor: Theme.of(context).primaryColor,
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null,
     );
   }
 
@@ -174,7 +196,26 @@ class _NoticeContent extends StatelessWidget {
       padding: EdgeInsets.all(SizeTokens.p20),
       itemCount: viewModel.notices.length,
       itemBuilder: (context, index) {
-        return NoticeCard(notice: viewModel.notices[index], locale: locale);
+        final notice = viewModel.notices[index];
+        return NoticeCard(
+          notice: notice,
+          locale: locale,
+          onEdit: (user.role == 'superadmin' || user.role == 'teacher')
+              ? () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NoticeFormView(
+                        user: user,
+                        notice: notice,
+                        classes: viewModel.classes,
+                      ),
+                    ),
+                  );
+                  if (result == true) viewModel.refresh();
+                }
+              : null,
+        );
       },
     );
   }

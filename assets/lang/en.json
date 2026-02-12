@@ -95,5 +95,12 @@
     "no_students_found": "No students found in this class.",
     "notice_detail": "Notice Detail",
     "all": "All",
-    "announcements": "Announcements"
+    "announcements": "Announcements",
+    "add_notice": "Add Announcement",
+    "edit_notice": "Edit Announcement",
+    "notice_title": "Announcement Title",
+    "notice_description": "Announcement Description",
+    "date": "Date",
+    "active": "Active",
+    "passive": "Passive"
 }

@@ -6,6 +6,7 @@ class ApiConstants {
   static const String allSettings = '/Api/AllSettings';
   static const String addToken = '/Api/addToken';
   static const String allNotices = '/Api/AllNotices';
+  static const String notices = '/Api/Notices';
   static const String allStudents = '/Api/AllStudents';
   static const String allClasses = '/Api/AllClasses';
   static const String dailyStudent = '/Api/DailyStudent';

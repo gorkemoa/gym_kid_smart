@@ -110,5 +110,12 @@
     "no_students_found": "Bu sınıfa ait kayıtlı öğrenci bulunamadı.",
     "notice_detail": "Duyuru Detayı",
     "all": "Tümü",
-    "announcements": "Duyurular"
+    "announcements": "Duyurular",
+    "add_notice": "Duyuru Ekle",
+    "edit_notice": "Duyuru Düzenle",
+    "notice_title": "Duyuru Başlığı",
+    "notice_description": "Duyuru İçeriği",
+    "date": "Tarih",
+    "active": "Aktif",
+    "passive": "Pasif"
 }

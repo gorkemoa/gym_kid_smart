@@ -48,6 +48,43 @@ class HomeService {
     }
   }
 
+  Future<ApiResult<bool>> saveNotice({
+    required int schoolId,
+    required String userKey,
+    required int classId,
+    required String title,
+    required String description,
+    required String date,
+    required int status,
+    required int id,
+    required int userId,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.notices,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'class_id': classId,
+          'title': title,
+          'description': description,
+          'date': date,
+          'status': status,
+          'id': id,
+          'user_id': userId,
+        },
+      );
+
+      if (response['success'] != null) {
+        return const Success(true);
+      }
+      return Failure(response['message'] ?? 'Operation failed');
+    } catch (e) {
+      AppLogger.error('Save notice failed', e);
+      return Failure(e.toString());
+    }
+  }
+
   Future<ApiResult<List<StudentModel>>> getAllStudents({
     required int schoolId,
     required String userKey,
