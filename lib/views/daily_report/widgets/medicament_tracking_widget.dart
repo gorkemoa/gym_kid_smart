@@ -50,6 +50,8 @@ class MedicamentTrackingWidget extends StatelessWidget {
     }
 
     return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       padding: EdgeInsets.all(SizeTokens.p16),
       itemCount: viewModel.medicaments.length,
       separatorBuilder: (context, index) => SizedBox(height: SizeTokens.p16),

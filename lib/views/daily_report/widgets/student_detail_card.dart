@@ -44,17 +44,11 @@ class StudentDetailCard extends StatelessWidget {
     }
 
     return Container(
-      padding: EdgeInsets.all(SizeTokens.p16),
+      padding: EdgeInsets.all(SizeTokens.p12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(SizeTokens.r8),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,14 +59,14 @@ class StudentDetailCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   displayTitle,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: SizeTokens.f16,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
                     color: Theme.of(context).primaryColor,
                   ),
                 ),
               ),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   if (item.status != null)
                     Container(
@@ -82,9 +76,14 @@ class StudentDetailCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: item.status == 1
-                            ? Colors.green.withOpacity(0.1)
-                            : Colors.orange.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(SizeTokens.r8),
+                            ? Colors.green.shade50
+                            : Colors.orange.shade50,
+                        borderRadius: BorderRadius.circular(SizeTokens.r4),
+                        border: Border.all(
+                          color: item.status == 1
+                              ? Colors.green.shade200
+                              : Colors.orange.shade200,
+                        ),
                       ),
                       child: Text(
                         item.status == 1 ? 'Hazır' : 'Bekleniyor',
@@ -92,26 +91,28 @@ class StudentDetailCard extends StatelessWidget {
                           color: item.status == 1
                               ? Colors.green
                               : Colors.orange,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           fontSize: SizeTokens.f12,
                         ),
                       ),
                     ),
                   if (onEdit != null)
                     IconButton(
+                      visualDensity: VisualDensity.compact,
                       icon: Icon(
                         Icons.edit_outlined,
-                        size: SizeTokens.i20,
-                        color: Colors.grey,
+                        size: SizeTokens.i16,
+                        color: Colors.grey[500],
                       ),
                       onPressed: onEdit,
                     ),
                   if (onDelete != null)
                     IconButton(
+                      visualDensity: VisualDensity.compact,
                       icon: Icon(
                         Icons.delete_outline,
-                        size: SizeTokens.i20,
-                        color: Colors.red.withOpacity(0.7),
+                        size: SizeTokens.i16,
+                        color: Colors.red[300],
                       ),
                       onPressed: onDelete,
                     ),
@@ -120,20 +121,24 @@ class StudentDetailCard extends StatelessWidget {
             ],
           ),
           if (displayValue.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p8),
+            SizedBox(height: SizeTokens.p4),
             Text(
               displayValue,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w500,
                 color: Colors.black87,
               ),
             ),
           ],
           if (item.recipient != null && item.recipient!.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p8),
+            SizedBox(height: SizeTokens.p4),
             Row(
               children: [
-                Icon(Icons.person, size: SizeTokens.i16, color: Colors.grey),
+                Icon(
+                  Icons.person_outline,
+                  size: SizeTokens.i16,
+                  color: Colors.grey[400],
+                ),
                 SizedBox(width: SizeTokens.p4),
                 Text(
                   item.recipient!,
@@ -145,7 +150,7 @@ class StudentDetailCard extends StatelessWidget {
             ),
           ],
           if (item.teacherNote != null && item.teacherNote!.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p8),
+            SizedBox(height: SizeTokens.p4),
             Text(
               '${AppTranslations.translate('teacher', locale)}: ${item.teacherNote}',
               style: Theme.of(
@@ -154,7 +159,7 @@ class StudentDetailCard extends StatelessWidget {
             ),
           ],
           if (item.parentNote != null && item.parentNote!.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p8),
+            SizedBox(height: SizeTokens.p4),
             Text(
               '${AppTranslations.translate('parent', locale)}: ${item.parentNote}',
               style: Theme.of(
@@ -163,33 +168,33 @@ class StudentDetailCard extends StatelessWidget {
             ),
           ],
           if (item.note != null && item.note!.isNotEmpty) ...[
-            SizedBox(height: SizeTokens.p8),
+            SizedBox(height: SizeTokens.p4),
             Text(
               'Not: ${item.note}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontStyle: FontStyle.italic,
-                color: Colors.grey,
+                color: Colors.grey[500],
               ),
             ),
           ],
           if (item.creator != null) ...[
             SizedBox(height: SizeTokens.p8),
-            const Divider(),
-            SizedBox(height: SizeTokens.p4),
+            Divider(height: 1, color: Colors.grey.shade200),
+            SizedBox(height: SizeTokens.p8),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Icon(
                   Icons.person_outline,
                   size: SizeTokens.i16,
-                  color: Colors.grey,
+                  color: Colors.grey[400],
                 ),
                 SizedBox(width: SizeTokens.p4),
                 Text(
                   '${item.creator?.name ?? ''} ${item.creator?.surname ?? ''}',
                   style: Theme.of(
                     context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
                 ),
               ],
             ),

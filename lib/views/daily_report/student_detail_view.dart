@@ -34,6 +34,7 @@ class StudentDetailView extends StatelessWidget {
           schoolId: user.schoolId ?? 1,
           userKey: user.userKey ?? '',
           studentId: student.id!,
+          classId: student.classId,
           initialDate: initialDate,
         ),
       child: _StudentDetailContent(user: user, student: student),
@@ -52,11 +53,22 @@ class _StudentDetailContent extends StatelessWidget {
     final viewModel = context.watch<StudentDetailViewModel>();
     final locale = context.watch<LandingViewModel>().locale.languageCode;
 
+    // Find current student from classmates
+    StudentModel currentStudent = student;
+    if (viewModel.classmates.isNotEmpty) {
+      final match = viewModel.classmates
+          .where((s) => s.id == viewModel.studentId)
+          .toList();
+      if (match.isNotEmpty) {
+        currentStudent = match.first;
+      }
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: BaseAppBar(
         title: Text(
-          '${student.name} ${student.surname}',
+          '${currentStudent.name} ${currentStudent.surname}',
           style: TextStyle(
             color: Colors.black,
             fontSize: SizeTokens.f16,
@@ -65,116 +77,275 @@ class _StudentDetailContent extends StatelessWidget {
         ),
         actions: const [],
       ),
-      body: Column(
-        children: [
-          _buildDateSelector(context, viewModel, locale),
-          _buildCategoryTabs(context, viewModel, locale),
-          Expanded(child: _buildContent(context, viewModel, locale)),
-        ],
-      ),
-      floatingActionButton:
-          (viewModel.selectedPart == 'noteLogs' ||
-              viewModel.selectedPart == 'receiving' ||
-              viewModel.selectedPart == 'meals' ||
-              ((viewModel.selectedPart == 'activities' ||
-                      viewModel.selectedPart == 'socials') &&
-                  (user.role == 'teacher' || user.role == 'superadmin')) ||
-              ((viewModel.selectedPart == 'medicament') &&
-                  (user.role == 'parent' || user.role == 'superadmin')))
-          ? FloatingActionButton(
-              onPressed: () => _navigateToEntryPage(context, viewModel, user),
-              backgroundColor: Theme.of(context).primaryColor,
-              child: Icon(
-                viewModel.selectedPart == 'noteLogs'
-                    ? Icons.add_comment
-                    : viewModel.selectedPart == 'receiving'
-                    ? Icons.person_add_alt_1
-                    : viewModel.selectedPart == 'socials'
-                    ? Icons.people_outline
-                    : viewModel.selectedPart == 'meals'
-                    ? Icons.restaurant
-                    : viewModel.selectedPart == 'medicament'
-                    ? Icons.medication_outlined
-                    : Icons.sports_soccer,
-                color: Colors.white,
-              ),
-            )
-          : null,
+      body: _buildScrollableBody(context, viewModel, locale, currentStudent),
     );
   }
 
-  Future<void> _navigateToEntryPage(
+  // ─── CLASSMATES HORIZONTAL LIST ────────────────────────────────────
+  Widget _buildClassmatesList(
     BuildContext context,
     StudentDetailViewModel viewModel,
-    UserModel user, {
-    DailyStudentModel? existingData,
-  }) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => StudentEntryView(
-          user: user,
-          student: student,
-          categoryId: viewModel.selectedPart,
-          date: viewModel.selectedDate,
-          existingData: existingData,
+    StudentModel currentStudent,
+  ) {
+    return Container(
+      color: Colors.white,
+      height: SizeTokens.h100,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(
+          horizontal: SizeTokens.p12,
+          vertical: SizeTokens.p12,
         ),
+        itemCount: viewModel.classmates.length,
+        itemBuilder: (context, index) {
+          final mate = viewModel.classmates[index];
+          final isSelected = mate.id == viewModel.studentId;
+
+          return GestureDetector(
+            onTap: () => viewModel.switchStudent(mate.id!),
+            child: Container(
+              margin: EdgeInsets.only(right: SizeTokens.p16),
+              width: SizeTokens.h52,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(isSelected ? 2 : 0),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: isSelected
+                          ? Border.all(
+                              color: Theme.of(context).primaryColor,
+                              width: 2,
+                            )
+                          : null,
+                    ),
+                    child: ClipOval(
+                      child: SizedBox(
+                        width: SizeTokens.h48,
+                        height: SizeTokens.h48,
+                        child: mate.image != null && mate.image!.isNotEmpty
+                            ? Image.network(
+                                mate.image!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    _buildAvatarPlaceholder(SizeTokens.h48),
+                              )
+                            : _buildAvatarPlaceholder(SizeTokens.h48),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: SizeTokens.p4),
+                  Text(
+                    mate.name ?? '',
+                    style: TextStyle(
+                      fontSize: SizeTokens.f10,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w400,
+                      color: isSelected
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey[600],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
-
-    if (result == true) {
-      viewModel.refresh();
-    }
   }
 
+  Widget _buildAvatarPlaceholder(double size) {
+    return Container(
+      color: Colors.grey[200],
+      child: Icon(Icons.person, size: size * 0.5, color: Colors.grey[400]),
+    );
+  }
+
+  // ─── STUDENT INFO CARD ─────────────────────────────────────────────
+  Widget _buildStudentInfoCard(
+    BuildContext context,
+    StudentModel currentStudent,
+  ) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(
+        SizeTokens.p16,
+        SizeTokens.p8,
+        SizeTokens.p16,
+        SizeTokens.p4,
+      ),
+      padding: EdgeInsets.all(SizeTokens.p12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(SizeTokens.r8),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          ClipOval(
+            child: SizedBox(
+              width: SizeTokens.h48,
+              height: SizeTokens.h48,
+              child:
+                  currentStudent.image != null &&
+                      currentStudent.image!.isNotEmpty
+                  ? Image.network(
+                      currentStudent.image!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) =>
+                          _buildAvatarPlaceholder(SizeTokens.h48),
+                    )
+                  : _buildAvatarPlaceholder(SizeTokens.h48),
+            ),
+          ),
+          SizedBox(width: SizeTokens.p12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${currentStudent.name ?? ''} ${currentStudent.surname ?? ''}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: SizeTokens.f16,
+                    color: Colors.black87,
+                  ),
+                ),
+                if (currentStudent.birthDate != null) ...[
+                  SizedBox(height: SizeTokens.p4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.cake_outlined,
+                        size: SizeTokens.i16,
+                        color: Colors.grey[400],
+                      ),
+                      SizedBox(width: SizeTokens.p4),
+                      Text(
+                        currentStudent.birthDate!,
+                        style: TextStyle(
+                          fontSize: SizeTokens.f12,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── DATE SELECTOR ─────────────────────────────────────────────────
   Widget _buildDateSelector(
     BuildContext context,
     StudentDetailViewModel viewModel,
     String locale,
   ) {
     final date = DateTime.parse(viewModel.selectedDate);
+    final now = DateTime.now();
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final selectedDay = DateTime(date.year, date.month, date.day);
+
+    // Format readable date
+    String formattedDate;
+    if (selectedDay == DateTime(now.year, now.month, now.day)) {
+      formattedDate = AppTranslations.translate('today', locale);
+    } else if (selectedDay == yesterday) {
+      formattedDate = AppTranslations.translate('yesterday', locale);
+    } else if (selectedDay == tomorrow) {
+      formattedDate = AppTranslations.translate('tomorrow', locale);
+    } else {
+      formattedDate = viewModel.selectedDate;
+    }
+
     return Container(
-      color: Colors.white,
+      margin: EdgeInsets.symmetric(
+        horizontal: SizeTokens.p16,
+        vertical: SizeTokens.p8,
+      ),
       padding: EdgeInsets.symmetric(
-        vertical: SizeTokens.p16,
-        horizontal: SizeTokens.p24,
+        vertical: SizeTokens.p8,
+        horizontal: SizeTokens.p8,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(SizeTokens.r8),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(
-            onPressed: () {
-              viewModel.setDate(date.subtract(const Duration(days: 1)));
-            },
-            icon: Icon(
-              Icons.chevron_left,
-              color: Theme.of(context).primaryColor,
+          // Previous day button
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(SizeTokens.r12),
+              onTap: () {
+                viewModel.setDate(date.subtract(const Duration(days: 1)));
+              },
+              child: Container(
+                padding: EdgeInsets.all(SizeTokens.p8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.chevron_left_rounded,
+                      color: Theme.of(context).primaryColor,
+                      size: SizeTokens.i24,
+                    ),
+                    Text(
+                      _formatShortDate(
+                        date.subtract(const Duration(days: 1)),
+                        locale,
+                      ),
+                      style: TextStyle(
+                        fontSize: SizeTokens.f12,
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
+          // Current date
           GestureDetector(
             onTap: () => _showDatePicker(context, viewModel, locale),
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: SizeTokens.p12,
+                horizontal: SizeTokens.p16,
                 vertical: SizeTokens.p8,
               ),
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(SizeTokens.r12),
+                color: Theme.of(context).primaryColor.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(SizeTokens.r8),
               ),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    Icons.calendar_today,
+                    Icons.calendar_today_rounded,
                     size: SizeTokens.i16,
                     color: Theme.of(context).primaryColor,
                   ),
                   SizedBox(width: SizeTokens.p8),
                   Text(
-                    viewModel.selectedDate,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    formattedDate,
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: SizeTokens.f16,
+                      fontSize: SizeTokens.f14,
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
@@ -182,18 +353,57 @@ class _StudentDetailContent extends StatelessWidget {
               ),
             ),
           ),
-          IconButton(
-            onPressed: () {
-              viewModel.setDate(date.add(const Duration(days: 1)));
-            },
-            icon: Icon(
-              Icons.chevron_right,
-              color: Theme.of(context).primaryColor,
+          // Next day button
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(SizeTokens.r12),
+              onTap: () {
+                viewModel.setDate(date.add(const Duration(days: 1)));
+              },
+              child: Container(
+                padding: EdgeInsets.all(SizeTokens.p8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _formatShortDate(
+                        date.add(const Duration(days: 1)),
+                        locale,
+                      ),
+                      style: TextStyle(
+                        fontSize: SizeTokens.f12,
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: Theme.of(context).primaryColor,
+                      size: SizeTokens.i24,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _formatShortDate(DateTime date, String locale) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final tomorrow = today.add(const Duration(days: 1));
+    final d = DateTime(date.year, date.month, date.day);
+
+    if (d == today) return AppTranslations.translate('today', locale);
+    if (d == yesterday) return AppTranslations.translate('yesterday', locale);
+    if (d == tomorrow) return AppTranslations.translate('tomorrow', locale);
+
+    return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}';
   }
 
   void _showDatePicker(
@@ -217,7 +427,6 @@ class _StudentDetailContent extends StatelessWidget {
           height: 300,
           child: Column(
             children: [
-              // Header with Done button
               Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: SizeTokens.p16,
@@ -271,131 +480,358 @@ class _StudentDetailContent extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryTabs(
+  // ─── Check if add button should show for a section ──────────────────
+  bool _canAddToSection(String partId) {
+    final role = user.role ?? '';
+    if (partId == 'noteLogs') return true;
+    if (partId == 'receiving') return true;
+    if (partId == 'meals') return true;
+    if ((partId == 'activities' || partId == 'socials') &&
+        (role == 'teacher' || role == 'superadmin'))
+      return true;
+    if (partId == 'medicament' && (role == 'parent' || role == 'superadmin'))
+      return true;
+    return false;
+  }
+
+  // ─── ENTRY PAGE NAVIGATION ────────────────────────────────────────
+  Future<void> _navigateToEntryPage(
+    BuildContext context,
+    StudentDetailViewModel viewModel,
+    UserModel user, {
+    DailyStudentModel? existingData,
+  }) async {
+    // Find current student
+    StudentModel currentStudent = student;
+    if (viewModel.classmates.isNotEmpty) {
+      final match = viewModel.classmates
+          .where((s) => s.id == viewModel.studentId)
+          .toList();
+      if (match.isNotEmpty) {
+        currentStudent = match.first;
+      }
+    }
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StudentEntryView(
+          user: user,
+          student: currentStudent,
+          categoryId: viewModel.selectedPart,
+          date: viewModel.selectedDate,
+          existingData: existingData,
+        ),
+      ),
+    );
+
+    if (result == true) {
+      viewModel.refresh();
+    }
+  }
+
+  // ─── ACCORDION BODY ────────────────────────────────────────────────
+  Widget _buildAccordionBody(
     BuildContext context,
     StudentDetailViewModel viewModel,
     String locale,
   ) {
     final categories = [
-      {'id': 'meals', 'label': AppTranslations.translate('meals', locale)},
-      {'id': 'socials', 'label': AppTranslations.translate('socials', locale)},
+      {
+        'id': 'meals',
+        'label': AppTranslations.translate('meals', locale),
+        'icon': Icons.restaurant_menu_outlined,
+      },
+      {
+        'id': 'socials',
+        'label': AppTranslations.translate('socials', locale),
+        'icon': Icons.people_outline,
+      },
       {
         'id': 'activities',
         'label': AppTranslations.translate('activities', locale),
+        'icon': Icons.sports_soccer_outlined,
       },
       {
         'id': 'medicament',
         'label': AppTranslations.translate('medicament', locale),
+        'icon': Icons.medication_outlined,
       },
       {
         'id': 'receiving',
         'label': AppTranslations.translate('receiving', locale),
+        'icon': Icons.badge_outlined,
       },
       {
         'id': 'noteLogs',
         'label': AppTranslations.translate('noteLogs', locale),
+        'icon': Icons.notes_outlined,
       },
     ];
 
-    return Container(
-      height: SizeTokens.h52,
-      margin: EdgeInsets.symmetric(vertical: SizeTokens.p16),
+    return RefreshIndicator(
+      onRefresh: () async => viewModel.refresh(),
       child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: SizeTokens.p16),
+        padding: EdgeInsets.all(SizeTokens.p16),
         itemCount: categories.length,
         itemBuilder: (context, index) {
           final category = categories[index];
-          final isSelected = viewModel.selectedPart == category['id'];
+          final partId = category['id'] as String;
+          final label = category['label'] as String;
+          final icon = category['icon'] as IconData;
+          final isExpanded = viewModel.expandedSections.contains(partId);
+          final isLoadingSection = viewModel.sectionLoading[partId] ?? false;
+          final sectionData = viewModel.allSectionsData[partId] ?? [];
 
-          return GestureDetector(
-            onTap: () => viewModel.setPart(category['id'] as String),
-            child: Container(
-              margin: EdgeInsets.only(right: SizeTokens.p12),
-              padding: EdgeInsets.symmetric(
-                horizontal: SizeTokens.p16,
-                vertical: SizeTokens.p8,
-              ),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? Theme.of(context).primaryColor
-                    : Colors.white,
-                borderRadius: BorderRadius.circular(SizeTokens.r24),
-                border: Border.all(
-                  color: isSelected
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey.shade300,
-                ),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                category['label']
-                    as String, // You might want to translate these
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.grey.shade700,
-                  fontWeight: FontWeight.w600,
-                  fontSize: SizeTokens.f14,
-                ),
-              ),
-            ),
+          return _buildAccordionSection(
+            context: context,
+            viewModel: viewModel,
+            locale: locale,
+            partId: partId,
+            label: label,
+            icon: icon,
+            isExpanded: isExpanded,
+            isLoading: isLoadingSection,
+            data: sectionData,
           );
         },
       ),
     );
   }
 
-  Widget _buildContent(
-    BuildContext context,
-    StudentDetailViewModel viewModel,
-    String locale,
-  ) {
-    if (viewModel.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+  Widget _buildAccordionSection({
+    required BuildContext context,
+    required StudentDetailViewModel viewModel,
+    required String locale,
+    required String partId,
+    required String label,
+    required IconData icon,
+    required bool isExpanded,
+    required bool isLoading,
+    required List<DailyStudentModel> data,
+  }) {
+    final showAdd = isExpanded && _canAddToSection(partId);
 
-    if (viewModel.selectedPart == 'medicament') {
-      return MedicamentTrackingWidget(user: user);
-    }
-
-    if (viewModel.errorMessage != null && viewModel.dailyData.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(SizeTokens.p32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.error_outline_rounded,
-                size: SizeTokens.i64,
-                color: Colors.red[300],
+    return Container(
+      margin: EdgeInsets.only(bottom: SizeTokens.p8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(SizeTokens.r8),
+        border: Border.all(
+          color: isExpanded
+              ? Theme.of(context).primaryColor.withOpacity(0.3)
+              : Colors.grey.shade200,
+        ),
+      ),
+      child: Column(
+        children: [
+          // Header
+          InkWell(
+            borderRadius: isExpanded
+                ? BorderRadius.vertical(top: Radius.circular(SizeTokens.r8))
+                : BorderRadius.circular(SizeTokens.r8),
+            onTap: () {
+              viewModel.toggleSection(partId);
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: SizeTokens.p12,
+                vertical: SizeTokens.p12,
               ),
-              SizedBox(height: SizeTokens.p16),
-              Text(
-                viewModel.errorMessage!,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey[800],
-                  fontSize: SizeTokens.f16,
-                  fontWeight: FontWeight.w500,
-                ),
+              decoration: BoxDecoration(
+                color: isExpanded
+                    ? Theme.of(context).primaryColor.withOpacity(0.04)
+                    : Colors.white,
+                borderRadius: isExpanded
+                    ? BorderRadius.vertical(top: Radius.circular(SizeTokens.r8))
+                    : BorderRadius.circular(SizeTokens.r8),
               ),
-              SizedBox(height: SizeTokens.p24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: viewModel.refresh,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(vertical: SizeTokens.p12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(SizeTokens.r12),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(SizeTokens.p8),
+                    decoration: BoxDecoration(
+                      color: isExpanded
+                          ? Theme.of(context).primaryColor.withOpacity(0.1)
+                          : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(SizeTokens.r8),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: SizeTokens.i20,
+                      color: isExpanded
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey[600],
                     ),
                   ),
-                  child: Text(
-                    AppTranslations.translate('retry', locale),
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  SizedBox(width: SizeTokens.p12),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: SizeTokens.f14,
+                        color: isExpanded
+                            ? Theme.of(context).primaryColor
+                            : Colors.black87,
+                      ),
+                    ),
                   ),
+                  if (!isExpanded &&
+                      _getSectionCount(partId, data, viewModel) > 0)
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: SizeTokens.p8,
+                        vertical: SizeTokens.p4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(SizeTokens.r4),
+                      ),
+                      child: Text(
+                        '${_getSectionCount(partId, data, viewModel)}',
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: SizeTokens.f12,
+                        ),
+                      ),
+                    ),
+                  if (showAdd) ...[
+                    SizedBox(width: SizeTokens.p8),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(SizeTokens.r4),
+                      onTap: () {
+                        viewModel.setPart(partId);
+                        _navigateToEntryPage(context, viewModel, user);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: SizeTokens.p8,
+                          vertical: SizeTokens.p4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          borderRadius: BorderRadius.circular(SizeTokens.r4),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.add,
+                              size: SizeTokens.i16,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: SizeTokens.p4),
+                            Text(
+                              AppTranslations.translate('add', locale),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: SizeTokens.f12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  SizedBox(width: SizeTokens.p8),
+                  AnimatedRotation(
+                    turns: isExpanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: isExpanded
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey[400],
+                      size: SizeTokens.i24,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Content
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 250),
+            crossFadeState: isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            firstChild: const SizedBox.shrink(),
+            secondChild: _buildSectionContent(
+              context: context,
+              viewModel: viewModel,
+              locale: locale,
+              partId: partId,
+              isLoading: isLoading,
+              data: data,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  int _getSectionCount(
+    String partId,
+    List<DailyStudentModel> data,
+    StudentDetailViewModel viewModel,
+  ) {
+    if (partId == 'medicament') return viewModel.medicaments.length;
+    return data.length;
+  }
+
+  Widget _buildSectionContent({
+    required BuildContext context,
+    required StudentDetailViewModel viewModel,
+    required String locale,
+    required String partId,
+    required bool isLoading,
+    required List<DailyStudentModel> data,
+  }) {
+    if (isLoading) {
+      return Padding(
+        padding: EdgeInsets.all(SizeTokens.p24),
+        child: const Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    // Medicament section
+    if (partId == 'medicament') {
+      return Padding(
+        padding: EdgeInsets.only(
+          left: SizeTokens.p8,
+          right: SizeTokens.p8,
+          bottom: SizeTokens.p12,
+        ),
+        child: MedicamentTrackingWidget(user: user),
+      );
+    }
+
+    if (data.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.all(SizeTokens.p24),
+        child: Center(
+          child: Column(
+            children: [
+              Icon(
+                Icons.inbox_outlined,
+                size: SizeTokens.i32,
+                color: Colors.grey[300],
+              ),
+              SizedBox(height: SizeTokens.p8),
+              Text(
+                AppTranslations.translate('no_data_found', locale),
+                style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: SizeTokens.f14,
                 ),
               ),
             ],
@@ -404,70 +840,53 @@ class _StudentDetailContent extends StatelessWidget {
       );
     }
 
-    if (viewModel.dailyData.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(SizeTokens.p24),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                viewModel.selectedPart == 'meals'
-                    ? Icons.restaurant_menu_outlined
-                    : viewModel.selectedPart == 'activities'
-                    ? Icons.sports_soccer_outlined
-                    : viewModel.selectedPart == 'socials'
-                    ? Icons.people_outline
-                    : viewModel.selectedPart == 'receiving'
-                    ? Icons.badge_outlined
-                    : Icons.notes_outlined,
-                size: SizeTokens.i64,
-                color: Colors.grey[400],
-              ),
+    return Padding(
+      padding: EdgeInsets.only(
+        left: SizeTokens.p12,
+        right: SizeTokens.p12,
+        bottom: SizeTokens.p12,
+      ),
+      child: Column(
+        children: data.map((item) {
+          return Padding(
+            padding: EdgeInsets.only(top: SizeTokens.p8),
+            child: StudentDetailCard(
+              item: item,
+              onEdit: () {
+                viewModel.setPart(partId);
+                _navigateToEntryPage(
+                  context,
+                  viewModel,
+                  user,
+                  existingData: item,
+                );
+              },
+              onDelete: _canDelete(partId)
+                  ? () => _showDeleteConfirmation(
+                      context,
+                      viewModel,
+                      item,
+                      locale,
+                      partId,
+                    )
+                  : null,
             ),
-            SizedBox(height: SizeTokens.p24),
-            Text(
-              AppTranslations.translate('no_data_found', locale),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w600,
-                fontSize: SizeTokens.f16,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return ListView.separated(
-      padding: EdgeInsets.all(SizeTokens.p16),
-      itemCount: viewModel.dailyData.length,
-      separatorBuilder: (context, index) => SizedBox(height: SizeTokens.p16),
-      itemBuilder: (context, index) {
-        final item = viewModel.dailyData[index];
-        return StudentDetailCard(
-          item: item,
-          onEdit: () => _navigateToEntryPage(
-            context,
-            viewModel,
-            user,
-            existingData: item,
-          ),
-          onDelete:
-              (viewModel.selectedPart == 'socials' &&
-                      (user.role == 'teacher' || user.role == 'superadmin')) ||
-                  (viewModel.selectedPart == 'activities' &&
-                      (user.role == 'teacher' || user.role == 'superadmin')) ||
-                  (viewModel.selectedPart == 'meals')
-              ? () => _showDeleteConfirmation(context, viewModel, item, locale)
-              : null,
-        );
-      },
+          );
+        }).toList(),
+      ),
     );
+  }
+
+  bool _canDelete(String partId) {
+    final role = user.role ?? '';
+    if (partId == 'socials' && (role == 'teacher' || role == 'superadmin')) {
+      return true;
+    }
+    if (partId == 'activities' && (role == 'teacher' || role == 'superadmin')) {
+      return true;
+    }
+    if (partId == 'meals') return true;
+    return false;
   }
 
   void _showDeleteConfirmation(
@@ -475,6 +894,7 @@ class _StudentDetailContent extends StatelessWidget {
     StudentDetailViewModel viewModel,
     DailyStudentModel item,
     String locale,
+    String partId,
   ) {
     showDialog(
       context: context,
@@ -493,17 +913,17 @@ class _StudentDetailContent extends StatelessWidget {
               Navigator.pop(context);
               late ApiResult<bool> result;
 
-              if (viewModel.selectedPart == 'socials') {
+              if (partId == 'socials') {
                 result = await viewModel.deleteDailySocial(
                   title: item.title ?? '',
                   role: user.role ?? '',
                 );
-              } else if (viewModel.selectedPart == 'activities') {
+              } else if (partId == 'activities') {
                 result = await viewModel.deleteDailyActivity(
                   title: item.title ?? '',
                   role: user.role ?? '',
                 );
-              } else if (viewModel.selectedPart == 'meals') {
+              } else if (partId == 'meals') {
                 result = await viewModel.deleteDailyMeal(
                   title: item.title ?? '',
                 );

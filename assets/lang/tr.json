@@ -103,5 +103,8 @@
     "meal_content": "Yemek İçeriği",
     "add_meal_menu": "Yemek Menüsü Ekle",
     "read_more": "Devamını Oku",
+    "today": "Bugün",
+    "yesterday": "Dün",
+    "tomorrow": "Yarın",
     "no_students_found": "Bu sınıfa ait kayıtlı öğrenci bulunamadı."
 }

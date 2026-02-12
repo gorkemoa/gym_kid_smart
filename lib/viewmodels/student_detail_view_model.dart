@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../core/network/api_result.dart';
-import '../../models/daily_student_model.dart';
-import '../../models/student_medicament_model.dart';
-import '../../models/meal_menu_model.dart';
-import '../../services/home_service.dart';
+import '../core/network/api_result.dart';
+import '../models/daily_student_model.dart';
+import '../models/student_model.dart';
+import '../models/student_medicament_model.dart';
+import '../models/meal_menu_model.dart';
+import '../services/home_service.dart';
 
 class StudentDetailViewModel extends ChangeNotifier {
   final HomeService _homeService = HomeService();
@@ -14,6 +15,19 @@ class StudentDetailViewModel extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
+  // Per-section data
+  final Map<String, List<DailyStudentModel>> _allSectionsData = {};
+  Map<String, List<DailyStudentModel>> get allSectionsData => _allSectionsData;
+
+  // Per-section loading state
+  final Map<String, bool> _sectionLoading = {};
+  Map<String, bool> get sectionLoading => _sectionLoading;
+
+  // Expanded sections
+  final Set<String> _expandedSections = {};
+  Set<String> get expandedSections => _expandedSections;
+
+  // Keep dailyData for backward compat
   List<DailyStudentModel> _dailyData = [];
   List<DailyStudentModel> get dailyData => _dailyData;
 
@@ -23,39 +37,108 @@ class StudentDetailViewModel extends ChangeNotifier {
   List<MealMenuModel> _mealMenus = [];
   List<MealMenuModel> get mealMenus => _mealMenus;
 
+  // Classmates
+  List<StudentModel> _classmates = [];
+  List<StudentModel> get classmates => _classmates;
+
   // Parameters
   int? _schoolId;
   String? _userKey;
   int? _studentId;
+  int? get studentId => _studentId;
+  int? _classId;
   String _selectedDate = DateTime.now().toString().split(' ')[0];
   String _selectedPart = 'meals';
 
   String get selectedDate => _selectedDate;
   String get selectedPart => _selectedPart;
 
+  static const List<String> allParts = [
+    'meals',
+    'socials',
+    'activities',
+    'medicament',
+    'receiving',
+    'noteLogs',
+  ];
+
   void init({
     required int schoolId,
     required String userKey,
     required int studentId,
+    int? classId,
     String? initialDate,
   }) {
     _schoolId = schoolId;
     _userKey = userKey;
     _studentId = studentId;
+    _classId = classId;
     if (initialDate != null) {
       _selectedDate = initialDate;
     }
-    _fetchDailyData();
+    // Expand meals by default
+    _expandedSections.add('meals');
+    _selectedPart = 'meals';
+    _fetchSectionData('meals');
+    _fetchStudentMedicaments();
+    if (_classId != null) {
+      _fetchClassmates();
+    }
+  }
+
+  Future<void> _fetchClassmates() async {
+    if (_schoolId == null || _userKey == null || _classId == null) return;
+
+    final result = await _homeService.getAllStudents(
+      schoolId: _schoolId!,
+      userKey: _userKey!,
+      classId: _classId!,
+    );
+
+    if (_isDisposed) return;
+
+    if (result is Success<List<StudentModel>>) {
+      _classmates = result.data;
+      notifyListeners();
+    }
+  }
+
+  void switchStudent(int newStudentId) {
+    if (newStudentId == _studentId) return;
+    _studentId = newStudentId;
+    _allSectionsData.clear();
+    _medicaments = [];
+    for (final part in Set<String>.from(_expandedSections)) {
+      _fetchSectionData(part);
+    }
+    _fetchStudentMedicaments();
+    notifyListeners();
   }
 
   void setDate(DateTime date) {
     _selectedDate = date.toString().split(' ')[0];
-    _fetchDailyData();
+    _allSectionsData.clear();
+    for (final part in Set<String>.from(_expandedSections)) {
+      _fetchSectionData(part);
+    }
   }
 
   void setPart(String part) {
     _selectedPart = part;
-    _fetchDailyData();
+    notifyListeners();
+  }
+
+  void toggleSection(String part) {
+    if (_expandedSections.contains(part)) {
+      _expandedSections.remove(part);
+    } else {
+      _expandedSections.add(part);
+      _selectedPart = part;
+      if (!_allSectionsData.containsKey(part)) {
+        _fetchSectionData(part);
+      }
+    }
+    notifyListeners();
   }
 
   bool _isDisposed = false;
@@ -66,16 +149,16 @@ class StudentDetailViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  Future<void> _fetchDailyData() async {
+  Future<void> _fetchSectionData(String part) async {
     if (_schoolId == null || _userKey == null || _studentId == null) return;
 
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+    _sectionLoading[part] = true;
+    if (!_isDisposed) notifyListeners();
 
-    if (_selectedPart == 'mealMenu') {
-      await _fetchMealMenus();
-      _isLoading = false;
+    if (part == 'medicament') {
+      await _fetchStudentMedicaments();
+      _sectionLoading[part] = false;
+      _allSectionsData[part] = [];
       if (!_isDisposed) notifyListeners();
       return;
     }
@@ -85,32 +168,23 @@ class StudentDetailViewModel extends ChangeNotifier {
       userKey: _userKey!,
       studentId: _studentId!,
       date: _selectedDate,
-      part: _selectedPart,
+      part: part,
     );
 
     if (_isDisposed) return;
 
     if (result is Success<List<DailyStudentModel>>) {
-      _dailyData = result.data;
+      _allSectionsData[part] = result.data;
     } else if (result is Failure<List<DailyStudentModel>>) {
-      // "Bulunamadı" is API's way of saying no data found for this day/part.
-      // Treat it as empty state instead of error.
-      if (result.message == 'Bulunamadı') {
-        _dailyData = [];
-      } else {
-        _errorMessage = result.message;
-        _dailyData = [];
-      }
+      _allSectionsData[part] = [];
     }
 
-    if (_selectedPart == 'medicament') {
-      await _fetchStudentMedicaments();
+    if (part == _selectedPart) {
+      _dailyData = _allSectionsData[part] ?? [];
     }
 
-    _isLoading = false;
-    if (!_isDisposed) {
-      notifyListeners();
-    }
+    _sectionLoading[part] = false;
+    if (!_isDisposed) notifyListeners();
   }
 
   Future<void> _fetchMealMenus() async {
@@ -123,9 +197,6 @@ class StudentDetailViewModel extends ChangeNotifier {
 
     if (result is Success<List<MealMenuModel>>) {
       _mealMenus = result.data;
-      // Filter for selected date if needed, or pass all
-      // For now, let's keep all and filter in View if required,
-      // but based on API it returns a list. User might want to see menu for the day.
     }
   }
 
@@ -163,7 +234,7 @@ class StudentDetailViewModel extends ChangeNotifier {
     );
 
     if (result is Success<bool>) {
-      _fetchDailyData();
+      _fetchSectionData('medicament');
     }
 
     return result;
@@ -186,7 +257,7 @@ class StudentDetailViewModel extends ChangeNotifier {
     );
 
     if (result is Success<bool>) {
-      _fetchDailyData();
+      _fetchSectionData('medicament');
     }
 
     return result;
@@ -200,10 +271,10 @@ class StudentDetailViewModel extends ChangeNotifier {
       return Failure('Missing parameters');
     }
 
-    // Find existing note logs if any
     DailyStudentModel? existingNote;
+    final noteData = _allSectionsData['noteLogs'] ?? [];
     try {
-      existingNote = _dailyData.firstWhere(
+      existingNote = noteData.firstWhere(
         (item) => item.teacherNote != null || item.parentNote != null,
       );
     } catch (e) {
@@ -222,10 +293,6 @@ class StudentDetailViewModel extends ChangeNotifier {
       parentNote = content;
       teacherStatus = 0;
     } else if (role == 'superadmin') {
-      // Superadmin logic: If it's a new entry, send 0, otherwise send existing status
-      // In this case, we'll assume content goes to teacherNote or we could have
-      // a more complex UI for superadmin. For now, following the prompt.
-      // prompt says "Superadmin değişiklik yapacağında durumları önceden nasılsa, aynı şekilde gönderilmeli. İlk defa ekleyecekse durumları 0 göndermeli"
       teacherNote = content;
     }
 
@@ -241,7 +308,7 @@ class StudentDetailViewModel extends ChangeNotifier {
     );
 
     if (result is Success<bool>) {
-      _fetchDailyData();
+      _fetchSectionData('noteLogs');
     }
 
     return result;
@@ -259,18 +326,17 @@ class StudentDetailViewModel extends ChangeNotifier {
       return Failure('Missing parameters');
     }
 
-    // Role-based status and permission checks
     int finalStatus = status;
 
-    // "İlk ekleniş sadece parent ve superadmin tarafından yapılabilir ve status mutlaka 0 gönderilmelidir."
-    bool exists = _dailyData.any((item) => item.recipient != null);
+    final receivingData = _allSectionsData['receiving'] ?? [];
+    bool exists = receivingData.any((item) => item.recipient != null);
     if (!exists) {
       if (role != 'parent' && role != 'superadmin') {
         return Failure(
           'İlk ekleme sadece veli veya yönetici tarafından yapılabilir',
         );
       }
-      finalStatus = 0; // Forced to 0 on first entry
+      finalStatus = 0;
     }
 
     final result = await _homeService.addDailyReceiving(
@@ -286,7 +352,7 @@ class StudentDetailViewModel extends ChangeNotifier {
     );
 
     if (result is Success<bool>) {
-      _fetchDailyData();
+      _fetchSectionData('receiving');
     }
 
     return result;
@@ -345,7 +411,6 @@ class StudentDetailViewModel extends ChangeNotifier {
     );
 
     if (result is Success<bool>) {
-      // Refresh the list to remove the deleted item
       await _fetchMealMenus();
       notifyListeners();
     }
@@ -374,7 +439,7 @@ class StudentDetailViewModel extends ChangeNotifier {
     );
 
     if (result is Success<bool>) {
-      _fetchDailyData();
+      _fetchSectionData('socials');
     }
 
     return result;
@@ -401,7 +466,7 @@ class StudentDetailViewModel extends ChangeNotifier {
     );
 
     if (result is Success<bool>) {
-      _fetchDailyData();
+      _fetchSectionData('activities');
     }
 
     return result;
@@ -421,13 +486,17 @@ class StudentDetailViewModel extends ChangeNotifier {
     );
 
     if (result is Success<bool>) {
-      _fetchDailyData();
+      _fetchSectionData('meals');
     }
 
     return result;
   }
 
   void refresh() {
-    _fetchDailyData();
+    _allSectionsData.clear();
+    for (final part in Set<String>.from(_expandedSections)) {
+      _fetchSectionData(part);
+    }
+    _fetchStudentMedicaments();
   }
 }
