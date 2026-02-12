@@ -7,7 +7,7 @@ import '../services/device_info_service.dart';
 import '../core/utils/logger.dart';
 
 class LoginViewModel extends ChangeNotifier {
-  final AuthService _authServiceData = AuthService();
+  final AuthService _authService = AuthService();
   final PushNotificationService _pushService = PushNotificationService();
   final DeviceInfoService _deviceInfoService = DeviceInfoService();
 
@@ -23,9 +23,15 @@ class LoginViewModel extends ChangeNotifier {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  void init() {
+  Future<void> init() async {
     emailController.text = 'b.sekman@smartmetrics.com.tr';
     passwordController.text = '123123';
+
+    final savedUser = await _authService.getSavedUser();
+    if (savedUser != null) {
+      _data = LoginResponse(success: 'true', data: savedUser);
+      notifyListeners();
+    }
   }
 
   void refresh() {
@@ -42,7 +48,7 @@ class LoginViewModel extends ChangeNotifier {
     _setLoading(true);
     _errorMessage = null;
 
-    final result = await _authServiceData.login(
+    final result = await _authService.login(
       emailController.text,
       passwordController.text,
     );
@@ -53,7 +59,6 @@ class LoginViewModel extends ChangeNotifier {
       _data = result.data;
 
       // Send device token after login for personalized notifications
-      // addtoken da ki bildirim işlemlerine başka zaman bakılacak
       if (_data?.data != null) {
         final user = _data!.data!;
 

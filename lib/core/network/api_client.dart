@@ -4,6 +4,9 @@ import 'package:http/http.dart' as http;
 import '../../app/api_constants.dart';
 import '../utils/logger.dart';
 import 'api_exception.dart';
+import '../../services/auth_service.dart';
+import '../../views/login/login_view.dart';
+import '../services/navigation_service.dart';
 
 class ApiClient {
   final http.Client _client = http.Client();
@@ -85,21 +88,31 @@ class ApiClient {
   }
 
   dynamic _handleResponse(http.Response response) {
-    final body = jsonDecode(response.body);
+    var body;
+    try {
+      body = jsonDecode(response.body);
+    } catch (e) {
+      throw ApiException(
+        'Sunucu cevabı çözümlenemedi',
+        statusCode: response.statusCode,
+      );
+    }
 
     switch (response.statusCode) {
       case 200:
       case 201:
         if (body is Map<String, dynamic> && body.containsKey('failure')) {
-          throw ApiException(
-            body['failure']?.toString() ?? 'Bir hata oluştu',
-            statusCode: response.statusCode,
-          );
+          final errorMsg = body['failure']?.toString() ?? 'Bir hata oluştu';
+          if (errorMsg == 'User Key Hatalı!') {
+            _handleAuthError();
+          }
+          throw ApiException(errorMsg, statusCode: response.statusCode);
         }
         return body;
       case 400:
         throw ApiException(body['message'] ?? 'Hatalı istek', statusCode: 400);
       case 401:
+        _handleAuthError();
         throw UnauthorisedException(body['message'] ?? 'Yetkisiz erişim');
       case 422:
         throw ValidationException(body['message'] ?? 'Doğrulama hatası');
@@ -108,6 +121,11 @@ class ApiClient {
       default:
         throw ApiException('Bir hata oluştu', statusCode: response.statusCode);
     }
+  }
+
+  void _handleAuthError() {
+    AuthService.logout();
+    NavigationService.pushNamedAndRemoveUntil(const LoginView());
   }
 
   void _logResponse(http.Response response) {

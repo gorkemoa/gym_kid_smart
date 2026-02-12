@@ -3,6 +3,7 @@ import 'package:gym_kid_smart/viewmodels/chat_detail_view_model.dart';
 import 'package:gym_kid_smart/viewmodels/daily_report_view_model.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'core/services/navigation_service.dart';
 import 'core/responsive/size_config.dart';
 import 'viewmodels/login_view_model.dart';
 import 'viewmodels/settings_view_model.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
     final settingsViewModel = context.watch<SettingsViewModel>();
 
     return MaterialApp(
+      navigatorKey: NavigationService.navigatorKey,
       title: 'GymBoree SmartKid',
       debugShowCheckedModeBanner: false,
       theme: settingsViewModel.themeData,

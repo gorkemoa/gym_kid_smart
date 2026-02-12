@@ -6,6 +6,9 @@ import '../../core/utils/app_translations.dart';
 import '../../core/utils/color_utils.dart';
 import '../../viewmodels/landing_view_model.dart';
 import '../../viewmodels/settings_view_model.dart';
+import '../../viewmodels/login_view_model.dart';
+import '../../core/services/navigation_service.dart';
+import '../home/home_view.dart';
 import '../login/login_view.dart';
 import 'widgets/language_selector.dart';
 
@@ -20,9 +23,22 @@ class _LandingViewState extends State<LandingView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LandingViewModel>().init();
-      context.read<SettingsViewModel>().fetchSettings();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final landingVM = context.read<LandingViewModel>();
+      final loginVM = context.read<LoginViewModel>();
+      final settingsVM = context.read<SettingsViewModel>();
+
+      await landingVM.init();
+      if (context.mounted) {
+        await loginVM.init();
+      }
+      if (context.mounted) {
+        settingsVM.fetchSettings();
+      }
+
+      if (context.mounted && loginVM.data?.data != null) {
+        NavigationService.pushNamedAndRemoveUntil(const HomeView());
+      }
     });
   }
 
