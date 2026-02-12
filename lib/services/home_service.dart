@@ -879,4 +879,35 @@ class HomeService {
       return Failure(e.toString());
     }
   }
+
+  Future<ApiResult<bool>> deleteDailySocial({
+    required int schoolId,
+    required String userKey,
+    required int studentId,
+    required String title,
+    required String date,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.deleteDailySocial,
+        body: {
+          'school_id': schoolId,
+          'user_key': userKey,
+          'student_id': studentId,
+          'title': title,
+          'date': date,
+        },
+      );
+
+      if (response['success'] != null || response['data'] == true) {
+        return Success(true);
+      }
+      return Failure(
+        response['message'] ?? response['failure'] ?? 'Silme işlemi başarısız',
+      );
+    } catch (e) {
+      AppLogger.error('Delete daily social failed', e);
+      return Failure(e.toString());
+    }
+  }
 }

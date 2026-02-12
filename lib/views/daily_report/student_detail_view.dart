@@ -12,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'student_entry_view.dart';
 import 'widgets/student_detail_card.dart';
 import 'widgets/medicament_tracking_widget.dart';
+import '../../core/network/api_result.dart';
 
 class StudentDetailView extends StatelessWidget {
   final UserModel user;
@@ -399,8 +400,68 @@ class _StudentDetailContent extends StatelessWidget {
             user,
             existingData: item,
           ),
+          onDelete:
+              (viewModel.selectedPart == 'socials' &&
+                  (user.role == 'teacher' || user.role == 'superadmin'))
+              ? () => _showDeleteConfirmation(context, viewModel, item, locale)
+              : null,
         );
       },
+    );
+  }
+
+  void _showDeleteConfirmation(
+    BuildContext context,
+    StudentDetailViewModel viewModel,
+    DailyStudentModel item,
+    String locale,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppTranslations.translate('confirm_delete', locale)),
+        content: Text(
+          '${item.title} ${AppTranslations.translate('will_be_deleted', locale)}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppTranslations.translate('cancel', locale)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final result = await viewModel.deleteDailySocial(
+                title: item.title ?? '',
+                role: user.role ?? '',
+              );
+              if (context.mounted) {
+                if (result is Success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        AppTranslations.translate('delete_success', locale),
+                      ),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else if (result is Failure) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text((result as Failure).message),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: Text(
+              AppTranslations.translate('delete', locale),
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

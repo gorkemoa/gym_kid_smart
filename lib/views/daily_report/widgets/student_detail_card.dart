@@ -9,8 +9,14 @@ import 'package:provider/provider.dart';
 class StudentDetailCard extends StatelessWidget {
   final DailyStudentModel item;
   final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
-  const StudentDetailCard({super.key, required this.item, this.onEdit});
+  const StudentDetailCard({
+    super.key,
+    required this.item,
+    this.onEdit,
+    this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +105,15 @@ class StudentDetailCard extends StatelessWidget {
                         color: Colors.grey,
                       ),
                       onPressed: onEdit,
+                    ),
+                  if (onDelete != null)
+                    IconButton(
+                      icon: Icon(
+                        Icons.delete_outline,
+                        size: SizeTokens.i20,
+                        color: Colors.red.withOpacity(0.7),
+                      ),
+                      onPressed: onDelete,
                     ),
                 ],
               ),
