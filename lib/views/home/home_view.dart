@@ -325,12 +325,7 @@ class _HomeViewState extends State<HomeView> {
                   onTap: () {
                     final user = context.read<LoginViewModel>().data?.data;
                     if (user != null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DailyReportView(user: user),
-                        ),
-                      );
+                      DailyReportBottomSheet.show(context, user);
                     }
                   },
                 ),

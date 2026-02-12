@@ -7,6 +7,7 @@ import '../../models/user_model.dart';
 import '../../viewmodels/student_list_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
 import '../../models/student_model.dart';
+import 'package:gym_kid_smart/views/daily_report/daily_report_view.dart';
 import 'student_detail_view.dart';
 
 class StudentListView extends StatelessWidget {
@@ -110,114 +111,7 @@ class _StudentListContent extends StatelessWidget {
     StudentListViewModel viewModel,
     String locale,
   ) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(SizeTokens.r24),
-        ),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Handle bar
-              Container(
-                margin: EdgeInsets.only(top: SizeTokens.p12),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(SizeTokens.p16),
-                child: Text(
-                  AppTranslations.translate('select_class', locale),
-                  style: TextStyle(
-                    fontSize: SizeTokens.f18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Divider(height: 1, color: Colors.grey[200]),
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.4,
-                ),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: viewModel.classes.length,
-                  itemBuilder: (ctx, index) {
-                    final classItem = viewModel.classes[index];
-                    final isSelected = classItem.id == viewModel.classId;
-                    return ListTile(
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(SizeTokens.r8),
-                        child: SizedBox(
-                          width: SizeTokens.h48,
-                          height: SizeTokens.h48,
-                          child:
-                              classItem.image != null &&
-                                  classItem.image!.isNotEmpty
-                              ? Image.network(
-                                  classItem.image!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Container(
-                                    color: Colors.grey[200],
-                                    child: Icon(
-                                      Icons.class_outlined,
-                                      size: SizeTokens.i20,
-                                      color: Colors.grey[400],
-                                    ),
-                                  ),
-                                )
-                              : Container(
-                                  color: Colors.grey[200],
-                                  child: Icon(
-                                    Icons.class_outlined,
-                                    size: SizeTokens.i20,
-                                    color: Colors.grey[400],
-                                  ),
-                                ),
-                        ),
-                      ),
-                      title: Text(
-                        classItem.name ?? '',
-                        style: TextStyle(
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.w500,
-                          fontSize: SizeTokens.f14,
-                          color: isSelected
-                              ? Theme.of(context).primaryColor
-                              : Colors.black87,
-                        ),
-                      ),
-                      trailing: isSelected
-                          ? Icon(
-                              Icons.check_circle_rounded,
-                              color: Theme.of(context).primaryColor,
-                              size: SizeTokens.i24,
-                            )
-                          : null,
-                      onTap: () {
-                        viewModel.switchClass(classItem);
-                        Navigator.pop(ctx);
-                      },
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: SizeTokens.p8),
-            ],
-          ),
-        );
-      },
-    );
+    DailyReportBottomSheet.show(context, user);
   }
 
   Widget _buildBody(
@@ -266,7 +160,10 @@ class _StudentListContent extends StatelessWidget {
                   ),
                   child: Text(
                     AppTranslations.translate('retry', locale),
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: SizeTokens.f14,
+                    ),
                   ),
                 ),
               ),
