@@ -7,6 +7,7 @@ import '../../core/utils/app_translations.dart';
 import '../../models/user_model.dart';
 import '../../viewmodels/food_list_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
+import '../../core/utils/time_utils.dart';
 
 class FoodListView extends StatelessWidget {
   final UserModel user;
@@ -214,7 +215,7 @@ class _FoodListViewContent extends StatelessWidget {
                           ),
                           SizedBox(width: SizeTokens.p4),
                           Text(
-                            menu.time!,
+                            TimeUtils.formatTime(menu.time),
                             style: TextStyle(
                               color: Colors.grey[700],
                               fontSize: SizeTokens.f12,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../models/notice_model.dart';
 import '../../../core/responsive/size_tokens.dart';
 import '../../../core/utils/app_translations.dart';
+import '../../../core/utils/time_utils.dart';
 import '../../notice_detail/notice_detail_view.dart';
 
 class NoticeCard extends StatelessWidget {
@@ -68,7 +69,7 @@ class NoticeCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        notice.noticeDate ?? '',
+                        TimeUtils.formatDateTime(notice.noticeDate),
                         style: TextStyle(
                           color: Colors.grey.shade500,
                           fontSize: SizeTokens.f12,

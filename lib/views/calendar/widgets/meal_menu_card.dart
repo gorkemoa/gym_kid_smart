@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/responsive/size_tokens.dart';
 import '../../../models/meal_menu_model.dart';
+import '../../../core/utils/time_utils.dart';
 
 class MealMenuCard extends StatelessWidget {
   final MealMenuModel meal;
@@ -67,7 +68,7 @@ class MealMenuCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(SizeTokens.r8),
                     ),
                     child: Text(
-                      meal.time!,
+                      TimeUtils.formatTime(meal.time),
                       style: TextStyle(
                         color: Colors.grey[700],
                         fontSize: SizeTokens.f12,

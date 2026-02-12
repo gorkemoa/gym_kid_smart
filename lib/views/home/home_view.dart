@@ -14,6 +14,7 @@ import '../chat/chat_view.dart';
 import '../chat/new_chat_view.dart';
 import '../notice_detail/notice_detail_view.dart';
 import '../notice/notice_view.dart';
+import '../../core/utils/time_utils.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -324,7 +325,7 @@ class _HomeViewState extends State<HomeView> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            notice.noticeDate ?? '',
+                            TimeUtils.formatDateTime(notice.noticeDate),
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
                                   color: Colors.grey.shade500,

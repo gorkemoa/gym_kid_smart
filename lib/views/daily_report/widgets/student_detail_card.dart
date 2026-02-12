@@ -3,6 +3,7 @@ import 'package:gym_kid_smart/core/responsive/size_tokens.dart';
 import 'package:gym_kid_smart/core/utils/app_translations.dart';
 import 'package:gym_kid_smart/models/daily_student_model.dart';
 import 'package:gym_kid_smart/viewmodels/landing_view_model.dart';
+import 'package:gym_kid_smart/core/utils/time_utils.dart';
 
 import 'package:provider/provider.dart';
 
@@ -40,7 +41,7 @@ class StudentDetailCard extends StatelessWidget {
       if (displayTitle.isEmpty) {
         displayTitle = AppTranslations.translate('receiving', locale);
       }
-      displayValue = item.time ?? '';
+      displayValue = TimeUtils.formatTime(item.time);
     }
 
     return Container(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/responsive/size_tokens.dart';
 import '../../../models/calendar_detail_model.dart';
+import '../../../core/utils/time_utils.dart';
 
 class TimeTableCard extends StatelessWidget {
   final TimeTableItem item;
@@ -91,7 +92,7 @@ class TimeTableCard extends StatelessWidget {
                         ),
                         SizedBox(width: SizeTokens.p4),
                         Text(
-                          "${item.startTime} - ${item.endTime}",
+                          "${TimeUtils.formatTime(item.startTime)} - ${TimeUtils.formatTime(item.endTime)}",
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: SizeTokens.f12,

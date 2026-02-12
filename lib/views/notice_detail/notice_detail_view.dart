@@ -6,6 +6,7 @@ import '../../viewmodels/landing_view_model.dart';
 import '../../core/responsive/size_tokens.dart';
 import '../../core/utils/app_translations.dart';
 import '../../core/ui_components/common_widgets.dart';
+import '../../core/utils/time_utils.dart';
 
 class NoticeDetailView extends StatelessWidget {
   final NoticeModel notice;
@@ -74,7 +75,7 @@ class _NoticeDetailContent extends StatelessWidget {
                   ),
                   SizedBox(width: SizeTokens.p8),
                   Text(
-                    notice.noticeDate ?? '',
+                    TimeUtils.formatDateTime(notice.noticeDate),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).primaryColor,
                       fontWeight: FontWeight.w600,
