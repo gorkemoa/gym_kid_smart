@@ -86,7 +86,7 @@ class HomeViewModel extends ChangeNotifier {
 
           return dateB.compareTo(dateA); // Yeniden eskiye
         });
-        _notices = noticeList;
+        _notices = noticeList.where((n) => n.status != 0).toList();
       } else if (noticeResult is Failure<List<NoticeModel>>) {
         _errorMessage = noticeResult.message;
       }

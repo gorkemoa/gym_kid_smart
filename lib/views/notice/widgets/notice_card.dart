@@ -102,20 +102,66 @@ class NoticeCard extends StatelessWidget {
             ),
             SizedBox(height: SizeTokens.p12),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  AppTranslations.translate('read_more', locale),
-                  style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.w600,
-                    fontSize: SizeTokens.f12,
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: SizeTokens.p8,
+                    vertical: SizeTokens.p4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: notice.status == 0
+                        ? Colors.red.withOpacity(0.08)
+                        : Colors.green.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(SizeTokens.r8),
+                    border: Border.all(
+                      color: notice.status == 0
+                          ? Colors.red.withOpacity(0.2)
+                          : Colors.green.withOpacity(0.2),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: notice.status == 0 ? Colors.red : Colors.green,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      SizedBox(width: SizeTokens.p6),
+                      Text(
+                        notice.status == 0
+                            ? AppTranslations.translate('passive', locale)
+                            : AppTranslations.translate('active', locale),
+                        style: TextStyle(
+                          color: notice.status == 0 ? Colors.red : Colors.green,
+                          fontWeight: FontWeight.bold,
+                          fontSize: SizeTokens.f10,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: SizeTokens.i16,
-                  color: Theme.of(context).primaryColor,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      AppTranslations.translate('read_more', locale),
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: SizeTokens.f12,
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: SizeTokens.i16,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ],
                 ),
               ],
             ),

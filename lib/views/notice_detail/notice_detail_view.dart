@@ -80,6 +80,26 @@ class _NoticeDetailContent extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: SizeTokens.p8),
+                    child: Container(
+                      width: 4,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.3),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    notice.status == 0
+                        ? AppTranslations.translate('passive', locale)
+                        : AppTranslations.translate('active', locale),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: notice.status == 0 ? Colors.red : Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             ),
