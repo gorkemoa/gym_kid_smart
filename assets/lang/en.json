@@ -93,5 +93,7 @@
     "yesterday": "Yesterday",
     "tomorrow": "Tomorrow",
     "no_students_found": "No students found in this class.",
-    "notice_detail": "Notice Detail"
+    "notice_detail": "Notice Detail",
+    "all": "All",
+    "announcements": "Announcements"
 }

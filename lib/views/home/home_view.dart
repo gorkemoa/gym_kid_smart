@@ -12,6 +12,7 @@ import '../food_list/food_list_view.dart';
 import '../calendar/calendar_view.dart';
 import '../chat/chat_view.dart';
 import '../notice_detail/notice_detail_view.dart';
+import '../notice/notice_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -43,7 +44,19 @@ class _HomeViewState extends State<HomeView> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
-      appBar: const BaseAppBar(automaticallyImplyLeading: false),
+      appBar: BaseAppBar(
+        automaticallyImplyLeading: false,
+        title: _currentIndex == 0
+            ? null // Show logo for home
+            : Text(
+                _getAppBarTitle(_currentIndex, locale),
+                style: TextStyle(
+                  fontSize: SizeTokens.f18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+      ),
       body: _currentIndex == 0
           ? LayoutBuilder(
               builder: (context, constraints) {
@@ -101,9 +114,11 @@ class _HomeViewState extends State<HomeView> {
           ? CalendarView(user: user, showAppBar: false)
           : _currentIndex == 2
           ? ChatView(user: user!, id: homeViewModel.students.first.id ?? 0)
+          : _currentIndex == 3
+          ? NoticeView(user: user!, showAppBar: false)
           : Center(
               child: Text(
-                AppTranslations.translate('messages', locale),
+                'Settings (TBD)',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
@@ -116,6 +131,19 @@ class _HomeViewState extends State<HomeView> {
         },
       ),
     );
+  }
+
+  String _getAppBarTitle(int index, String locale) {
+    switch (index) {
+      case 1:
+        return AppTranslations.translate('calendar', locale);
+      case 2:
+        return AppTranslations.translate('messages', locale);
+      case 3:
+        return AppTranslations.translate('announcements', locale);
+      default:
+        return '';
+    }
   }
 
   Widget _buildSectionHeader(BuildContext context, String title) {
