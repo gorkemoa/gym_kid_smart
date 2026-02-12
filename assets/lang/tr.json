@@ -107,5 +107,6 @@
     "today": "Bugün",
     "yesterday": "Dün",
     "tomorrow": "Yarın",
-    "no_students_found": "Bu sınıfa ait kayıtlı öğrenci bulunamadı."
+    "no_students_found": "Bu sınıfa ait kayıtlı öğrenci bulunamadı.",
+    "notice_detail": "Duyuru Detayı"
 }

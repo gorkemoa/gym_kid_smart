@@ -92,5 +92,6 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "tomorrow": "Tomorrow",
-    "no_students_found": "No students found in this class."
+    "no_students_found": "No students found in this class.",
+    "notice_detail": "Notice Detail"
 }

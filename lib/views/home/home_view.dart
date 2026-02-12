@@ -11,6 +11,7 @@ import '../daily_report/daily_report_view.dart';
 import '../food_list/food_list_view.dart';
 import '../calendar/calendar_view.dart';
 import '../chat/chat_view.dart';
+import '../notice_detail/notice_detail_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -44,11 +45,12 @@ class _HomeViewState extends State<HomeView> {
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: const BaseAppBar(automaticallyImplyLeading: false),
       body: _currentIndex == 0
-          ? RefreshIndicator(
-              onRefresh: () => homeViewModel.refresh(),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
+          ? LayoutBuilder(
+              builder: (context, constraints) {
+                return RefreshIndicator(
+                  onRefresh: () => homeViewModel.refresh(),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         minHeight: constraints.maxHeight,
@@ -91,9 +93,9 @@ class _HomeViewState extends State<HomeView> {
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             )
           : _currentIndex == 1
           ? CalendarView(user: user, showAppBar: false)
@@ -154,7 +156,6 @@ class _HomeViewState extends State<HomeView> {
           children: [
             Container(
               padding: EdgeInsets.all(SizeTokens.p12),
-
               child: Icon(
                 Icons.notifications_none_rounded,
                 size: SizeTokens.i32,
@@ -210,98 +211,106 @@ class _HomeViewState extends State<HomeView> {
       padding: EdgeInsets.symmetric(vertical: SizeTokens.p4),
       itemBuilder: (context, index) {
         final notice = viewModel.notices[index];
-        return Container(
-          width: 310 / 390 * 100.w,
-          margin: EdgeInsets.only(right: SizeTokens.p16),
-          padding: EdgeInsets.all(SizeTokens.p20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(SizeTokens.f10),
-            border: Border.all(color: Colors.grey.shade200),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NoticeDetailView(notice: notice),
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    child: Icon(
+            );
+          },
+          child: Container(
+            width: 310 / 390 * 100.w,
+            margin: EdgeInsets.only(right: SizeTokens.p16),
+            padding: EdgeInsets.all(SizeTokens.p20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(SizeTokens.r12),
+              border: Border.all(color: Colors.grey.shade200),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
                       Icons.campaign_rounded,
                       size: SizeTokens.i20,
                       color: Theme.of(context).colorScheme.secondary,
                     ),
-                  ),
-                  SizedBox(width: SizeTokens.p12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          notice.title ?? '',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.titleMedium?.color,
-                                fontSize: SizeTokens.f16,
-                              ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          notice.noticeDate ?? '',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: Colors.grey.shade500,
-                                fontWeight: FontWeight.w500,
-                              ),
-                        ),
-                      ],
+                    SizedBox(width: SizeTokens.p12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            notice.title ?? '',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium?.color,
+                                  fontSize: SizeTokens.f16,
+                                ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            notice.noticeDate ?? '',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Colors.grey.shade500,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: SizeTokens.p16),
-              Text(
-                notice.description ?? '',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.color?.withOpacity(0.9),
-                  height: 1.4,
-                  fontSize: SizeTokens.f14,
+                  ],
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    AppTranslations.translate('read_more', locale),
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w600,
-                      fontSize: SizeTokens.f12,
+                SizedBox(height: SizeTokens.p16),
+                Text(
+                  notice.description ?? '',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.color?.withOpacity(0.9),
+                    height: 1.4,
+                    fontSize: SizeTokens.f14,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const Spacer(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      AppTranslations.translate('read_more', locale),
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: SizeTokens.f12,
+                      ),
                     ),
-                  ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: SizeTokens.i16,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ],
-              ),
-            ],
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: SizeTokens.i16,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
