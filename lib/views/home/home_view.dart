@@ -14,6 +14,7 @@ import '../chat/chat_view.dart';
 import '../chat/new_chat_view.dart';
 import '../notice_detail/notice_detail_view.dart';
 import '../notice/notice_view.dart';
+import '../settings/settings_view.dart';
 import '../../core/utils/time_utils.dart';
 
 class HomeView extends StatefulWidget {
@@ -148,12 +149,7 @@ class _HomeViewState extends State<HomeView> {
           ? ChatView(user: user!, id: user.id ?? 0)
           : _currentIndex == 3
           ? NoticeView(user: user!, showAppBar: false)
-          : Center(
-              child: Text(
-                'Settings (TBD)',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ),
+          : const SettingsView(),
       bottomNavigationBar: BaseBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -173,6 +169,8 @@ class _HomeViewState extends State<HomeView> {
         return AppTranslations.translate('messages', locale);
       case 3:
         return AppTranslations.translate('announcements', locale);
+      case 4:
+        return AppTranslations.translate('settings', locale);
       default:
         return '';
     }

@@ -122,5 +122,8 @@
     "add_photo": "Fotoğraf Ekle",
     "add_meal": "Öğün Ekle",
     "add_lesson": "Ders Ekle",
-    "no_photo_found": "Görsel bulunamadı"
+    "no_photo_found": "Görsel bulunamadı",
+    "account": "Hesap",
+    "confirm_logout": "Çıkış yapmak istediğinize emin misiniz?",
+    "settings": "Ayarlar"
 }

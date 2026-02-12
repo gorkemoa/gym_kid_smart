@@ -107,5 +107,8 @@
     "add_photo": "Add Photo",
     "add_meal": "Add Meal",
     "add_lesson": "Add Lesson",
-    "no_photo_found": "No photos found"
+    "no_photo_found": "No photos found",
+    "account": "Account",
+    "confirm_logout": "Are you sure you want to log out?",
+    "settings": "Settings"
 }
