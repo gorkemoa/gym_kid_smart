@@ -4,8 +4,7 @@ class UserModel {
   final String? name;
   final String? surname;
   final String? image;
-  final dynamic
-  phone; // Using dynamic because example has 55529462336 (which is beyond int range if it's 32-bit, but dart ints are 64-bit). But sometimes it might be a string.
+  final dynamic phone;
   final String? email;
   final String? role;
   final String? userKey;
