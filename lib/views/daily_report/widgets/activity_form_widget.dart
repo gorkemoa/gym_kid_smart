@@ -31,6 +31,13 @@ class ActivityFormWidget extends StatelessWidget {
               )
               ? viewModel.titleController.text
               : null,
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: Theme.of(context).primaryColor,
+          ),
+          borderRadius: BorderRadius.circular(SizeTokens.r16),
+          elevation: 8,
+          dropdownColor: Colors.white,
           decoration: InputDecoration(
             hintText: AppTranslations.translate('title', locale),
             prefixIcon: Icon(
@@ -41,7 +48,7 @@ class ActivityFormWidget extends StatelessWidget {
           items: viewModel.activityTitles
               .where((e) => e.title != null && e.title!.isNotEmpty)
               .map((e) => e.title!)
-              .toSet() // Remove duplicates
+              .toSet()
               .map((val) {
                 return DropdownMenuItem<String>(value: val, child: Text(val));
               })
@@ -64,38 +71,36 @@ class ActivityFormWidget extends StatelessWidget {
         SizedBox(height: SizeTokens.p8),
         _buildSectionTitle(context, AppTranslations.translate('value', locale)),
         SizedBox(height: SizeTokens.p8),
-        Row(
-          children: [
-            Expanded(
-              child: DropdownButtonFormField<String>(
-                value:
-                    viewModel.activityValues.any(
-                      (e) => e.value == viewModel.selectedActivityValue,
-                    )
-                    ? viewModel.selectedActivityValue
-                    : null,
-                decoration: InputDecoration(
-                  hintText: AppTranslations.translate('value', locale),
-                  prefixIcon: Icon(
-                    Icons.assessment_outlined,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                items: viewModel.activityValues
-                    .where((e) => e.value != null && e.value!.isNotEmpty)
-                    .map((e) => e.value!)
-                    .toSet() // Remove duplicates
-                    .map((val) {
-                      return DropdownMenuItem<String>(
-                        value: val,
-                        child: Text(val),
-                      );
-                    })
-                    .toList(),
-                onChanged: (val) => viewModel.setSelectedActivityValue(val),
-              ),
+        DropdownButtonFormField<String>(
+          value:
+              viewModel.activityValues.any(
+                (e) => e.value == viewModel.selectedActivityValue,
+              )
+              ? viewModel.selectedActivityValue
+              : null,
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: Theme.of(context).primaryColor,
+          ),
+          borderRadius: BorderRadius.circular(SizeTokens.r16),
+          elevation: 8,
+          dropdownColor: Colors.white,
+          decoration: InputDecoration(
+            hintText: AppTranslations.translate('value', locale),
+            prefixIcon: Icon(
+              Icons.assessment_outlined,
+              color: Theme.of(context).primaryColor,
             ),
-          ],
+          ),
+          items: viewModel.activityValues
+              .where((e) => e.value != null && e.value!.isNotEmpty)
+              .map((e) => e.value!)
+              .toSet()
+              .map((val) {
+                return DropdownMenuItem<String>(value: val, child: Text(val));
+              })
+              .toList(),
+          onChanged: (val) => viewModel.setSelectedActivityValue(val),
         ),
         Align(
           alignment: Alignment.centerRight,

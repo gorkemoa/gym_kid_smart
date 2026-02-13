@@ -22,76 +22,72 @@ class MealFormWidget extends StatelessWidget {
       children: [
         _buildSectionTitle(context, AppTranslations.translate('title', locale)),
         SizedBox(height: SizeTokens.p8),
-        Row(
-          children: [
-            Expanded(
-              child: DropdownButtonFormField<String>(
-                value:
-                    viewModel.mealTitles.any(
-                      (e) => e.title == viewModel.titleController.text,
-                    )
-                    ? viewModel.titleController.text
-                    : null,
-                decoration: InputDecoration(
-                  hintText: AppTranslations.translate('title', locale),
-                  prefixIcon: Icon(
-                    Icons.restaurant_menu_outlined,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                items: viewModel.mealTitles
-                    .where((e) => e.title != null && e.title!.isNotEmpty)
-                    .map((e) => e.title!)
-                    .toSet() // Remove duplicates
-                    .map((val) {
-                      return DropdownMenuItem<String>(
-                        value: val,
-                        child: Text(val),
-                      );
-                    })
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) viewModel.setTitle(val);
-                },
-              ),
+        DropdownButtonFormField<String>(
+          value:
+              viewModel.mealTitles.any(
+                (e) => e.title == viewModel.titleController.text,
+              )
+              ? viewModel.titleController.text
+              : null,
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: Theme.of(context).primaryColor,
+          ),
+          borderRadius: BorderRadius.circular(SizeTokens.r16),
+          elevation: 8,
+          dropdownColor: Colors.white,
+          decoration: InputDecoration(
+            hintText: AppTranslations.translate('title', locale),
+            prefixIcon: Icon(
+              Icons.restaurant_menu_outlined,
+              color: Theme.of(context).primaryColor,
             ),
-          ],
+          ),
+          items: viewModel.mealTitles
+              .where((e) => e.title != null && e.title!.isNotEmpty)
+              .map((e) => e.title!)
+              .toSet()
+              .map((val) {
+                return DropdownMenuItem<String>(value: val, child: Text(val));
+              })
+              .toList(),
+          onChanged: (val) {
+            if (val != null) viewModel.setTitle(val);
+          },
         ),
         SizedBox(height: SizeTokens.p16),
         _buildSectionTitle(context, AppTranslations.translate('value', locale)),
         SizedBox(height: SizeTokens.p8),
-        Row(
-          children: [
-            Expanded(
-              child: DropdownButtonFormField<String>(
-                value:
-                    viewModel.mealValues.any(
-                      (e) => e.value == viewModel.selectedActivityValue,
-                    )
-                    ? viewModel.selectedActivityValue
-                    : null,
-                decoration: InputDecoration(
-                  hintText: AppTranslations.translate('value', locale),
-                  prefixIcon: Icon(
-                    Icons.star_outline,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                items: viewModel.mealValues
-                    .where((e) => e.value != null && e.value!.isNotEmpty)
-                    .map((e) => e.value!)
-                    .toSet() // Remove duplicates
-                    .map((val) {
-                      return DropdownMenuItem<String>(
-                        value: val,
-                        child: Text(val),
-                      );
-                    })
-                    .toList(),
-                onChanged: (val) => viewModel.setSelectedActivityValue(val),
-              ),
+        DropdownButtonFormField<String>(
+          value:
+              viewModel.mealValues.any(
+                (e) => e.value == viewModel.selectedActivityValue,
+              )
+              ? viewModel.selectedActivityValue
+              : null,
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: Theme.of(context).primaryColor,
+          ),
+          borderRadius: BorderRadius.circular(SizeTokens.r16),
+          elevation: 8,
+          dropdownColor: Colors.white,
+          decoration: InputDecoration(
+            hintText: AppTranslations.translate('value', locale),
+            prefixIcon: Icon(
+              Icons.star_outline,
+              color: Theme.of(context).primaryColor,
             ),
-          ],
+          ),
+          items: viewModel.mealValues
+              .where((e) => e.value != null && e.value!.isNotEmpty)
+              .map((e) => e.value!)
+              .toSet()
+              .map((val) {
+                return DropdownMenuItem<String>(value: val, child: Text(val));
+              })
+              .toList(),
+          onChanged: (val) => viewModel.setSelectedActivityValue(val),
         ),
         SizedBox(height: SizeTokens.p16),
         _buildSectionTitle(context, AppTranslations.translate('note', locale)),

@@ -46,6 +46,10 @@ class ApiConstants {
   static const String allParents = '/Api/AllParents';
   static const String allAdmin = '/Api/AllAdmin';
   static const String updateStatusChat = '/Api/updateStatusChat';
+  static const String deleteActivityTitle = '/Api/deleteActivityTitle';
+  static const String deleteActivitiesValue = '/Api/deleteActivitiesValue';
+  static const String deleteSocialsTitle = '/Api/deleteSocialsTitle';
+  static const String deleteSocialsValue = '/Api/deleteSocialsValue';
 
   // Headers
   static Map<String, String> get headers => {

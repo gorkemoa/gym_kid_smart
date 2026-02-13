@@ -155,7 +155,7 @@ class SettingsView extends StatelessWidget {
                     settingsVM,
                     user!,
                     locale,
-                    'activity_value',
+                    'social_value',
                   ),
                 ),
               ],
@@ -264,7 +264,8 @@ class SettingsView extends StatelessWidget {
                       itemCount: items.length,
                       itemBuilder: (context, index) {
                         final item = items[index];
-                        final text = type == 'activity_value'
+                        final text =
+                            (type == 'activity_value' || type == 'social_value')
                             ? item.value
                             : item.title;
 
@@ -282,6 +283,24 @@ class SettingsView extends StatelessWidget {
                               ),
                             ),
                           ),
+                          trailing:
+                              (user.role == 'superadmin' ||
+                                  user.role == 'teacher')
+                              ? IconButton(
+                                  icon: const Icon(
+                                    Icons.delete_outline,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () => _showDeleteWarning(
+                                    context,
+                                    viewModel,
+                                    user,
+                                    item,
+                                    type,
+                                    locale,
+                                  ),
+                                )
+                              : null,
                         );
                       },
                     );
@@ -344,18 +363,20 @@ class SettingsView extends StatelessWidget {
                   userKey: userKey,
                   title: controller.text,
                 );
-              } else if (type == 'activity_value') {
+              } else if (type == 'activity_value' || type == 'social_value') {
                 result = await viewModel.saveActivityValue(
                   schoolId: schoolId,
                   userKey: userKey,
                   value: controller.text,
                 );
-              } else {
+              } else if (type == 'social_title') {
                 result = await viewModel.saveSocialTitle(
                   schoolId: schoolId,
                   userKey: userKey,
                   title: controller.text,
                 );
+              } else {
+                result = Failure('Geçersiz tip');
               }
 
               if (context.mounted) {
@@ -376,6 +397,83 @@ class SettingsView extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: SizeTokens.p16),
             ),
             child: Text(AppTranslations.translate('save', locale)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteWarning(
+    BuildContext context,
+    SettingsViewModel viewModel,
+    UserModel user,
+    dynamic item,
+    String type,
+    String locale,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppTranslations.translate('confirm_delete', locale)),
+        content: Text(AppTranslations.translate('delete_confirmation', locale)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppTranslations.translate('cancel', locale)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              ApiResult<bool> result;
+              final id = int.tryParse(item.id.toString()) ?? 0;
+              final schoolId = user.schoolId ?? 1;
+              final userKey = user.userKey ?? '';
+
+              if (type == 'activity_title') {
+                result = await viewModel.deleteActivityTitle(
+                  schoolId: schoolId,
+                  userKey: userKey,
+                  id: id,
+                );
+              } else if (type == 'activity_value') {
+                result = await viewModel.deleteActivityValue(
+                  schoolId: schoolId,
+                  userKey: userKey,
+                  id: id,
+                );
+              } else if (type == 'social_title') {
+                result = await viewModel.deleteSocialTitle(
+                  schoolId: schoolId,
+                  userKey: userKey,
+                  id: id,
+                );
+              } else {
+                result = await viewModel.deleteSocialValue(
+                  schoolId: schoolId,
+                  userKey: userKey,
+                  id: id,
+                );
+              }
+
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      result is Success
+                          ? AppTranslations.translate('delete_success', locale)
+                          : (result as Failure).message,
+                    ),
+                    backgroundColor: result is Success
+                        ? Colors.green
+                        : Colors.red,
+                  ),
+                );
+              }
+            },
+            child: Text(
+              AppTranslations.translate('delete', locale),
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),

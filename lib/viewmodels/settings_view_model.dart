@@ -140,4 +140,68 @@ class SettingsViewModel extends ChangeNotifier {
     }
     return result;
   }
+
+  Future<ApiResult<bool>> deleteActivityTitle({
+    required int schoolId,
+    required String userKey,
+    required int id,
+  }) async {
+    final result = await _homeService.deleteActivityTitle(
+      schoolId: schoolId,
+      userKey: userKey,
+      id: id,
+    );
+    if (result is Success) {
+      await fetchTemplates(schoolId: schoolId, userKey: userKey);
+    }
+    return result;
+  }
+
+  Future<ApiResult<bool>> deleteActivityValue({
+    required int schoolId,
+    required String userKey,
+    required int id,
+  }) async {
+    final result = await _homeService.deleteActivitiesValue(
+      schoolId: schoolId,
+      userKey: userKey,
+      id: id,
+    );
+    if (result is Success) {
+      await fetchTemplates(schoolId: schoolId, userKey: userKey);
+    }
+    return result;
+  }
+
+  Future<ApiResult<bool>> deleteSocialTitle({
+    required int schoolId,
+    required String userKey,
+    required int id,
+  }) async {
+    final result = await _homeService.deleteSocialsTitle(
+      schoolId: schoolId,
+      userKey: userKey,
+      id: id,
+    );
+    if (result is Success) {
+      await fetchTemplates(schoolId: schoolId, userKey: userKey);
+    }
+    return result;
+  }
+
+  Future<ApiResult<bool>> deleteSocialValue({
+    required int schoolId,
+    required String userKey,
+    required int id,
+  }) async {
+    final result = await _homeService.deleteSocialsValue(
+      schoolId: schoolId,
+      userKey: userKey,
+      id: id,
+    );
+    if (result is Success) {
+      await fetchTemplates(schoolId: schoolId, userKey: userKey);
+    }
+    return result;
+  }
 }

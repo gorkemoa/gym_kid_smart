@@ -31,6 +31,7 @@
     "calendar_desc": "Personal development and habits",
     "food_list_desc": "Weekly or monthly food menus",
     "messages_desc": "Links providing quick access",
+    "no_notices_found": "No announcements found.",
     "no_messages": "No messages yet.",
     "write_message": "Write a message...",
     "send": "Send",
@@ -118,5 +119,6 @@
     "activity_templates": "Activity Templates",
     "social_templates": "Social Templates",
     "add_new_title": "Add New Title",
-    "add_new_value": "Add New Value"
+    "add_new_value": "Add New Value",
+    "delete_success": "Deleted successfully"
 }

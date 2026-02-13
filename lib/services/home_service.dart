@@ -488,6 +488,86 @@ class HomeService {
     }
   }
 
+  Future<ApiResult<bool>> deleteActivityTitle({
+    required int schoolId,
+    required String userKey,
+    required int id,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.deleteActivityTitle,
+        body: {'school_id': schoolId, 'user_key': userKey, 'id': id},
+      );
+      if (response['success'] != null || response['data'] == true) {
+        return const Success(true);
+      }
+      return Failure(response['message'] ?? 'Silme işlemi başarısız');
+    } catch (e) {
+      AppLogger.error('Delete activity title failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> deleteActivitiesValue({
+    required int schoolId,
+    required String userKey,
+    required int id,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.deleteActivitiesValue,
+        body: {'school_id': schoolId, 'user_key': userKey, 'id': id},
+      );
+      if (response['success'] != null || response['data'] == true) {
+        return const Success(true);
+      }
+      return Failure(response['message'] ?? 'Silme işlemi başarısız');
+    } catch (e) {
+      AppLogger.error('Delete activity value failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> deleteSocialsTitle({
+    required int schoolId,
+    required String userKey,
+    required int id,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.deleteSocialsTitle,
+        body: {'school_id': schoolId, 'user_key': userKey, 'id': id},
+      );
+      if (response['success'] != null || response['data'] == true) {
+        return const Success(true);
+      }
+      return Failure(response['message'] ?? 'Silme işlemi başarısız');
+    } catch (e) {
+      AppLogger.error('Delete social title failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> deleteSocialsValue({
+    required int schoolId,
+    required String userKey,
+    required int id,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        ApiConstants.deleteSocialsValue,
+        body: {'school_id': schoolId, 'user_key': userKey, 'id': id},
+      );
+      if (response['success'] != null || response['data'] == true) {
+        return const Success(true);
+      }
+      return Failure(response['message'] ?? 'Silme işlemi başarısız');
+    } catch (e) {
+      AppLogger.error('Delete social value failed', e);
+      return Failure(e.toString());
+    }
+  }
+
   Future<ApiResult<List<MealTitleModel>>> getAllMealsTitle({
     required int schoolId,
     required String userKey,
