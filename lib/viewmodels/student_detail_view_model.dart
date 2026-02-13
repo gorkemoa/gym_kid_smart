@@ -145,6 +145,7 @@ class StudentDetailViewModel extends ChangeNotifier {
     if (_expandedSections.contains(part)) {
       _expandedSections.remove(part);
     } else {
+      _expandedSections.clear();
       _expandedSections.add(part);
       _selectedPart = part;
       if (!_allSectionsData.containsKey(part) ||
