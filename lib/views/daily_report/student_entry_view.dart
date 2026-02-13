@@ -109,19 +109,46 @@ class _StudentEntryContent extends StatelessWidget {
         return MealFormWidget(
           viewModel: viewModel,
           locale: locale,
-          onAddValue: _showAddValueDialog,
+          onAddValue: (context, vm, loc) => _showAddTemplateBottomSheet(
+            context: context,
+            viewModel: vm,
+            locale: loc,
+            type: 'value',
+          ),
         );
       case 'activities':
         return ActivityFormWidget(
           viewModel: viewModel,
           locale: locale,
-          onAddValue: _showAddValueDialog,
+          onAddValue: (context, vm, loc) => _showAddTemplateBottomSheet(
+            context: context,
+            viewModel: vm,
+            locale: loc,
+            type: 'value',
+          ),
+          onAddTitle: (context, vm, loc) => _showAddTemplateBottomSheet(
+            context: context,
+            viewModel: vm,
+            locale: loc,
+            type: 'title',
+          ),
         );
       case 'socials':
         return SocialFormWidget(
           viewModel: viewModel,
           locale: locale,
-          onAddValue: _showAddValueDialog,
+          onAddValue: (context, vm, loc) => _showAddTemplateBottomSheet(
+            context: context,
+            viewModel: vm,
+            locale: loc,
+            type: 'value',
+          ),
+          onAddTitle: (context, vm, loc) => _showAddTemplateBottomSheet(
+            context: context,
+            viewModel: vm,
+            locale: loc,
+            type: 'title',
+          ),
         );
       case 'medicament':
         return MedicamentFormWidget(
@@ -183,46 +210,104 @@ class _StudentEntryContent extends StatelessWidget {
     );
   }
 
-  void _showAddValueDialog(
-    BuildContext context,
-    StudentEntryViewModel viewModel,
-    String locale,
-  ) {
+  void _showAddTemplateBottomSheet({
+    required BuildContext context,
+    required StudentEntryViewModel viewModel,
+    required String locale,
+    required String type, // 'title' or 'value'
+  }) {
     final controller = TextEditingController();
-    showDialog(
+    final isTitle = type == 'title';
+
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(SizeTokens.r16),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        title: Text(AppTranslations.translate('manage_values', locale)),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            labelText: AppTranslations.translate('value', locale),
-            hintText: "Örn: Yıldızlı Pekiyi",
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(SizeTokens.r24),
+            ),
+          ),
+          padding: EdgeInsets.all(SizeTokens.p24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppTranslations.translate(
+                      isTitle ? 'add_new_title' : 'add_new_value',
+                      locale,
+                    ),
+                    style: TextStyle(
+                      fontSize: SizeTokens.f18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const Divider(),
+              SizedBox(height: SizeTokens.p16),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: AppTranslations.translate(
+                    isTitle ? 'title' : 'value',
+                    locale,
+                  ),
+                  prefixIcon: Icon(
+                    isTitle ? Icons.title : Icons.star_outline,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+              SizedBox(height: SizeTokens.p24),
+              ElevatedButton(
+                onPressed: () async {
+                  if (controller.text.trim().isEmpty) return;
+
+                  ApiResult result;
+                  if (isTitle) {
+                    // Temporarily set controller to save
+                    final oldTitle = viewModel.titleController.text;
+                    viewModel.titleController.text = controller.text.trim();
+                    if (viewModel.categoryId == 'socials') {
+                      result = await viewModel.saveSocialTitleAsTemplate();
+                    } else {
+                      result = await viewModel.saveTitleAsTemplate();
+                    }
+                    // Restore or clear? Clear is better for UX if they want to select it now
+                    viewModel.titleController.text = oldTitle;
+                  } else {
+                    result = await viewModel.saveValueAsTemplate(
+                      controller.text.trim(),
+                    );
+                  }
+
+                  if (context.mounted) {
+                    _showSnackBar(context, result, locale);
+                    if (result is Success) Navigator.pop(context);
+                  }
+                },
+                child: Text(AppTranslations.translate('save', locale)),
+              ),
+              SizedBox(height: SizeTokens.p12),
+            ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppTranslations.translate('cancel', locale)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (controller.text.isEmpty) return;
-              final result = await viewModel.saveValueAsTemplate(
-                controller.text,
-              );
-              if (context.mounted) {
-                _showSnackBar(context, result, locale);
-                if (result is Success) Navigator.pop(context);
-              }
-            },
-            style: ElevatedButton.styleFrom(minimumSize: const Size(80, 40)),
-            child: Text(AppTranslations.translate('save', locale)),
-          ),
-        ],
       ),
     );
   }

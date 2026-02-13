@@ -229,20 +229,28 @@ class StudentEntryViewModel extends ChangeNotifier {
 
   Future<ApiResult<bool>> saveTitleAsTemplate() async {
     if (titleController.text.isEmpty) return Failure('Başlık boş olamaz');
-    return await _homeService.saveActivityTitle(
+    final result = await _homeService.saveActivityTitle(
       schoolId: user.schoolId ?? 1,
       userKey: user.userKey ?? '',
       title: titleController.text,
     );
+    if (result is Success) {
+      await _fetchActivityTitles();
+    }
+    return result;
   }
 
   Future<ApiResult<bool>> saveSocialTitleAsTemplate() async {
     if (titleController.text.isEmpty) return Failure('Başlık boş olamaz');
-    return await _homeService.saveSocialTitle(
+    final result = await _homeService.saveSocialTitle(
       schoolId: user.schoolId ?? 1,
       userKey: user.userKey ?? '',
       title: titleController.text,
     );
+    if (result is Success) {
+      await _fetchSocialTitles();
+    }
+    return result;
   }
 
   Future<ApiResult<bool>> _saveReceiving() async {

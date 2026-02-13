@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import '../../../core/responsive/size_tokens.dart';
 import '../../../core/utils/app_translations.dart';
 import '../../../viewmodels/student_entry_view_model.dart';
-import '../../../core/network/api_result.dart';
 
 class SocialFormWidget extends StatelessWidget {
   final StudentEntryViewModel viewModel;
   final String locale;
   final Function(BuildContext, StudentEntryViewModel, String) onAddValue;
+  final Function(BuildContext, StudentEntryViewModel, String) onAddTitle;
 
   const SocialFormWidget({
     super.key,
     required this.viewModel,
     required this.locale,
     required this.onAddValue,
+    required this.onAddTitle,
   });
 
   @override
@@ -23,42 +24,36 @@ class SocialFormWidget extends StatelessWidget {
       children: [
         _buildSectionTitle(context, AppTranslations.translate('title', locale)),
         SizedBox(height: SizeTokens.p8),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: viewModel.titleController,
-                decoration: InputDecoration(
-                  hintText: AppTranslations.translate('title', locale),
-                  prefixIcon: Icon(
-                    Icons.diversity_3_outlined,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-              ),
+        DropdownButtonFormField<String>(
+          value:
+              viewModel.socialTitles.any(
+                (e) => e.title == viewModel.titleController.text,
+              )
+              ? viewModel.titleController.text
+              : null,
+          decoration: InputDecoration(
+            hintText: AppTranslations.translate('title', locale),
+            prefixIcon: Icon(
+              Icons.diversity_3_outlined,
+              color: Theme.of(context).primaryColor,
             ),
-            if (viewModel.socialTitles.isNotEmpty)
-              PopupMenuButton<String>(
-                icon: Icon(
-                  Icons.history,
-                  color: Theme.of(context).primaryColor,
-                ),
-                onSelected: (val) => viewModel.setTitle(val),
-                itemBuilder: (context) => viewModel.socialTitles
-                    .map(
-                      (t) => PopupMenuItem<String>(
-                        value: t.title,
-                        child: Text(t.title ?? ''),
-                      ),
-                    )
-                    .toList(),
-              ),
-          ],
+          ),
+          items: viewModel.socialTitles
+              .where((e) => e.title != null && e.title!.isNotEmpty)
+              .map((e) => e.title!)
+              .toSet() // Remove duplicates
+              .map((val) {
+                return DropdownMenuItem<String>(value: val, child: Text(val));
+              })
+              .toList(),
+          onChanged: (val) {
+            if (val != null) viewModel.setTitle(val);
+          },
         ),
         Align(
           alignment: Alignment.centerRight,
           child: TextButton.icon(
-            onPressed: () => _handleSaveTemplate(context),
+            onPressed: () => onAddTitle(context, viewModel, locale),
             icon: const Icon(Icons.add, size: 16),
             label: Text(
               AppTranslations.translate('add_new_title', locale),
@@ -140,22 +135,5 @@ class SocialFormWidget extends StatelessWidget {
         color: Theme.of(context).primaryColor,
       ),
     );
-  }
-
-  Future<void> _handleSaveTemplate(BuildContext context) async {
-    final result = await viewModel.saveSocialTitleAsTemplate();
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            result is Success
-                ? AppTranslations.translate('save_success', locale)
-                : (result as Failure).message,
-          ),
-          backgroundColor: result is Success ? Colors.green : Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
   }
 }
