@@ -10,7 +10,6 @@ import '../../viewmodels/login_view_model.dart';
 import '../../core/services/navigation_service.dart';
 import '../home/home_view.dart';
 import '../login/login_view.dart';
-import 'widgets/language_selector.dart';
 
 class LandingView extends StatefulWidget {
   const LandingView({super.key});
@@ -68,8 +67,6 @@ class _LandingViewState extends State<LandingView> {
               padding: EdgeInsets.symmetric(horizontal: SizeTokens.p24),
               child: Column(
                 children: [
-                  SizedBox(height: SizeTokens.p24),
-                  const LanguageSelector(),
                   const Spacer(),
                   SvgPicture.asset(
                     'assets/landing.svg',

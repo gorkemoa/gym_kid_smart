@@ -53,16 +53,20 @@ class SocialFormWidget extends StatelessWidget {
                     )
                     .toList(),
               ),
-            IconButton(
-              icon: Icon(
-                Icons.bookmark_add_outlined,
-                color: Theme.of(context).primaryColor,
-              ),
-              onPressed: () => _handleSaveTemplate(context),
-            ),
           ],
         ),
-        SizedBox(height: SizeTokens.p16),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: () => _handleSaveTemplate(context),
+            icon: const Icon(Icons.add, size: 16),
+            label: Text(
+              AppTranslations.translate('add_new_title', locale),
+              style: TextStyle(fontSize: SizeTokens.f12),
+            ),
+          ),
+        ),
+        SizedBox(height: SizeTokens.p8),
         _buildSectionTitle(context, AppTranslations.translate('value', locale)),
         SizedBox(height: SizeTokens.p8),
         Row(
@@ -96,16 +100,20 @@ class SocialFormWidget extends StatelessWidget {
                 onChanged: (val) => viewModel.setSelectedActivityValue(val),
               ),
             ),
-            IconButton(
-              icon: Icon(
-                Icons.add_circle_outline,
-                color: Theme.of(context).primaryColor,
-              ),
-              onPressed: () => onAddValue(context, viewModel, locale),
-            ),
           ],
         ),
-        SizedBox(height: SizeTokens.p16),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: () => onAddValue(context, viewModel, locale),
+            icon: const Icon(Icons.add_circle_outline, size: 16),
+            label: Text(
+              AppTranslations.translate('add_new_value', locale),
+              style: TextStyle(fontSize: SizeTokens.f12),
+            ),
+          ),
+        ),
+        SizedBox(height: SizeTokens.p8),
         _buildSectionTitle(context, AppTranslations.translate('note', locale)),
         SizedBox(height: SizeTokens.p8),
         TextField(

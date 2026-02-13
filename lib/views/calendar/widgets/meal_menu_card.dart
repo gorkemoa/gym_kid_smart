@@ -22,21 +22,24 @@ class MealMenuCard extends StatelessWidget {
     final primaryColor = Theme.of(context).primaryColor;
 
     return Container(
-      margin: EdgeInsets.only(bottom: SizeTokens.p16),
+      margin: EdgeInsets.only(bottom: SizeTokens.p12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r16),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(SizeTokens.r12),
+        border: Border.all(color: Colors.grey.shade100),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.all(SizeTokens.p12),
+            padding: EdgeInsets.symmetric(
+              horizontal: SizeTokens.p12,
+              vertical: SizeTokens.p8,
+            ),
             decoration: BoxDecoration(
               color: primaryColor.withOpacity(0.05),
               borderRadius: BorderRadius.vertical(
-                top: Radius.circular(SizeTokens.r16),
+                top: Radius.circular(SizeTokens.r12),
               ),
             ),
             child: Row(
@@ -44,15 +47,15 @@ class MealMenuCard extends StatelessWidget {
                 Icon(
                   Icons.restaurant_rounded,
                   color: primaryColor,
-                  size: SizeTokens.i20,
+                  size: SizeTokens.i16,
                 ),
-                SizedBox(width: SizeTokens.p12),
+                SizedBox(width: SizeTokens.p8),
                 Expanded(
                   child: Text(
                     meal.title ?? "",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: SizeTokens.f16,
+                      fontSize: SizeTokens.f14,
                       color: primaryColor,
                     ),
                   ),
@@ -60,18 +63,18 @@ class MealMenuCard extends StatelessWidget {
                 if (meal.time != null)
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: SizeTokens.p8,
-                      vertical: SizeTokens.p4,
+                      horizontal: SizeTokens.p6,
+                      vertical: SizeTokens.p2,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(SizeTokens.r8),
+                      borderRadius: BorderRadius.circular(SizeTokens.r4),
                     ),
                     child: Text(
                       TimeUtils.formatTime(meal.time),
                       style: TextStyle(
                         color: Colors.grey[700],
-                        fontSize: SizeTokens.f12,
+                        fontSize: SizeTokens.f10,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -82,7 +85,7 @@ class MealMenuCard extends StatelessWidget {
                     icon: Icon(
                       Icons.delete_outline_rounded,
                       color: Colors.red[400],
-                      size: SizeTokens.i20,
+                      size: SizeTokens.i16,
                     ),
                     onPressed: onDelete,
                     padding: EdgeInsets.zero,
@@ -93,19 +96,16 @@ class MealMenuCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(SizeTokens.p16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  meal.menu ?? "",
-                  style: TextStyle(
-                    color: Colors.grey[800],
-                    fontSize: SizeTokens.f14,
-                    height: 1.5,
-                  ),
-                ),
-              ],
+            padding: EdgeInsets.all(SizeTokens.p12),
+            child: Text(
+              meal.menu ?? "",
+              style: TextStyle(
+                color: Colors.grey[800],
+                fontSize: SizeTokens.f12,
+                height: 1.4,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

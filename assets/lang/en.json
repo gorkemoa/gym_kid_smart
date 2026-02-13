@@ -110,5 +110,13 @@
     "no_photo_found": "No photos found",
     "account": "Account",
     "confirm_logout": "Are you sure you want to log out?",
-    "settings": "Settings"
+    "settings": "Settings",
+    "language": "Language",
+    "turkish": "Turkish",
+    "english": "English",
+    "select_language": "Select Language",
+    "activity_templates": "Activity Templates",
+    "social_templates": "Social Templates",
+    "add_new_title": "Add New Title",
+    "add_new_value": "Add New Value"
 }

@@ -8,6 +8,8 @@ import '../../viewmodels/login_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
 import '../../viewmodels/settings_view_model.dart';
 import '../login/login_view.dart';
+import '../../core/network/api_result.dart';
+import '../../models/user_model.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
@@ -18,6 +20,10 @@ class SettingsView extends StatelessWidget {
     final loginVM = context.watch<LoginViewModel>();
     final settingsVM = context.watch<SettingsViewModel>();
     final user = loginVM.data?.data;
+    final isAuthorized =
+        user?.role == 'teacher' ||
+        user?.role == 'superadmin' ||
+        user?.role == 'admin';
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(SizeTokens.p20),
@@ -78,6 +84,88 @@ class SettingsView extends StatelessWidget {
           _buildSettingsSection(
             context,
             locale,
+            title: AppTranslations.translate('settings', locale),
+            items: [
+              _SettingsItem(
+                icon: Icons.language,
+                title: AppTranslations.translate('language', locale),
+                onTap: () => _showLanguageDialog(
+                  context,
+                  context.read<LandingViewModel>(),
+                  locale,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: SizeTokens.p16),
+
+          if (isAuthorized) ...[
+            _buildSettingsSection(
+              context,
+              locale,
+              title: AppTranslations.translate('activity_templates', locale),
+              items: [
+                _SettingsItem(
+                  icon: Icons.title,
+                  title: AppTranslations.translate('manage_titles', locale),
+                  onTap: () => _showTemplateDialog(
+                    context,
+                    settingsVM,
+                    user!,
+                    locale,
+                    'activity_title',
+                  ),
+                ),
+                _SettingsItem(
+                  icon: Icons.star_outline,
+                  title: AppTranslations.translate('manage_values', locale),
+                  onTap: () => _showTemplateDialog(
+                    context,
+                    settingsVM,
+                    user!,
+                    locale,
+                    'activity_value',
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: SizeTokens.p16),
+
+            _buildSettingsSection(
+              context,
+              locale,
+              title: AppTranslations.translate('social_templates', locale),
+              items: [
+                _SettingsItem(
+                  icon: Icons.diversity_3_outlined,
+                  title: AppTranslations.translate('manage_titles', locale),
+                  onTap: () => _showTemplateDialog(
+                    context,
+                    settingsVM,
+                    user!,
+                    locale,
+                    'social_title',
+                  ),
+                ),
+                _SettingsItem(
+                  icon: Icons.star_outline,
+                  title: AppTranslations.translate('manage_values', locale),
+                  onTap: () => _showTemplateDialog(
+                    context,
+                    settingsVM,
+                    user!,
+                    locale,
+                    'activity_value',
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: SizeTokens.p16),
+          ],
+
+          _buildSettingsSection(
+            context,
+            locale,
             title: AppTranslations.translate('account', locale),
             items: [
               _SettingsItem(
@@ -90,6 +178,254 @@ class SettingsView extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  void _showTemplateDialog(
+    BuildContext context,
+    SettingsViewModel viewModel,
+    UserModel user,
+    String locale,
+    String type,
+  ) {
+    // Initial fetch
+    viewModel.fetchTemplates(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        maxChildSize: 0.9,
+        minChildSize: 0.5,
+        builder: (_, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(SizeTokens.r24),
+            ),
+          ),
+          padding: EdgeInsets.all(SizeTokens.p20),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppTranslations.translate(
+                      type == 'activity_title' || type == 'social_title'
+                          ? 'manage_titles'
+                          : 'manage_values',
+                      locale,
+                    ),
+                    style: TextStyle(
+                      fontSize: SizeTokens.f18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: ListenableBuilder(
+                  listenable: viewModel,
+                  builder: (context, _) {
+                    if (viewModel.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    List items = [];
+                    if (type == 'activity_title')
+                      items = viewModel.activityTitles;
+                    else if (type == 'activity_value')
+                      items = viewModel.activityValues;
+                    else if (type == 'social_title')
+                      items = viewModel.socialTitles;
+
+                    if (items.isEmpty) {
+                      return Center(
+                        child: Text(
+                          AppTranslations.translate('no_data_found', locale),
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      controller: scrollController,
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        final text = type == 'activity_value'
+                            ? item.value
+                            : item.title;
+
+                        return ListTile(
+                          title: Text(text ?? ''),
+                          leading: CircleAvatar(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).primaryColor.withOpacity(0.1),
+                            child: Text(
+                              '${index + 1}',
+                              style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontSize: SizeTokens.f12,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: _buildAddTemplateField(
+                  context,
+                  viewModel,
+                  user,
+                  locale,
+                  type,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddTemplateField(
+    BuildContext context,
+    SettingsViewModel viewModel,
+    UserModel user,
+    String locale,
+    String type,
+  ) {
+    final controller = TextEditingController();
+    return Container(
+      padding: EdgeInsets.only(top: SizeTokens.p12),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                hintText: AppTranslations.translate('add', locale),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: SizeTokens.p16,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: SizeTokens.p8),
+          ElevatedButton(
+            onPressed: () async {
+              if (controller.text.isEmpty) return;
+              ApiResult<bool> result;
+              final schoolId = user.schoolId ?? 1;
+              final userKey = user.userKey ?? '';
+
+              if (type == 'activity_title') {
+                result = await viewModel.saveActivityTitle(
+                  schoolId: schoolId,
+                  userKey: userKey,
+                  title: controller.text,
+                );
+              } else if (type == 'activity_value') {
+                result = await viewModel.saveActivityValue(
+                  schoolId: schoolId,
+                  userKey: userKey,
+                  value: controller.text,
+                );
+              } else {
+                result = await viewModel.saveSocialTitle(
+                  schoolId: schoolId,
+                  userKey: userKey,
+                  title: controller.text,
+                );
+              }
+
+              if (context.mounted) {
+                if (result is Success) {
+                  controller.clear();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text((result as Failure).message),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(0, 45),
+              padding: EdgeInsets.symmetric(horizontal: SizeTokens.p16),
+            ),
+            child: Text(AppTranslations.translate('save', locale)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLanguageDialog(
+    BuildContext context,
+    LandingViewModel landingVM,
+    String locale,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppTranslations.translate('select_language', locale)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(AppTranslations.translate('turkish', locale)),
+              leading: Radio<String>(
+                value: 'tr',
+                groupValue: landingVM.locale.languageCode,
+                onChanged: (value) {
+                  landingVM.changeLanguage('tr');
+                  Navigator.pop(context);
+                },
+              ),
+              onTap: () {
+                landingVM.changeLanguage('tr');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text(AppTranslations.translate('english', locale)),
+              leading: Radio<String>(
+                value: 'en',
+                groupValue: landingVM.locale.languageCode,
+                onChanged: (value) {
+                  landingVM.changeLanguage('en');
+                  Navigator.pop(context);
+                },
+              ),
+              onTap: () {
+                landingVM.changeLanguage('en');
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

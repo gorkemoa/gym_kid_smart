@@ -47,49 +47,52 @@ class _HomeViewState extends State<HomeView> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
-      appBar: BaseAppBar(
-        automaticallyImplyLeading: false,
-        title: _currentIndex == 0
-            ? null // Show logo for home
-            : Text(
-                _getAppBarTitle(_currentIndex, locale),
-                style: TextStyle(
-                  fontSize: SizeTokens.f18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-        actions: _currentIndex == 2
-            ? [
-                TextButton.icon(
-                  onPressed: () async {
-                    if (user != null) {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => NewChatView(currentUser: user),
-                        ),
-                      );
-                    }
-                  },
-                  icon: Icon(
-                    Icons.add_circle_outline_rounded,
-                    color: Theme.of(context).primaryColor,
-                    size: SizeTokens.i20,
-                  ),
-                  label: Text(
-                    AppTranslations.translate('new_message', locale),
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: SizeTokens.f14,
-                      fontWeight: FontWeight.bold,
+      appBar: (_currentIndex == 1 || _currentIndex == 3)
+          ? null
+          : BaseAppBar(
+              automaticallyImplyLeading: false,
+              title: _currentIndex == 0
+                  ? null // Show logo for home
+                  : Text(
+                      _getAppBarTitle(_currentIndex, locale),
+                      style: TextStyle(
+                        fontSize: SizeTokens.f18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                ),
-                SizedBox(width: SizeTokens.p8),
-              ]
-            : null,
-      ),
+              actions: _currentIndex == 2
+                  ? [
+                      TextButton.icon(
+                        onPressed: () async {
+                          if (user != null) {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    NewChatView(currentUser: user),
+                              ),
+                            );
+                          }
+                        },
+                        icon: Icon(
+                          Icons.add_circle_outline_rounded,
+                          color: Theme.of(context).primaryColor,
+                          size: SizeTokens.i20,
+                        ),
+                        label: Text(
+                          AppTranslations.translate('new_message', locale),
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: SizeTokens.f14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: SizeTokens.p8),
+                    ]
+                  : null,
+            ),
       body: _currentIndex == 0
           ? LayoutBuilder(
               builder: (context, constraints) {
@@ -144,11 +147,11 @@ class _HomeViewState extends State<HomeView> {
               },
             )
           : _currentIndex == 1
-          ? CalendarView(user: user, showAppBar: false)
+          ? CalendarView(user: user, showAppBar: true)
           : _currentIndex == 2
           ? ChatView(user: user!, id: user.id ?? 0)
           : _currentIndex == 3
-          ? NoticeView(user: user!, showAppBar: false)
+          ? NoticeView(user: user!, showAppBar: true)
           : const SettingsView(),
       bottomNavigationBar: BaseBottomNavBar(
         currentIndex: _currentIndex,

@@ -89,6 +89,36 @@ class _CalendarViewContentState extends State<_CalendarViewContent>
                 ),
               ),
               automaticallyImplyLeading: true,
+              actions: [
+                if (isAuthorized)
+                  Padding(
+                    padding: EdgeInsets.only(right: SizeTokens.p8),
+                    child: TextButton.icon(
+                      onPressed: () => _handleFabPressed(viewModel, locale),
+                      icon: Icon(
+                        _tabController.index == 2
+                            ? Icons.add_a_photo_rounded
+                            : _tabController.index == 1
+                            ? Icons.restaurant_menu_rounded
+                            : Icons.add_task_rounded,
+                        color: Theme.of(context).primaryColor,
+                        size: SizeTokens.i20,
+                      ),
+                      label: Text(
+                        _tabController.index == 2
+                            ? AppTranslations.translate('add_photo', locale)
+                            : _tabController.index == 1
+                            ? AppTranslations.translate('add_meal', locale)
+                            : AppTranslations.translate('add_lesson', locale),
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: SizeTokens.f12,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             )
           : null,
       body: viewModel.isLoading && viewModel.classes.isEmpty
@@ -101,27 +131,38 @@ class _CalendarViewContentState extends State<_CalendarViewContent>
               onRefresh: () async => viewModel.refresh(),
               child: CustomScrollView(
                 slivers: [
-                  if (viewModel.classes.length > 1)
-                    SliverToBoxAdapter(
-                      child: _buildClassSelector(viewModel, locale),
-                    ),
                   SliverToBoxAdapter(
-                    child: CalendarWidget(
-                      selectedDate: viewModel.selectedDate,
-                      format: _calendarFormat,
-                      locale: locale,
-                      onDaySelected: (selectedDay, focusedDay) {
-                        viewModel.onDateSelected(selectedDay);
-                      },
-                      onFormatChanged: (format) {
-                        setState(() {
-                          _calendarFormat = format;
-                        });
-                      },
+                    child: Container(
+                      color: Colors.white,
+                      padding: EdgeInsets.only(bottom: SizeTokens.p16),
+                      child: Column(
+                        children: [
+                          if (viewModel.classes.length > 1)
+                            _buildClassSelector(viewModel, locale),
+                          CalendarWidget(
+                            selectedDate: viewModel.selectedDate,
+                            format: _calendarFormat,
+                            locale: locale,
+                            onDaySelected: (selectedDay, focusedDay) {
+                              viewModel.onDateSelected(selectedDay);
+                            },
+                            onFormatChanged: (format) {
+                              setState(() {
+                                _calendarFormat = format;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   SliverPadding(
-                    padding: EdgeInsets.symmetric(horizontal: SizeTokens.p16),
+                    padding: EdgeInsets.fromLTRB(
+                      SizeTokens.p16,
+                      SizeTokens.p16,
+                      SizeTokens.p16,
+                      SizeTokens.p8,
+                    ),
                     sliver: SliverToBoxAdapter(child: _buildTabBar(locale)),
                   ),
                   SliverFillRemaining(
@@ -136,31 +177,6 @@ class _CalendarViewContentState extends State<_CalendarViewContent>
                 ],
               ),
             ),
-      floatingActionButton: isAuthorized
-          ? FloatingActionButton.extended(
-              onPressed: () => _handleFabPressed(viewModel, locale),
-              backgroundColor: Theme.of(context).primaryColor,
-              icon: Icon(
-                _tabController.index == 2
-                    ? Icons.add_a_photo_rounded
-                    : _tabController.index == 1
-                    ? Icons.restaurant_menu_rounded
-                    : Icons.add_task_rounded,
-                color: Colors.white,
-              ),
-              label: Text(
-                _tabController.index == 2
-                    ? AppTranslations.translate('add_photo', locale)
-                    : _tabController.index == 1
-                    ? AppTranslations.translate('add_meal', locale)
-                    : AppTranslations.translate('add_lesson', locale),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            )
-          : null,
     );
   }
 
@@ -186,13 +202,7 @@ class _CalendarViewContentState extends State<_CalendarViewContent>
   Widget _buildClassSelector(CalendarViewModel viewModel, String locale) {
     final primaryColor = Theme.of(context).primaryColor;
     return Container(
-      margin: EdgeInsets.all(SizeTokens.p16),
       padding: EdgeInsets.symmetric(horizontal: SizeTokens.p16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<ClassModel>(
           value: viewModel.selectedClass,

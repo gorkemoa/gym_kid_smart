@@ -22,37 +22,29 @@ class TimeTableCard extends StatelessWidget {
     final primaryColor = Theme.of(context).primaryColor;
 
     return Container(
-      margin: EdgeInsets.only(bottom: SizeTokens.p16),
+      margin: EdgeInsets.only(bottom: SizeTokens.p12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r12),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(SizeTokens.r8),
+        border: Border.all(color: Colors.grey.shade100),
       ),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Time Indicator Bar
             Container(
               width: SizeTokens.p4,
               decoration: BoxDecoration(
                 color: primaryColor,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(SizeTokens.r12),
-                  bottomLeft: Radius.circular(SizeTokens.r12),
+                  topLeft: Radius.circular(SizeTokens.r8),
+                  bottomLeft: Radius.circular(SizeTokens.r8),
                 ),
               ),
             ),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.all(SizeTokens.p16),
+                padding: EdgeInsets.all(SizeTokens.p12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -64,7 +56,7 @@ class TimeTableCard extends StatelessWidget {
                             item.lesson?.title ?? "",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: SizeTokens.f16,
+                              fontSize: SizeTokens.f14,
                               color: Colors.black87,
                             ),
                           ),
@@ -74,7 +66,7 @@ class TimeTableCard extends StatelessWidget {
                             icon: Icon(
                               Icons.delete_outline_rounded,
                               color: Colors.red[400],
-                              size: SizeTokens.i20,
+                              size: SizeTokens.i16,
                             ),
                             onPressed: onDelete,
                             padding: EdgeInsets.zero,
@@ -82,7 +74,7 @@ class TimeTableCard extends StatelessWidget {
                           ),
                       ],
                     ),
-                    SizedBox(height: SizeTokens.p8),
+                    SizedBox(height: SizeTokens.p4),
                     Row(
                       children: [
                         Icon(
@@ -103,38 +95,16 @@ class TimeTableCard extends StatelessWidget {
                     ),
                     if (item.description != null &&
                         item.description!.isNotEmpty) ...[
-                      SizedBox(height: SizeTokens.p12),
+                      SizedBox(height: SizeTokens.p8),
                       Text(
                         item.description!,
                         style: TextStyle(
                           color: Colors.grey[700],
-                          fontSize: SizeTokens.f14,
-                          height: 1.4,
+                          fontSize: SizeTokens.f12,
+                          height: 1.3,
                         ),
-                      ),
-                    ],
-                    if (item.creator != null) ...[
-                      SizedBox(height: SizeTokens.p12),
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            radius: SizeTokens.r10,
-                            backgroundColor: primaryColor.withOpacity(0.1),
-                            child: Icon(
-                              Icons.person,
-                              size: SizeTokens.i12,
-                              color: primaryColor,
-                            ),
-                          ),
-                          SizedBox(width: SizeTokens.p8),
-                          Text(
-                            "${item.creator!.name} ${item.creator!.surname}",
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: SizeTokens.f12,
-                            ),
-                          ),
-                        ],
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ],

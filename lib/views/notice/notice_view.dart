@@ -45,8 +45,41 @@ class _NoticeContent extends StatelessWidget {
                 style: TextStyle(
                   fontSize: SizeTokens.f18,
                   fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
               ),
+              actions: [
+                if (user.role == 'superadmin' || user.role == 'teacher')
+                  TextButton.icon(
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NoticeFormView(
+                            user: user,
+                            classes: viewModel.classes,
+                            initialClassId: viewModel.selectedClass?.id,
+                          ),
+                        ),
+                      );
+                      if (result == true) viewModel.refresh();
+                    },
+                    icon: Icon(
+                      Icons.add_circle_outline_rounded,
+                      color: Theme.of(context).primaryColor,
+                      size: SizeTokens.i20,
+                    ),
+                    label: Text(
+                      AppTranslations.translate('add', locale),
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontSize: SizeTokens.f14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                SizedBox(width: SizeTokens.p8),
+              ],
             )
           : null,
       body: Column(
@@ -61,26 +94,6 @@ class _NoticeContent extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton:
-          (user.role == 'superadmin' || user.role == 'teacher')
-          ? FloatingActionButton(
-              onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NoticeFormView(
-                      user: user,
-                      classes: viewModel.classes,
-                      initialClassId: viewModel.selectedClass?.id,
-                    ),
-                  ),
-                );
-                if (result == true) viewModel.refresh();
-              },
-              backgroundColor: Theme.of(context).primaryColor,
-              child: const Icon(Icons.add, color: Colors.white),
-            )
-          : null,
     );
   }
 
