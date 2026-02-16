@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'base_view_model.dart';
 import '../core/network/api_result.dart';
 import '../models/notice_model.dart';
