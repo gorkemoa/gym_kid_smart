@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../core/responsive/size_tokens.dart';
 import '../../core/services/navigation_service.dart';
@@ -10,6 +11,7 @@ import '../../viewmodels/settings_view_model.dart';
 import '../login/login_view.dart';
 import '../../core/network/api_result.dart';
 import '../../models/user_model.dart';
+import '../../models/student_model.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
@@ -63,6 +65,7 @@ class SettingsView extends StatelessWidget {
                       vertical: SizeTokens.p4,
                     ),
                     decoration: BoxDecoration(
+                      // ignore: deprecated_member_use
                       color: settingsVM.themeData.primaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(SizeTokens.r20),
                     ),
@@ -163,6 +166,23 @@ class SettingsView extends StatelessWidget {
             SizedBox(height: SizeTokens.p16),
           ],
 
+          if (user != null) ...[
+            _buildSettingsSection(
+              context,
+              locale,
+              title: AppTranslations.translate('receiving_management', locale),
+              items: [
+                _SettingsItem(
+                  icon: Icons.badge_outlined,
+                  title: AppTranslations.translate('receiving_add', locale),
+                  onTap: () =>
+                      _showReceivingDialog(context, settingsVM, user, locale),
+                ),
+              ],
+            ),
+            SizedBox(height: SizeTokens.p16),
+          ],
+
           _buildSettingsSection(
             context,
             locale,
@@ -244,11 +264,13 @@ class SettingsView extends StatelessWidget {
                     }
 
                     List items = [];
-                    if (type == 'activity_title')
+                    if (type == 'activity_title') {
                       items = viewModel.activityTitles;
-                    else if (type == 'activity_value')
+                    } else if (type == 'activity_value')
+                      // ignore: curly_braces_in_flow_control_structures
                       items = viewModel.activityValues;
                     else if (type == 'social_title')
+                      // ignore: curly_braces_in_flow_control_structures
                       items = viewModel.socialTitles;
 
                     if (items.isEmpty) {
@@ -274,6 +296,7 @@ class SettingsView extends StatelessWidget {
                           leading: CircleAvatar(
                             backgroundColor: Theme.of(
                               context,
+                              // ignore: deprecated_member_use
                             ).primaryColor.withOpacity(0.1),
                             child: Text(
                               '${index + 1}',
@@ -496,7 +519,9 @@ class SettingsView extends StatelessWidget {
               title: Text(AppTranslations.translate('turkish', locale)),
               leading: Radio<String>(
                 value: 'tr',
+                // ignore: deprecated_member_use
                 groupValue: landingVM.locale.languageCode,
+                // ignore: deprecated_member_use
                 onChanged: (value) {
                   landingVM.changeLanguage('tr');
                   Navigator.pop(context);
@@ -511,7 +536,9 @@ class SettingsView extends StatelessWidget {
               title: Text(AppTranslations.translate('english', locale)),
               leading: Radio<String>(
                 value: 'en',
+                // ignore: deprecated_member_use
                 groupValue: landingVM.locale.languageCode,
+                // ignore: deprecated_member_use
                 onChanged: (value) {
                   landingVM.changeLanguage('en');
                   Navigator.pop(context);
@@ -525,6 +552,451 @@ class SettingsView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showReceivingDialog(
+    BuildContext context,
+    SettingsViewModel viewModel,
+    UserModel user,
+    String locale,
+  ) {
+    viewModel.fetchStudents(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+    );
+
+    final recipientController = TextEditingController();
+    final timeController = TextEditingController();
+    final noteController = TextEditingController();
+    int selectedStatus = 0;
+    StudentModel? selectedStudent;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          maxChildSize: 0.9,
+          minChildSize: 0.5,
+          builder: (_, scrollController) => Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(SizeTokens.r24),
+              ),
+            ),
+            padding: EdgeInsets.all(SizeTokens.p20),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppTranslations.translate('receiving_add', locale),
+                      style: TextStyle(
+                        fontSize: SizeTokens.f18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                Expanded(
+                  child: ListenableBuilder(
+                    listenable: viewModel,
+                    builder: (context, _) {
+                      if (viewModel.isReceivingLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      return SingleChildScrollView(
+                        controller: scrollController,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Student Picker
+                            _buildReceivingSectionTitle(
+                              context,
+                              AppTranslations.translate(
+                                'select_student',
+                                locale,
+                              ),
+                            ),
+                            SizedBox(height: SizeTokens.p8),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: SizeTokens.p12,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(
+                                  SizeTokens.r8,
+                                ),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<StudentModel>(
+                                  isExpanded: true,
+                                  value: selectedStudent,
+                                  hint: Text(
+                                    AppTranslations.translate(
+                                      'select_student',
+                                      locale,
+                                    ),
+                                  ),
+                                  items: viewModel.students
+                                      .map(
+                                        (s) => DropdownMenuItem(
+                                          value: s,
+                                          child: Text(
+                                            '${s.name ?? ''} ${s.surname ?? ''}',
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (val) {
+                                    setState(() {
+                                      selectedStudent = val;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: SizeTokens.p16),
+
+                            // Recipient
+                            _buildReceivingSectionTitle(
+                              context,
+                              AppTranslations.translate('recipient', locale),
+                            ),
+                            SizedBox(height: SizeTokens.p8),
+                            TextField(
+                              controller: recipientController,
+                              decoration: InputDecoration(
+                                hintText: AppTranslations.translate(
+                                  'recipient',
+                                  locale,
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.person_outline,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: SizeTokens.p16),
+
+                            // Time
+                            _buildReceivingSectionTitle(
+                              context,
+                              AppTranslations.translate('time', locale),
+                            ),
+                            SizedBox(height: SizeTokens.p8),
+                            TextField(
+                              controller: timeController,
+                              readOnly: true,
+                              onTap: () {
+                                _showTimePicker(
+                                  context,
+                                  timeController,
+                                  locale,
+                                );
+                              },
+                              decoration: InputDecoration(
+                                hintText: AppTranslations.translate(
+                                  'time',
+                                  locale,
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.access_time,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                suffixIcon: const Icon(Icons.arrow_drop_down),
+                              ),
+                            ),
+                            SizedBox(height: SizeTokens.p16),
+
+                            // Note
+                            _buildReceivingSectionTitle(
+                              context,
+                              AppTranslations.translate('note', locale),
+                            ),
+                            SizedBox(height: SizeTokens.p8),
+                            TextField(
+                              controller: noteController,
+                              maxLines: 3,
+                              decoration: InputDecoration(
+                                hintText: AppTranslations.translate(
+                                  'note',
+                                  locale,
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.note_alt_outlined,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                            ),
+
+                            // Status toggle (teacher/superadmin)
+                            if (user.role == 'teacher' ||
+                                user.role == 'superadmin') ...[
+                              SizedBox(height: SizeTokens.p24),
+                              _buildReceivingStatusToggle(
+                                context,
+                                locale,
+                                selectedStatus,
+                                (val) {
+                                  setState(() {
+                                    selectedStatus = val ? 1 : 0;
+                                  });
+                                },
+                              ),
+                            ],
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: SizeTokens.p12,
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (selectedStudent == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                AppTranslations.translate(
+                                  'select_student',
+                                  locale,
+                                ),
+                              ),
+                              backgroundColor: Colors.orange,
+                            ),
+                          );
+                          return;
+                        }
+                        if (recipientController.text.isEmpty) return;
+
+                        final now = DateTime.now();
+                        final dateStr =
+                            '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+
+                        final result = await viewModel.saveReceiving(
+                          schoolId: user.schoolId ?? 1,
+                          userKey: user.userKey ?? '',
+                          studentId: selectedStudent!.id!,
+                          date: dateStr,
+                          time: timeController.text.isNotEmpty
+                              ? timeController.text
+                              : '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}',
+                          recipient: recipientController.text,
+                          status: selectedStatus,
+                          userId: user.id ?? 0,
+                          note: noteController.text,
+                        );
+
+                        if (context.mounted) {
+                          if (result is Success) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  AppTranslations.translate(
+                                    'receiving_save_success',
+                                    locale,
+                                  ),
+                                ),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text((result as Failure).message),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(0, 48),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: SizeTokens.p16,
+                        ),
+                      ),
+                      child: Text(AppTranslations.translate('save', locale)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReceivingSectionTitle(BuildContext context, String title) {
+    return Text(
+      title,
+      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).primaryColor,
+      ),
+    );
+  }
+
+  Widget _buildReceivingStatusToggle(
+    BuildContext context,
+    String locale,
+    int status,
+    ValueChanged<bool> onChanged,
+  ) {
+    final isReady = status == 1;
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: SizeTokens.p16,
+        vertical: SizeTokens.p12,
+      ),
+      decoration: BoxDecoration(
+        color: isReady
+            // ignore: deprecated_member_use
+            ? Colors.green.withOpacity(0.05)
+            // ignore: deprecated_member_use
+            : Theme.of(context).primaryColor.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(SizeTokens.r12),
+        border: Border.all(
+          color: isReady
+              // ignore: deprecated_member_use
+              ? Colors.green.withOpacity(0.2)
+              // ignore: deprecated_member_use
+              : Theme.of(context).primaryColor.withOpacity(0.2),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppTranslations.translate('status', locale),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: SizeTokens.f14,
+                    color: isReady
+                        ? Colors.green.shade700
+                        : Theme.of(context).primaryColor,
+                  ),
+                ),
+                Text(
+                  isReady
+                      ? AppTranslations.translate('ready_to_receive', locale)
+                      : AppTranslations.translate('not_ready', locale),
+                  style: TextStyle(
+                    color: isReady
+                        ? Colors.green
+                        : Theme.of(context).primaryColor,
+                    fontSize: SizeTokens.f12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch.adaptive(
+            value: isReady,
+            onChanged: onChanged,
+            // ignore: deprecated_member_use
+            activeColor: Colors.green,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showTimePicker(
+    BuildContext context,
+    TextEditingController controller,
+    String locale,
+  ) {
+    DateTime tempTime = DateTime.now();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(SizeTokens.r24),
+        ),
+      ),
+      builder: (BuildContext ctx) {
+        return SizedBox(
+          height: 300,
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: SizeTokens.p16,
+                  vertical: SizeTokens.p8,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: Text(
+                        AppTranslations.translate('cancel', locale),
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: SizeTokens.f16,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        controller.text =
+                            '${tempTime.hour.toString().padLeft(2, '0')}:${tempTime.minute.toString().padLeft(2, '0')}';
+                        Navigator.pop(ctx);
+                      },
+                      child: Text(
+                        AppTranslations.translate('done', locale),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: SizeTokens.f16,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  use24hFormat: true,
+                  initialDateTime: DateTime.now(),
+                  onDateTimeChanged: (val) {
+                    tempTime = val;
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -555,6 +1027,7 @@ class SettingsView extends StatelessWidget {
             borderRadius: BorderRadius.circular(SizeTokens.r12),
             boxShadow: [
               BoxShadow(
+                // ignore: deprecated_member_use
                 color: Colors.black.withOpacity(0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 2),

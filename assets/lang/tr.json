@@ -49,7 +49,7 @@
     "socials": "Sosyal",
     "activities": "Aktivite",
     "medicament": "İlaç",
-    "receiving": "Teslim",
+    "receiving": "Öğrenci İzni",
     "mealMenu": "Menü",
     "noteLogs": "Notlar",
     "add": "Ekle",
@@ -133,5 +133,9 @@
     "activity_templates": "Aktivite Şablonları",
     "social_templates": "Sosyal Şablonları",
     "add_new_title": "Yeni Başlık Ekle",
-    "add_new_value": "Yeni Puan Ekle"
+    "add_new_value": "Yeni Puan Ekle",
+    "select_student": "Öğrenci Seçin",
+    "receiving_management": "Öğrenci İzni Yönetimi",
+    "receiving_add": "Öğrenci İzni Ekle",
+    "receiving_save_success": "Öğrenci izni başarıyla kaydedildi"
 }

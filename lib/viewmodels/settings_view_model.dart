@@ -7,6 +7,7 @@ import '../models/activity_title_model.dart';
 import '../models/activity_value_model.dart';
 import '../models/social_title_model.dart';
 import '../core/network/api_result.dart';
+import '../models/student_model.dart';
 
 class SettingsViewModel extends ChangeNotifier {
   final SettingsService _settingsService = SettingsService();
@@ -32,6 +33,12 @@ class SettingsViewModel extends ChangeNotifier {
 
   List<SocialTitleModel> _socialTitles = [];
   List<SocialTitleModel> get socialTitles => _socialTitles;
+
+  List<StudentModel> _students = [];
+  List<StudentModel> get students => _students;
+
+  bool _isReceivingLoading = false;
+  bool get isReceivingLoading => _isReceivingLoading;
 
   ThemeData get themeData {
     return AppTheme.getTheme(
@@ -203,5 +210,49 @@ class SettingsViewModel extends ChangeNotifier {
       await fetchTemplates(schoolId: schoolId, userKey: userKey);
     }
     return result;
+  }
+
+  Future<void> fetchStudents({
+    required int schoolId,
+    required String userKey,
+  }) async {
+    _isReceivingLoading = true;
+    notifyListeners();
+
+    final result = await _homeService.getAllStudents(
+      schoolId: schoolId,
+      userKey: userKey,
+    );
+
+    if (result is Success<List<StudentModel>>) {
+      _students = result.data;
+    }
+
+    _isReceivingLoading = false;
+    notifyListeners();
+  }
+
+  Future<ApiResult<bool>> saveReceiving({
+    required int schoolId,
+    required String userKey,
+    required int studentId,
+    required String date,
+    required String time,
+    required String recipient,
+    required int status,
+    required int userId,
+    required String note,
+  }) async {
+    return await _homeService.addDailyReceiving(
+      schoolId: schoolId,
+      userKey: userKey,
+      studentId: studentId,
+      date: date,
+      time: time,
+      recipient: recipient,
+      status: status,
+      userId: userId,
+      note: note,
+    );
   }
 }

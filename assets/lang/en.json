@@ -47,7 +47,7 @@
     "socials": "Social",
     "activities": "Activities",
     "medicament": "Medication",
-    "receiving": "Delivery",
+    "receiving": "Student Leave",
     "mealMenu": "Menu",
     "noteLogs": "Notes",
     "add": "Add",
@@ -120,5 +120,9 @@
     "social_templates": "Social Templates",
     "add_new_title": "Add New Title",
     "add_new_value": "Add New Value",
-    "delete_success": "Deleted successfully"
+    "delete_success": "Deleted successfully",
+    "select_student": "Select Student",
+    "receiving_management": "Student Leave Management",
+    "receiving_add": "Add Student Leave",
+    "receiving_save_success": "Student leave saved successfully"
 }
