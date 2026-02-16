@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'base_view_model.dart';
 import '../core/network/api_result.dart';
 import '../models/notice_model.dart';
 import '../models/user_model.dart';
 import '../services/home_service.dart';
 
-class NoticeFormViewModel extends ChangeNotifier {
+class NoticeFormViewModel extends BaseViewModel {
   final HomeService _homeService = HomeService();
 
   bool _isLoading = false;

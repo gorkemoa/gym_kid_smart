@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'base_view_model.dart';
 import '../core/network/api_result.dart';
 import '../models/notice_model.dart';
 import '../models/class_model.dart';
@@ -7,7 +7,7 @@ import '../models/student_model.dart';
 import '../services/home_service.dart';
 import '../core/utils/logger.dart';
 
-class NoticeViewModel extends ChangeNotifier {
+class NoticeViewModel extends BaseViewModel {
   final HomeService _homeService = HomeService();
 
   bool _isLoading = false;

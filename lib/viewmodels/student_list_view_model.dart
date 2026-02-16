@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
+import 'base_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/network/api_result.dart';
 import '../models/class_model.dart';
 import '../models/student_model.dart';
 import '../services/home_service.dart';
 
-class StudentListViewModel extends ChangeNotifier {
+class StudentListViewModel extends BaseViewModel {
   final HomeService _homeService = HomeService();
 
   static const String _viewModeKey = 'student_list_view_mode';

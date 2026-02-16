@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+import 'base_view_model.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../models/meal_menu_model.dart';
 import '../services/home_service.dart';
 import '../core/network/api_result.dart';
 
-class FoodListViewModel extends ChangeNotifier {
+class FoodListViewModel extends BaseViewModel {
   final HomeService _homeService = HomeService();
 
   bool _isLoading = false;

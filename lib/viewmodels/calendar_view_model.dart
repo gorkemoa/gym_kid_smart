@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'base_view_model.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../core/network/api_result.dart';
 import '../core/utils/logger.dart';
@@ -9,7 +9,7 @@ import '../models/class_model.dart';
 import '../models/user_model.dart';
 import '../services/home_service.dart';
 
-class CalendarViewModel extends ChangeNotifier {
+class CalendarViewModel extends BaseViewModel {
   final HomeService _homeService = HomeService();
   final ImagePicker _picker = ImagePicker();
 

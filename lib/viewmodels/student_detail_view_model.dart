@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'base_view_model.dart';
 import '../core/network/api_result.dart';
 import '../models/daily_student_model.dart';
 import '../models/student_model.dart';
@@ -6,7 +6,7 @@ import '../models/student_medicament_model.dart';
 import '../models/meal_menu_model.dart';
 import '../services/home_service.dart';
 
-class StudentDetailViewModel extends ChangeNotifier {
+class StudentDetailViewModel extends BaseViewModel {
   final HomeService _homeService = HomeService();
 
   bool _isLoading = false;
@@ -93,14 +93,6 @@ class StudentDetailViewModel extends ChangeNotifier {
     }
   }
 
-  bool _isDisposed = false;
-
-  @override
-  void dispose() {
-    _isDisposed = true;
-    super.dispose();
-  }
-
   Future<void> _fetchClassmates() async {
     if (_schoolId == null || _userKey == null || _classId == null) return;
     final result = await _homeService.getAllStudents(
@@ -108,7 +100,7 @@ class StudentDetailViewModel extends ChangeNotifier {
       userKey: _userKey!,
       classId: _classId!,
     );
-    if (_isDisposed) return;
+
     if (result is Success<List<StudentModel>>) {
       _classmates = result.data;
       notifyListeners();
@@ -161,7 +153,7 @@ class StudentDetailViewModel extends ChangeNotifier {
 
     if (!silent) {
       _sectionLoading[part] = true;
-      if (!_isDisposed) notifyListeners();
+      notifyListeners();
     }
 
     final result = await _homeService.getDailyStudent(
@@ -171,8 +163,6 @@ class StudentDetailViewModel extends ChangeNotifier {
       date: _selectedDate,
       part: part,
     );
-
-    if (_isDisposed) return;
 
     if (result is Success<List<DailyStudentModel>>) {
       _allSectionsData[part] = result.data;
@@ -188,7 +178,7 @@ class StudentDetailViewModel extends ChangeNotifier {
     }
 
     _sectionLoading[part] = false;
-    if (!_isDisposed) notifyListeners();
+    notifyListeners();
   }
 
   Future<void> _fetchStudentMedicaments() async {
@@ -198,7 +188,7 @@ class StudentDetailViewModel extends ChangeNotifier {
       userKey: _userKey!,
       studentId: _studentId!,
     );
-    if (_isDisposed) return;
+
     if (result is Success<List<StudentMedicamentModel>>) {
       _medicaments = result.data;
       notifyListeners();

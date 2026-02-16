@@ -1,11 +1,12 @@
 import 'dart:ui';
+import 'base_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/utils/app_translations.dart';
 import '../services/auth_service.dart';
 import '../models/user_model.dart';
 
-class LandingViewModel extends ChangeNotifier {
+class LandingViewModel extends BaseViewModel {
   final AuthService _authService = AuthService();
   Locale _locale = const Locale('tr');
   Locale get locale => _locale;

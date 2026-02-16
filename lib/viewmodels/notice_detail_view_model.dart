@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'base_view_model.dart';
 import '../models/notice_model.dart';
 
-class NoticeDetailViewModel extends ChangeNotifier {
+class NoticeDetailViewModel extends BaseViewModel {
   NoticeModel? _notice;
   NoticeModel? get notice => _notice;
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'base_view_model.dart';
 import '../core/network/api_result.dart';
 import '../models/daily_student_model.dart';
 import '../models/user_model.dart';
@@ -10,7 +11,7 @@ import '../models/meal_value_model.dart';
 import '../models/activity_value_model.dart';
 import '../services/home_service.dart';
 
-class StudentEntryViewModel extends ChangeNotifier {
+class StudentEntryViewModel extends BaseViewModel {
   final HomeService _homeService = HomeService();
 
   late UserModel user;

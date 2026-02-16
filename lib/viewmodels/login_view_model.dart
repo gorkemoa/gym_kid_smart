@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'base_view_model.dart';
 import '../core/network/api_result.dart';
 import '../models/login_response.dart';
 import '../services/auth_service.dart';
@@ -6,7 +7,7 @@ import '../services/push_notification_service.dart';
 import '../services/device_info_service.dart';
 import '../core/utils/logger.dart';
 
-class LoginViewModel extends ChangeNotifier {
+class LoginViewModel extends BaseViewModel {
   final AuthService _authService = AuthService();
   final PushNotificationService _pushService = PushNotificationService();
   final DeviceInfoService _deviceInfoService = DeviceInfoService();

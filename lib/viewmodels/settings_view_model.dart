@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'base_view_model.dart';
 import '../app/app_theme.dart';
 import '../models/settings_model.dart';
 import '../services/settings_service.dart';
@@ -9,7 +10,7 @@ import '../models/social_title_model.dart';
 import '../core/network/api_result.dart';
 import '../models/student_model.dart';
 
-class SettingsViewModel extends ChangeNotifier {
+class SettingsViewModel extends BaseViewModel {
   final SettingsService _settingsService = SettingsService();
   final HomeService _homeService = HomeService();
 

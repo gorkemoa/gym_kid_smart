@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+import 'base_view_model.dart';
 import '../core/network/api_result.dart';
 import '../models/chat_room_model.dart';
 import '../services/home_service.dart';
 import '../core/utils/logger.dart';
 
-class ChatViewModel extends ChangeNotifier {
+class ChatViewModel extends BaseViewModel {
   final HomeService _homeService = HomeService();
 
   bool _isLoading = false;
