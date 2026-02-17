@@ -12,7 +12,8 @@ import 'viewmodels/login_view_model.dart';
 import 'viewmodels/settings_view_model.dart';
 import 'viewmodels/landing_view_model.dart';
 import 'viewmodels/home_view_model.dart';
-import 'views/landing/landing_view.dart';
+import 'viewmodels/splash_view_model.dart';
+import 'views/splash/splash_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +28,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => DailyReportViewModel()),
         ChangeNotifierProvider(create: (_) => ChatDetailViewModel()),
         ChangeNotifierProvider(create: (_) => PermissionViewModel()),
+        ChangeNotifierProvider(create: (_) => SplashViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -47,6 +49,11 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    // Check initial connectivity with a small delay to allow OS to stabilize
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      Connectivity().checkConnectivity().then(_handleConnectivityChange);
+    });
+    // Listen for changes
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
       _handleConnectivityChange,
     );
@@ -59,8 +66,15 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _handleConnectivityChange(List<ConnectivityResult> results) {
-    if (results.contains(ConnectivityResult.none)) {
+    // If results contains ANY connection type other than none, we have internet.
+    final bool hasInternet = results.any(
+      (result) => result != ConnectivityResult.none,
+    );
+
+    if (!hasInternet) {
       _showNoInternetDialog();
+    } else {
+      _hideNoInternetDialog();
     }
   }
 
@@ -74,7 +88,7 @@ class _MyAppState extends State<MyApp> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('İnternet Bağlantısı Yok'),
         content: const Text(
           'Uygulamayı kullanabilmek için lütfen internet bağlantınızı kontrol edin.',
@@ -83,13 +97,29 @@ class _MyAppState extends State<MyApp> {
           TextButton(
             onPressed: () {
               _isDialogShowing = false;
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
             },
             child: const Text('Tamam'),
           ),
         ],
       ),
-    );
+    ).then((_) {
+      _isDialogShowing = false;
+    });
+  }
+
+  void _hideNoInternetDialog() {
+    if (!_isDialogShowing) return;
+
+    final context = NavigationService.navigatorKey.currentContext;
+    if (context == null) return;
+
+    // We can use the navigatorKey to pop the dialog if we are sure it's showing
+    // Note: This assumes the top-most route is our dialog.
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+      _isDialogShowing = false;
+    }
   }
 
   @override
@@ -116,7 +146,7 @@ class _MyAppState extends State<MyApp> {
             child: child!,
           );
         },
-        home: const LandingView(),
+        home: const SplashView(),
       ),
     );
   }

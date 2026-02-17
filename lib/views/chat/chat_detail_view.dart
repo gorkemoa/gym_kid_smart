@@ -48,12 +48,80 @@ class ChatDetailView extends StatelessWidget {
             ),
             onPressed: () => Navigator.pop(context),
           ),
+          actions: [
+            if (currentUser.role == 'superadmin')
+              Consumer<ChatDetailViewModel>(
+                builder: (context, viewModel, child) {
+                  return PopupMenuButton<int>(
+                    icon: const Icon(Icons.more_vert, color: Colors.black),
+                    onSelected: (status) async {
+                      final success = await viewModel.updateStatus(status);
+                      if (success && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              AppTranslations.translate(
+                                'success_message',
+                                locale,
+                              ),
+                            ),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 0,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.timer_outlined,
+                              color: Colors.orange,
+                            ),
+                            SizedBox(width: SizeTokens.p8),
+                            Text(AppTranslations.translate('waiting', locale)),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 1,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.check_circle_outline,
+                              color: Colors.green,
+                            ),
+                            SizedBox(width: SizeTokens.p8),
+                            Text(AppTranslations.translate('approved', locale)),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 2,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.cancel_outlined,
+                              color: Colors.red,
+                            ),
+                            SizedBox(width: SizeTokens.p8),
+                            Text(
+                              AppTranslations.translate('cancelled', locale),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+          ],
         ),
         body: Consumer<ChatDetailViewModel>(
           builder: (context, viewModel, child) {
             return Column(
               children: [
-                _buildStatusBanner(context, viewModel, locale),
                 Expanded(
                   child: viewModel.isLoading && viewModel.messages.isEmpty
                       ? const Center(child: CircularProgressIndicator())
@@ -198,89 +266,6 @@ class ChatDetailView extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildStatusBanner(
-    BuildContext context,
-    ChatDetailViewModel viewModel,
-    String locale,
-  ) {
-    if (currentUser.role != 'superadmin') return const SizedBox.shrink();
-
-    return Container(
-      padding: EdgeInsets.all(SizeTokens.p12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildStatusButton(
-            context,
-            viewModel,
-            0,
-            AppTranslations.translate('waiting', locale),
-            Theme.of(context).primaryColor,
-          ),
-          _buildStatusButton(
-            context,
-            viewModel,
-            1,
-            AppTranslations.translate('approved', locale),
-            Colors.green,
-          ),
-          _buildStatusButton(
-            context,
-            viewModel,
-            2,
-            AppTranslations.translate('cancelled', locale),
-            Colors.red,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusButton(
-    BuildContext context,
-    ChatDetailViewModel viewModel,
-    int status,
-    String label,
-    Color color,
-  ) {
-    return InkWell(
-      onTap: () async {
-        final success = await viewModel.updateStatus(status);
-        if (success && context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppTranslations.translate('success_message', 'tr')),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: SizeTokens.p12,
-          vertical: SizeTokens.p6,
-        ),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(SizeTokens.r20),
-          border: Border.all(color: color.withOpacity(0.5)),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: color,
-            fontSize: SizeTokens.f12,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
       ),
     );
   }
