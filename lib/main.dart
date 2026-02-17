@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:gym_kid_smart/viewmodels/chat_detail_view_model.dart';
 import 'package:gym_kid_smart/viewmodels/daily_report_view_model.dart';
@@ -31,32 +33,88 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+  bool _isDialogShowing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
+      _handleConnectivityChange,
+    );
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  void _handleConnectivityChange(List<ConnectivityResult> results) {
+    if (results.contains(ConnectivityResult.none)) {
+      _showNoInternetDialog();
+    }
+  }
+
+  void _showNoInternetDialog() {
+    if (_isDialogShowing) return;
+
+    final context = NavigationService.navigatorKey.currentContext;
+    if (context == null) return;
+
+    _isDialogShowing = true;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('İnternet Bağlantısı Yok'),
+        content: const Text(
+          'Uygulamayı kullanabilmek için lütfen internet bağlantınızı kontrol edin.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              _isDialogShowing = false;
+              Navigator.pop(context);
+            },
+            child: const Text('Tamam'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final settingsViewModel = context.watch<SettingsViewModel>();
 
-    return MaterialApp(
-      navigatorKey: NavigationService.navigatorKey,
-      title: 'GymBoree SmartKid',
-      debugShowCheckedModeBanner: false,
-      theme: settingsViewModel.themeData,
-      builder: (context, child) {
-        // Initialize SizeConfig
-        SizeConfig().init(context);
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: MaterialApp(
+        navigatorKey: NavigationService.navigatorKey,
+        title: 'GymBoree SmartKid',
+        debugShowCheckedModeBanner: false,
+        theme: settingsViewModel.themeData,
+        builder: (context, child) {
+          // Initialize SizeConfig
+          SizeConfig().init(context);
 
-        return MediaQuery(
-          // Font Scaling Protection: Sistem ayarlarından yazı tipi boyutu değiştirilse bile
-          // tasarımın bozulmaması için TextScaler.noScaling eklenmelidir.
-          data: MediaQuery.of(
-            context,
-          ).copyWith(textScaler: TextScaler.noScaling),
-          child: child!,
-        );
-      },
-      home: const LandingView(),
+          return MediaQuery(
+            // Font Scaling: Sistem varsayılanlarına dönüldü.
+            data: MediaQuery.of(context),
+            child: child!,
+          );
+        },
+        home: const LandingView(),
+      ),
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../core/responsive/size_tokens.dart';
 import '../core/utils/color_utils.dart';
 
@@ -21,22 +20,10 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: const Color(0xFFF9F9F9),
       useMaterial3: true,
-      textTheme: GoogleFonts.outfitTextTheme().copyWith(
-        displayLarge: TextStyle(
-          fontSize: SizeTokens.f32,
-          fontWeight: FontWeight.bold,
-          color: textPrimary,
-        ),
-        displayMedium: TextStyle(
-          fontSize: SizeTokens.f24,
-          fontWeight: FontWeight.bold,
-          color: textPrimary,
-        ),
-        titleLarge: TextStyle(
-          fontSize: SizeTokens.f20,
-          fontWeight: FontWeight.w600,
-          color: textPrimary,
-        ),
+      textTheme: TextTheme(
+        displayLarge: TextStyle(fontSize: SizeTokens.f32, color: textPrimary),
+        displayMedium: TextStyle(fontSize: SizeTokens.f24, color: textPrimary),
+        titleLarge: TextStyle(fontSize: SizeTokens.f20, color: textPrimary),
         bodyLarge: TextStyle(fontSize: SizeTokens.f16, color: textPrimary),
         bodyMedium: TextStyle(fontSize: SizeTokens.f14, color: textSecondary),
       ),
@@ -48,10 +35,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(SizeTokens.r12),
           ),
-          textStyle: TextStyle(
-            fontSize: SizeTokens.f16,
-            fontWeight: FontWeight.bold,
-          ),
+          textStyle: TextStyle(fontSize: SizeTokens.f16),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
