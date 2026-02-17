@@ -67,7 +67,7 @@ class BaseBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 6.h + MediaQuery.of(context).padding.bottom,
+      height: 7.5.h + MediaQuery.of(context).padding.bottom,
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColor,
         borderRadius: const BorderRadius.only(
@@ -75,20 +75,35 @@ class BaseBottomNavBar extends StatelessWidget {
           topRight: Radius.circular(10),
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(context, Icons.home, currentIndex == 0, 0),
-          _buildNavItem(context, Icons.grid_view, currentIndex == 1, 1),
-          _buildNavItem(
-            context,
-            Icons.chat_bubble_outline,
-            currentIndex == 2,
-            2,
-          ),
-          _buildNavItem(context, Icons.campaign_outlined, currentIndex == 3, 3),
-          _buildNavItem(context, Icons.settings_outlined, currentIndex == 4, 4),
-        ],
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+        child: Row(
+          children: [
+            _buildNavItem(context, Icons.home, currentIndex == 0, 0),
+            _buildNavItem(context, Icons.grid_view, currentIndex == 1, 1),
+            _buildNavItem(
+              context,
+              Icons.chat_bubble_outline,
+              currentIndex == 2,
+              2,
+            ),
+            _buildNavItem(
+              context,
+              Icons.campaign_outlined,
+              currentIndex == 3,
+              3,
+            ),
+            _buildNavItem(
+              context,
+              Icons.settings_outlined,
+              currentIndex == 4,
+              4,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -99,17 +114,25 @@ class BaseBottomNavBar extends StatelessWidget {
     bool isActive,
     int index,
   ) {
-    return GestureDetector(
-      onTap: () => onTap?.call(index),
-      child: Container(
-        padding: EdgeInsets.all(SizeTokens.p8),
-        decoration: isActive
-            ? BoxDecoration(
-                color: Theme.of(context).colorScheme.secondary,
-                shape: BoxShape.circle,
-              )
-            : null,
-        child: Icon(icon, color: Colors.white, size: SizeTokens.i24),
+    return Expanded(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => onTap?.call(index),
+          child: Container(
+            alignment: Alignment.center,
+            child: Container(
+              padding: EdgeInsets.all(SizeTokens.p8),
+              decoration: isActive
+                  ? BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
+                      shape: BoxShape.circle,
+                    )
+                  : null,
+              child: Icon(icon, color: Colors.white, size: SizeTokens.i28),
+            ),
+          ),
+        ),
       ),
     );
   }

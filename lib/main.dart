@@ -108,8 +108,11 @@ class _MyAppState extends State<MyApp> {
           SizeConfig().init(context);
 
           return MediaQuery(
-            // Font Scaling: Sistem varsayılanlarına dönüldü.
-            data: MediaQuery.of(context),
+            // Font Scaling Protection: Sistem ayarlarından yazı tipi boyutu değiştirilse bile
+            // tasarımın bozulmaması için TextScaler.noScaling eklenmelidir.
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: TextScaler.noScaling),
             child: child!,
           );
         },
