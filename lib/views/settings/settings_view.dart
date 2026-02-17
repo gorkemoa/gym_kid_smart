@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/responsive/size_tokens.dart';
 import '../../core/services/navigation_service.dart';
 import '../../core/utils/app_translations.dart';
@@ -8,10 +11,11 @@ import '../../services/auth_service.dart';
 import '../../viewmodels/login_view_model.dart';
 import '../../viewmodels/landing_view_model.dart';
 import '../../viewmodels/settings_view_model.dart';
+import '../../viewmodels/permission_view_model.dart';
 import '../login/login_view.dart';
 import '../../core/network/api_result.dart';
 import '../../models/user_model.dart';
-import '../../models/student_model.dart';
+import '../../models/permission_model.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
@@ -166,17 +170,57 @@ class SettingsView extends StatelessWidget {
             SizedBox(height: SizeTokens.p16),
           ],
 
-          if (user != null) ...[
+          // Super admin: İzin Yönetimi
+          if (user != null && user.role == 'superadmin') ...[
             _buildSettingsSection(
               context,
               locale,
-              title: AppTranslations.translate('receiving_management', locale),
+              title: AppTranslations.translate('permission_management', locale),
               items: [
                 _SettingsItem(
-                  icon: Icons.badge_outlined,
-                  title: AppTranslations.translate('receiving_add', locale),
-                  onTap: () =>
-                      _showReceivingDialog(context, settingsVM, user, locale),
+                  icon: Icons.add_circle_outline,
+                  title: AppTranslations.translate('add_permission', locale),
+                  onTap: () => _showAddPermissionDialog(
+                    context,
+                    context.read<PermissionViewModel>(),
+                    user,
+                    locale,
+                  ),
+                ),
+                _SettingsItem(
+                  icon: Icons.list_alt,
+                  title: AppTranslations.translate('permission_list', locale),
+                  onTap: () => _showPermissionListDialog(
+                    context,
+                    context.read<PermissionViewModel>(),
+                    user,
+                    locale,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: SizeTokens.p16),
+          ],
+
+          // Parent: İzinlerim
+          if (user != null && user.role == 'parent') ...[
+            _buildSettingsSection(
+              context,
+              locale,
+              title: AppTranslations.translate('permissions', locale),
+              items: [
+                _SettingsItem(
+                  icon: Icons.assignment_outlined,
+                  title: AppTranslations.translate(
+                    'parent_permissions',
+                    locale,
+                  ),
+                  onTap: () => _showParentPermissionsDialog(
+                    context,
+                    context.read<PermissionViewModel>(),
+                    user,
+                    locale,
+                  ),
                 ),
               ],
             ),
@@ -555,299 +599,6 @@ class SettingsView extends StatelessWidget {
     );
   }
 
-  void _showReceivingDialog(
-    BuildContext context,
-    SettingsViewModel viewModel,
-    UserModel user,
-    String locale,
-  ) {
-    viewModel.fetchStudents(
-      schoolId: user.schoolId ?? 1,
-      userKey: user.userKey ?? '',
-    );
-
-    final recipientController = TextEditingController();
-    final timeController = TextEditingController();
-    final noteController = TextEditingController();
-    int selectedStatus = 0;
-    StudentModel? selectedStudent;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => DraggableScrollableSheet(
-          initialChildSize: 0.8,
-          maxChildSize: 0.9,
-          minChildSize: 0.5,
-          builder: (_, scrollController) => Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(SizeTokens.r24),
-              ),
-            ),
-            padding: EdgeInsets.all(SizeTokens.p20),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      AppTranslations.translate('receiving_add', locale),
-                      style: TextStyle(
-                        fontSize: SizeTokens.f18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const Divider(),
-                Expanded(
-                  child: ListenableBuilder(
-                    listenable: viewModel,
-                    builder: (context, _) {
-                      if (viewModel.isReceivingLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      return SingleChildScrollView(
-                        controller: scrollController,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Student Picker
-                            _buildReceivingSectionTitle(
-                              context,
-                              AppTranslations.translate(
-                                'select_student',
-                                locale,
-                              ),
-                            ),
-                            SizedBox(height: SizeTokens.p8),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: SizeTokens.p12,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey.shade300),
-                                borderRadius: BorderRadius.circular(
-                                  SizeTokens.r8,
-                                ),
-                              ),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<StudentModel>(
-                                  isExpanded: true,
-                                  value: selectedStudent,
-                                  hint: Text(
-                                    AppTranslations.translate(
-                                      'select_student',
-                                      locale,
-                                    ),
-                                  ),
-                                  items: viewModel.students
-                                      .map(
-                                        (s) => DropdownMenuItem(
-                                          value: s,
-                                          child: Text(
-                                            '${s.name ?? ''} ${s.surname ?? ''}',
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
-                                  onChanged: (val) {
-                                    setState(() {
-                                      selectedStudent = val;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: SizeTokens.p16),
-
-                            // Recipient
-                            _buildReceivingSectionTitle(
-                              context,
-                              AppTranslations.translate('recipient', locale),
-                            ),
-                            SizedBox(height: SizeTokens.p8),
-                            TextField(
-                              controller: recipientController,
-                              decoration: InputDecoration(
-                                hintText: AppTranslations.translate(
-                                  'recipient',
-                                  locale,
-                                ),
-                                prefixIcon: Icon(
-                                  Icons.person_outline,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: SizeTokens.p16),
-
-                            // Time
-                            _buildReceivingSectionTitle(
-                              context,
-                              AppTranslations.translate('time', locale),
-                            ),
-                            SizedBox(height: SizeTokens.p8),
-                            TextField(
-                              controller: timeController,
-                              readOnly: true,
-                              onTap: () {
-                                _showTimePicker(
-                                  context,
-                                  timeController,
-                                  locale,
-                                );
-                              },
-                              decoration: InputDecoration(
-                                hintText: AppTranslations.translate(
-                                  'time',
-                                  locale,
-                                ),
-                                prefixIcon: Icon(
-                                  Icons.access_time,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                                suffixIcon: const Icon(Icons.arrow_drop_down),
-                              ),
-                            ),
-                            SizedBox(height: SizeTokens.p16),
-
-                            // Note
-                            _buildReceivingSectionTitle(
-                              context,
-                              AppTranslations.translate('note', locale),
-                            ),
-                            SizedBox(height: SizeTokens.p8),
-                            TextField(
-                              controller: noteController,
-                              maxLines: 3,
-                              decoration: InputDecoration(
-                                hintText: AppTranslations.translate(
-                                  'note',
-                                  locale,
-                                ),
-                                prefixIcon: Icon(
-                                  Icons.note_alt_outlined,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                              ),
-                            ),
-
-                            // Status toggle (teacher/superadmin)
-                            if (user.role == 'teacher' ||
-                                user.role == 'superadmin') ...[
-                              SizedBox(height: SizeTokens.p24),
-                              _buildReceivingStatusToggle(
-                                context,
-                                locale,
-                                selectedStatus,
-                                (val) {
-                                  setState(() {
-                                    selectedStatus = val ? 1 : 0;
-                                  });
-                                },
-                              ),
-                            ],
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: SizeTokens.p12,
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
-                  ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (selectedStudent == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                AppTranslations.translate(
-                                  'select_student',
-                                  locale,
-                                ),
-                              ),
-                              backgroundColor: Colors.orange,
-                            ),
-                          );
-                          return;
-                        }
-                        if (recipientController.text.isEmpty) return;
-
-                        final now = DateTime.now();
-                        final dateStr =
-                            '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-
-                        final result = await viewModel.saveReceiving(
-                          schoolId: user.schoolId ?? 1,
-                          userKey: user.userKey ?? '',
-                          studentId: selectedStudent!.id!,
-                          date: dateStr,
-                          time: timeController.text.isNotEmpty
-                              ? timeController.text
-                              : '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}',
-                          recipient: recipientController.text,
-                          status: selectedStatus,
-                          userId: user.id ?? 0,
-                          note: noteController.text,
-                        );
-
-                        if (context.mounted) {
-                          if (result is Success) {
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  AppTranslations.translate(
-                                    'receiving_save_success',
-                                    locale,
-                                  ),
-                                ),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text((result as Failure).message),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(0, 48),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: SizeTokens.p16,
-                        ),
-                      ),
-                      child: Text(AppTranslations.translate('save', locale)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildReceivingSectionTitle(BuildContext context, String title) {
     return Text(
       title,
@@ -855,148 +606,6 @@ class SettingsView extends StatelessWidget {
         fontWeight: FontWeight.bold,
         color: Theme.of(context).primaryColor,
       ),
-    );
-  }
-
-  Widget _buildReceivingStatusToggle(
-    BuildContext context,
-    String locale,
-    int status,
-    ValueChanged<bool> onChanged,
-  ) {
-    final isReady = status == 1;
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: SizeTokens.p16,
-        vertical: SizeTokens.p12,
-      ),
-      decoration: BoxDecoration(
-        color: isReady
-            // ignore: deprecated_member_use
-            ? Colors.green.withOpacity(0.05)
-            // ignore: deprecated_member_use
-            : Theme.of(context).primaryColor.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(SizeTokens.r12),
-        border: Border.all(
-          color: isReady
-              // ignore: deprecated_member_use
-              ? Colors.green.withOpacity(0.2)
-              // ignore: deprecated_member_use
-              : Theme.of(context).primaryColor.withOpacity(0.2),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppTranslations.translate('status', locale),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: SizeTokens.f14,
-                    color: isReady
-                        ? Colors.green.shade700
-                        : Theme.of(context).primaryColor,
-                  ),
-                ),
-                Text(
-                  isReady
-                      ? AppTranslations.translate('ready_to_receive', locale)
-                      : AppTranslations.translate('not_ready', locale),
-                  style: TextStyle(
-                    color: isReady
-                        ? Colors.green
-                        : Theme.of(context).primaryColor,
-                    fontSize: SizeTokens.f12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Switch.adaptive(
-            value: isReady,
-            onChanged: onChanged,
-            // ignore: deprecated_member_use
-            activeColor: Colors.green,
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showTimePicker(
-    BuildContext context,
-    TextEditingController controller,
-    String locale,
-  ) {
-    DateTime tempTime = DateTime.now();
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(SizeTokens.r24),
-        ),
-      ),
-      builder: (BuildContext ctx) {
-        return SizedBox(
-          height: 300,
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: SizeTokens.p16,
-                  vertical: SizeTokens.p8,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx),
-                      child: Text(
-                        AppTranslations.translate('cancel', locale),
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: SizeTokens.f16,
-                        ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        controller.text =
-                            '${tempTime.hour.toString().padLeft(2, '0')}:${tempTime.minute.toString().padLeft(2, '0')}';
-                        Navigator.pop(ctx);
-                      },
-                      child: Text(
-                        AppTranslations.translate('done', locale),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: SizeTokens.f16,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.time,
-                  use24hFormat: true,
-                  initialDateTime: DateTime.now(),
-                  onDateTimeChanged: (val) {
-                    tempTime = val;
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 
@@ -1069,6 +678,993 @@ class SettingsView extends StatelessWidget {
     );
   }
 
+  // ==================== İZİN YÖNETİMİ DİALOGLARI ====================
+
+  /// Super admin: İzin ekleme dialogu
+  void _showAddPermissionDialog(
+    BuildContext context,
+    PermissionViewModel viewModel,
+    UserModel user,
+    String locale,
+  ) {
+    viewModel.fetchClasses(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+    );
+    viewModel.clearSelectedClasses();
+    viewModel.setSelectedFile(null);
+
+    final titleController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          maxChildSize: 0.9,
+          minChildSize: 0.5,
+          builder: (_, scrollController) => Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(SizeTokens.r24),
+              ),
+            ),
+            padding: EdgeInsets.all(SizeTokens.p20),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppTranslations.translate('add_permission', locale),
+                      style: TextStyle(
+                        fontSize: SizeTokens.f18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                Expanded(
+                  child: ListenableBuilder(
+                    listenable: viewModel,
+                    builder: (context, _) {
+                      if (viewModel.isLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      return SingleChildScrollView(
+                        controller: scrollController,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Başlık
+                            _buildReceivingSectionTitle(
+                              context,
+                              AppTranslations.translate(
+                                'permission_title',
+                                locale,
+                              ),
+                            ),
+                            SizedBox(height: SizeTokens.p8),
+                            TextField(
+                              controller: titleController,
+                              decoration: InputDecoration(
+                                hintText: AppTranslations.translate(
+                                  'enter_permission_title',
+                                  locale,
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.title,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: SizeTokens.p16),
+
+                            // Sınıf seçimi
+                            _buildReceivingSectionTitle(
+                              context,
+                              AppTranslations.translate(
+                                'select_classes',
+                                locale,
+                              ),
+                            ),
+                            SizedBox(height: SizeTokens.p4),
+                            Text(
+                              AppTranslations.translate(
+                                'comma_separated_classes',
+                                locale,
+                              ),
+                              style: TextStyle(
+                                fontSize: SizeTokens.f12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            SizedBox(height: SizeTokens.p8),
+                            Wrap(
+                              spacing: SizeTokens.p8,
+                              runSpacing: SizeTokens.p8,
+                              children: viewModel.classes.map((classModel) {
+                                final isSelected = viewModel.selectedClasses
+                                    .any((c) => c.id == classModel.id);
+                                return FilterChip(
+                                  label: Text(classModel.name ?? ''),
+                                  selected: isSelected,
+                                  onSelected: (_) {
+                                    viewModel.toggleClassSelection(classModel);
+                                    setState(() {});
+                                  },
+                                  selectedColor: Theme.of(
+                                    context,
+                                    // ignore: deprecated_member_use
+                                  ).primaryColor.withOpacity(0.2),
+                                  checkmarkColor: Theme.of(
+                                    context,
+                                  ).primaryColor,
+                                );
+                              }).toList(),
+                            ),
+                            if (viewModel.selectedClasses.isNotEmpty) ...[
+                              SizedBox(height: SizeTokens.p8),
+                              Text(
+                                '${AppTranslations.translate('selected_classes', locale)}: ${viewModel.selectedClasses.map((c) => c.name).join(', ')}',
+                                style: TextStyle(
+                                  fontSize: SizeTokens.f12,
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                            SizedBox(height: SizeTokens.p16),
+
+                            // Dosya seçimi
+                            _buildReceivingSectionTitle(
+                              context,
+                              AppTranslations.translate('select_file', locale),
+                            ),
+                            SizedBox(height: SizeTokens.p4),
+                            Text(
+                              AppTranslations.translate(
+                                'only_pdf_docx',
+                                locale,
+                              ),
+                              style: TextStyle(
+                                fontSize: SizeTokens.f12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            SizedBox(height: SizeTokens.p8),
+                            InkWell(
+                              onTap: () async {
+                                final result = await FilePicker.platform
+                                    .pickFiles(
+                                      type: FileType.custom,
+                                      allowedExtensions: ['pdf', 'docx'],
+                                    );
+                                if (result != null &&
+                                    result.files.single.path != null) {
+                                  viewModel.setSelectedFile(
+                                    File(result.files.single.path!),
+                                  );
+                                  setState(() {});
+                                }
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: SizeTokens.p16,
+                                  vertical: SizeTokens.p12,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: viewModel.selectedFile != null
+                                        ? Theme.of(
+                                            context,
+                                          ).colorScheme.secondary
+                                        : Colors.grey.shade300,
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                    SizeTokens.r8,
+                                  ),
+                                  color: viewModel.selectedFile != null
+                                      // ignore: deprecated_member_use
+                                      ? Theme.of(context).colorScheme.secondary
+                                            .withOpacity(0.05)
+                                      : null,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      viewModel.selectedFile != null
+                                          ? Icons.check_circle
+                                          : Icons.upload_file,
+                                      color: viewModel.selectedFile != null
+                                          ? Theme.of(
+                                              context,
+                                            ).colorScheme.secondary
+                                          : Theme.of(context).primaryColor,
+                                    ),
+                                    SizedBox(width: SizeTokens.p12),
+                                    Expanded(
+                                      child: Text(
+                                        viewModel.selectedFile != null
+                                            ? viewModel.selectedFile!.path
+                                                  .split('/')
+                                                  .last
+                                            : AppTranslations.translate(
+                                                'select_file',
+                                                locale,
+                                              ),
+                                        style: TextStyle(
+                                          color: viewModel.selectedFile != null
+                                              ? Theme.of(
+                                                  context,
+                                                ).colorScheme.secondary
+                                              : Colors.grey.shade600,
+                                          fontSize: SizeTokens.f14,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: SizeTokens.p12,
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // Validasyonlar
+                        if (titleController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                AppTranslations.translate(
+                                  'title_required',
+                                  locale,
+                                ),
+                              ),
+                              backgroundColor: Theme.of(context).primaryColor,
+                            ),
+                          );
+                          return;
+                        }
+                        if (viewModel.selectedClasses.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                AppTranslations.translate(
+                                  'class_required',
+                                  locale,
+                                ),
+                              ),
+                              backgroundColor: Theme.of(context).primaryColor,
+                            ),
+                          );
+                          return;
+                        }
+                        if (viewModel.selectedFile == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                AppTranslations.translate(
+                                  'file_required',
+                                  locale,
+                                ),
+                              ),
+                              backgroundColor: Theme.of(context).primaryColor,
+                            ),
+                          );
+                          return;
+                        }
+
+                        final classIds = viewModel.selectedClasses
+                            .map((c) => c.id.toString())
+                            .join(',');
+
+                        final result = await viewModel.addPermission(
+                          schoolId: user.schoolId ?? 1,
+                          userKey: user.userKey ?? '',
+                          classIds: classIds,
+                          title: titleController.text,
+                          file: viewModel.selectedFile!,
+                        );
+
+                        if (context.mounted) {
+                          if (result is Success) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  AppTranslations.translate(
+                                    'permission_add_success',
+                                    locale,
+                                  ),
+                                ),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.secondary,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text((result as Failure).message),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.error,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(0, 48),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: SizeTokens.p16,
+                        ),
+                      ),
+                      child: Text(AppTranslations.translate('save', locale)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Super admin: İzin listesi dialogu
+  void _showPermissionListDialog(
+    BuildContext context,
+    PermissionViewModel viewModel,
+    UserModel user,
+    String locale,
+  ) {
+    viewModel.fetchPermissionList(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+    );
+    viewModel.fetchClasses(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        maxChildSize: 0.9,
+        minChildSize: 0.5,
+        builder: (_, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(SizeTokens.r24),
+            ),
+          ),
+          padding: EdgeInsets.all(SizeTokens.p20),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppTranslations.translate('permission_list', locale),
+                    style: TextStyle(
+                      fontSize: SizeTokens.f18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: ListenableBuilder(
+                  listenable: viewModel,
+                  builder: (context, _) {
+                    if (viewModel.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (viewModel.permissions.isEmpty) {
+                      return Center(
+                        child: Text(
+                          AppTranslations.translate(
+                            'no_permission_found',
+                            locale,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      controller: scrollController,
+                      itemCount: viewModel.permissions.length,
+                      itemBuilder: (context, index) {
+                        final permission = viewModel.permissions[index];
+                        return Card(
+                          color: Colors.white,
+                          margin: EdgeInsets.only(bottom: SizeTokens.p8),
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(SizeTokens.r12),
+                            side: const BorderSide(color: Colors.grey),
+                          ),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Theme.of(
+                                context,
+                                // ignore: deprecated_member_use
+                              ).primaryColor.withOpacity(0.1),
+                              child: Icon(
+                                Icons.description_outlined,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                            title: Text(
+                              permission.title ?? '',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: SizeTokens.f14,
+                              ),
+                            ),
+                            subtitle: permission.classIds != null
+                                ? Text(
+                                    '${AppTranslations.translate('select_classes', locale)}: ${viewModel.getClassNamesByIds(permission.classIds)}',
+                                    style: TextStyle(
+                                      fontSize: SizeTokens.f12,
+                                      color: Colors.grey,
+                                    ),
+                                  )
+                                : null,
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (permission.file != null &&
+                                    permission.file!.isNotEmpty)
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.open_in_new,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                    onPressed: () async {
+                                      final fileUrl =
+                                          '${viewModel.permissionsPath}/${permission.file}';
+                                      final uri = Uri.parse(fileUrl);
+                                      if (await canLaunchUrl(uri)) {
+                                        await launchUrl(
+                                          uri,
+                                          mode: LaunchMode.externalApplication,
+                                        );
+                                      }
+                                    },
+                                  ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.people_outline,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  onPressed: () {
+                                    _showPermissionControlDialog(
+                                      context,
+                                      viewModel,
+                                      user,
+                                      permission,
+                                      locale,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Super admin: İzin kontrol dialogu (kimlerin onayladığı)
+  void _showPermissionControlDialog(
+    BuildContext context,
+    PermissionViewModel viewModel,
+    UserModel user,
+    PermissionModel permission,
+    String locale,
+  ) {
+    viewModel.fetchPermissionControl(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+      permissionId: permission.id ?? 0,
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        maxChildSize: 0.9,
+        minChildSize: 0.4,
+        builder: (_, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(SizeTokens.r24),
+            ),
+          ),
+          padding: EdgeInsets.all(SizeTokens.p20),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppTranslations.translate(
+                            'permission_approvals',
+                            locale,
+                          ),
+                          style: TextStyle(
+                            fontSize: SizeTokens.f18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          permission.title ?? '',
+                          style: TextStyle(
+                            fontSize: SizeTokens.f12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: ListenableBuilder(
+                  listenable: viewModel,
+                  builder: (context, _) {
+                    if (viewModel.isPermissionControlLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (viewModel.permissionControls.isEmpty) {
+                      return Center(
+                        child: Text(
+                          AppTranslations.translate('no_data_found', locale),
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      controller: scrollController,
+                      itemCount: viewModel.permissionControls.length,
+                      itemBuilder: (context, index) {
+                        final control = viewModel.permissionControls[index];
+                        final isApproved = control.status == 1;
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: isApproved
+                                // ignore: deprecated_member_use
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.secondary.withOpacity(0.1)
+                                // ignore: deprecated_member_use
+                                : Theme.of(
+                                    context,
+                                  ).primaryColor.withOpacity(0.1),
+                            child: Icon(
+                              isApproved
+                                  ? Icons.check_circle
+                                  : Icons.hourglass_empty,
+                              color: isApproved
+                                  ? Theme.of(context).colorScheme.secondary
+                                  : Theme.of(context).primaryColor,
+                            ),
+                          ),
+                          title: Text(
+                            '${control.parentName ?? ''} ${control.parentSurname ?? ''}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: SizeTokens.f14,
+                            ),
+                          ),
+                          subtitle: Text(
+                            '${isApproved ? AppTranslations.translate('approved', locale) : AppTranslations.translate('not_approved', locale)}${control.createdAt != null ? ' (${control.createdAt})' : ''}',
+                            style: TextStyle(
+                              color: isApproved
+                                  ? Theme.of(context).colorScheme.secondary
+                                  : Theme.of(context).primaryColor,
+                              fontSize: SizeTokens.f12,
+                            ),
+                          ),
+                          trailing: Icon(
+                            isApproved
+                                ? Icons.verified
+                                : Icons.pending_outlined,
+                            color: isApproved
+                                ? Theme.of(context).colorScheme.secondary
+                                : Theme.of(context).primaryColor,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Parent: İzinlerim dialogu
+  void _showParentPermissionsDialog(
+    BuildContext context,
+    PermissionViewModel viewModel,
+    UserModel user,
+    String locale,
+  ) {
+    viewModel.fetchParentPermissions(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+    );
+    viewModel.fetchClasses(
+      schoolId: user.schoolId ?? 1,
+      userKey: user.userKey ?? '',
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        maxChildSize: 0.9,
+        minChildSize: 0.5,
+        builder: (_, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(SizeTokens.r24),
+            ),
+          ),
+          padding: EdgeInsets.all(SizeTokens.p20),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppTranslations.translate('parent_permissions', locale),
+                    style: TextStyle(
+                      fontSize: SizeTokens.f18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: ListenableBuilder(
+                  listenable: viewModel,
+                  builder: (context, _) {
+                    if (viewModel.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (viewModel.parentPermissions.isEmpty) {
+                      return Center(
+                        child: Text(
+                          AppTranslations.translate(
+                            'no_permission_found',
+                            locale,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      controller: scrollController,
+                      itemCount: viewModel.parentPermissions.length,
+                      itemBuilder: (context, index) {
+                        final parentPerm = viewModel.parentPermissions[index];
+                        final permission = parentPerm.permissionItem;
+                        final isApproved = parentPerm.parentStatus == 1;
+                        return Card(
+                          color: Colors.white,
+                          margin: EdgeInsets.only(bottom: SizeTokens.p12),
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(SizeTokens.r12),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(SizeTokens.p12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: isApproved
+                                          // ignore: deprecated_member_use
+                                          ? Theme.of(context)
+                                                .colorScheme
+                                                .secondary
+                                                .withOpacity(0.1)
+                                          : Theme.of(
+                                              context,
+                                              // ignore: deprecated_member_use
+                                            ).primaryColor.withOpacity(0.1),
+                                      child: Icon(
+                                        isApproved
+                                            ? Icons.check_circle
+                                            : Icons.description_outlined,
+                                        color: isApproved
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.secondary
+                                            : Theme.of(context).primaryColor,
+                                      ),
+                                    ),
+                                    SizedBox(width: SizeTokens.p12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            permission.title ?? '',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: SizeTokens.f14,
+                                            ),
+                                          ),
+                                          SizedBox(height: SizeTokens.p4),
+                                          Text(
+                                            isApproved
+                                                ? AppTranslations.translate(
+                                                    'approved',
+                                                    locale,
+                                                  )
+                                                : AppTranslations.translate(
+                                                    'waiting',
+                                                    locale,
+                                                  ),
+                                            style: TextStyle(
+                                              color: isApproved
+                                                  ? Theme.of(
+                                                      context,
+                                                    ).colorScheme.secondary
+                                                  : Theme.of(
+                                                      context,
+                                                    ).primaryColor,
+                                              fontSize: SizeTokens.f12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (isApproved)
+                                      Icon(
+                                        Icons.verified,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.secondary,
+                                      ),
+                                  ],
+                                ),
+                                SizedBox(height: SizeTokens.p12),
+                                Row(
+                                  children: [
+                                    // Dosya görüntüleme butonu
+                                    if (permission.file != null &&
+                                        permission.file!.isNotEmpty)
+                                      Expanded(
+                                        child: OutlinedButton.icon(
+                                          onPressed: () async {
+                                            final fileUrl =
+                                                '${viewModel.permissionsPath}/${permission.file}';
+                                            final uri = Uri.parse(fileUrl);
+                                            if (await canLaunchUrl(uri)) {
+                                              await launchUrl(
+                                                uri,
+                                                mode: LaunchMode
+                                                    .externalApplication,
+                                              );
+                                            }
+                                          },
+                                          icon: Icon(
+                                            Icons.open_in_new,
+                                            size: 16,
+                                            color: Theme.of(
+                                              context,
+                                            ).primaryColor,
+                                          ),
+                                          label: Text(
+                                            AppTranslations.translate(
+                                              'view_document',
+                                              locale,
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: SizeTokens.f12,
+                                              color: Theme.of(
+                                                context,
+                                              ).primaryColor,
+                                            ),
+                                          ),
+                                          style: OutlinedButton.styleFrom(
+                                            minimumSize: const Size(0, 36),
+                                            side: BorderSide(
+                                              color: Theme.of(
+                                                context,
+                                              ).primaryColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    if (permission.file != null &&
+                                        permission.file!.isNotEmpty &&
+                                        !isApproved)
+                                      SizedBox(width: SizeTokens.p8),
+                                    // Onay butonu
+                                    if (!isApproved)
+                                      Expanded(
+                                        child: ElevatedButton.icon(
+                                          onPressed: () {
+                                            _showApproveConfirmDialog(
+                                              context,
+                                              viewModel,
+                                              user,
+                                              parentPerm,
+                                              locale,
+                                            );
+                                          },
+                                          icon: const Icon(
+                                            Icons.check,
+                                            size: 16,
+                                          ),
+                                          label: Text(
+                                            AppTranslations.translate(
+                                              'approve',
+                                              locale,
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: SizeTokens.f12,
+                                            ),
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            minimumSize: const Size(0, 36),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Parent: İzin onay confirm dialogu
+  void _showApproveConfirmDialog(
+    BuildContext context,
+    PermissionViewModel viewModel,
+    UserModel user,
+    ParentPermissionModel parentPerm,
+    String locale,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppTranslations.translate('approve_permission', locale)),
+        content: Text(
+          AppTranslations.translate('confirm_approve_permission', locale),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppTranslations.translate('cancel', locale)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final result = await viewModel.approvePermission(
+                schoolId: user.schoolId ?? 1,
+                userKey: user.userKey ?? '',
+                permissionId: parentPerm.permissionItem.id ?? 0,
+              );
+
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      result is Success
+                          ? AppTranslations.translate(
+                              'permission_approved_success',
+                              locale,
+                            )
+                          : (result as Failure).message,
+                    ),
+                    backgroundColor: result is Success
+                        ? Theme.of(context).colorScheme.secondary
+                        : Theme.of(context).colorScheme.error,
+                  ),
+                );
+              }
+            },
+            child: Text(
+              AppTranslations.translate('approve', locale),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showLogoutDialog(BuildContext context, String locale) {
     showDialog(
       context: context,
@@ -1091,7 +1687,7 @@ class SettingsView extends StatelessWidget {
             },
             child: Text(
               AppTranslations.translate('logout', locale),
-              style: const TextStyle(color: Colors.red),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ),
         ],

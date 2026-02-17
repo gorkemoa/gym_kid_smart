@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gym_kid_smart/viewmodels/chat_detail_view_model.dart';
 import 'package:gym_kid_smart/viewmodels/daily_report_view_model.dart';
+import 'package:gym_kid_smart/viewmodels/permission_view_model.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'core/services/navigation_service.dart';
@@ -23,6 +24,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => DailyReportViewModel()),
         ChangeNotifierProvider(create: (_) => ChatDetailViewModel()),
+        ChangeNotifierProvider(create: (_) => PermissionViewModel()),
       ],
       child: const MyApp(),
     ),

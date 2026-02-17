@@ -51,6 +51,13 @@ class ApiConstants {
   static const String deleteSocialsTitle = '/Api/deleteSocialsTitle';
   static const String deleteSocialsValue = '/Api/deleteSocialsValue';
 
+  // Permission
+  static const String addPermission = '/Api/addPermission';
+  static const String getPermissionsParent = '/Api/getPermissionsParent';
+  static const String permissionStatusParent = '/Api/PermissionStatusParent';
+  static const String permissionList = '/Api/PermissionList';
+  static const String permissionControl = '/Api/PermissionControl';
+
   // Headers
   static Map<String, String> get headers => {
     'Accept': 'application/json',
