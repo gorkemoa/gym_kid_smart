@@ -32,6 +32,8 @@ class ApiConstants {
   static const String students = '/Api/Students';
   static const String studentHistory = '/Api/StudentHistory';
   static const String updateStudentProfile = '/Api/UpdateStudentProfile';
+  static const String getPackageInfo = '/Api/GetPackageInfo';
+  static const String getAttendanceHistory = '/Api/GetAttendanceHistory';
   static const String allSettings = '/Api/AllSettings';
   static const String addToken = '/Api/addToken';
   static const String allNotices = '/Api/AllNotices';

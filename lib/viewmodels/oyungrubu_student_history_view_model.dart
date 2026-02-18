@@ -5,8 +5,11 @@ import 'base_view_model.dart';
 import '../core/network/api_result.dart';
 import '../models/oyungrubu_activity_log_model.dart';
 import '../models/oyungrubu_package_model.dart';
+import '../models/oyungrubu_package_info_model.dart';
+import '../models/oyungrubu_package_info_response.dart';
 import '../models/oyungrubu_student_model.dart';
 import '../models/oyungrubu_student_history_response.dart';
+import '../models/oyungrubu_attendance_history_response.dart';
 import '../services/oyungrubu_student_history_service.dart';
 
 class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
@@ -38,6 +41,20 @@ class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
   List<OyunGrubuPackageModel>? _allPackages;
   List<OyunGrubuPackageModel>? get allPackages => _allPackages;
 
+  // Attendance history (GetAttendanceHistory API)
+  List<OyunGrubuActivityLogModel>? _attendanceHistory;
+  List<OyunGrubuActivityLogModel>? get attendanceHistory => _attendanceHistory;
+
+  // Package info
+  List<OyunGrubuPackageInfoModel>? _packageInfoList;
+  List<OyunGrubuPackageInfoModel>? get packageInfoList => _packageInfoList;
+
+  int _packageCount = 0;
+  int get packageCount => _packageCount;
+
+  int _makeupBalance = 0;
+  int get makeupBalance => _makeupBalance;
+
   // Edit controllers
   final TextEditingController nameController = TextEditingController();
   final TextEditingController surnameController = TextEditingController();
@@ -58,7 +75,11 @@ class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
     _student = studentModel;
     _populateControllers();
     notifyListeners();
-    await fetchHistory();
+    await Future.wait([
+      fetchHistory(),
+      fetchPackageInfo(),
+      fetchAttendanceHistory(),
+    ]);
   }
 
   void _populateControllers() {
@@ -136,6 +157,7 @@ class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
       
       // Silent refresh to update logs and packages
       fetchHistory(isSilent: true);
+      fetchAttendanceHistory(isSilent: true);
       
       notifyListeners();
       return true;
@@ -155,19 +177,52 @@ class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
 
   void onRetry() {
     fetchHistory();
+    fetchPackageInfo();
+    fetchAttendanceHistory();
   }
 
-  // Stats helpers
+  Future<void> fetchPackageInfo({bool isSilent = false}) async {
+    if (_student?.id == null) return;
+
+    final result = await _historyService.getPackageInfo(
+      studentId: _student!.id!,
+    );
+
+    if (result is Success<OyunGrubuPackageInfoResponse>) {
+      _packageInfoList = result.data.packages;
+      _packageCount = result.data.packageCount ?? 0;
+      _makeupBalance = result.data.makeupBalance ?? 0;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchAttendanceHistory({bool isSilent = false}) async {
+    if (_student?.id == null) return;
+
+    final result = await _historyService.getAttendanceHistory(
+      studentId: _student!.id!,
+    );
+
+    if (result is Success<OyunGrubuAttendanceHistoryResponse>) {
+      _attendanceHistory = result.data.data;
+      notifyListeners();
+    }
+  }
+
+  // Stats helpers — use attendanceHistory if available, fallback to activityLogs
+  List<OyunGrubuActivityLogModel>? get _statsSource =>
+      _attendanceHistory ?? _activityLogs;
+
   int get attendedCount =>
-      _activityLogs?.where((l) => l.activityType == 'attended').length ?? 0;
+      _statsSource?.where((l) => l.activityType == 'attended').length ?? 0;
 
   int get absentCount =>
-      _activityLogs?.where((l) => l.activityType == 'absent').length ?? 0;
+      _statsSource?.where((l) => l.activityType == 'absent').length ?? 0;
 
   int get postponeCount =>
-      _activityLogs?.where((l) => l.activityType == 'postpone').length ?? 0;
+      _statsSource?.where((l) => l.activityType == 'postpone').length ?? 0;
 
-  int get totalLogs => _activityLogs?.length ?? 0;
+  int get totalLogs => _statsSource?.length ?? 0;
 
   void _setLoading(bool value) {
     _isLoading = value;
@@ -180,6 +235,10 @@ class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
     _activePackages = null;
     _expiredPackages = null;
     _allPackages = null;
+    _attendanceHistory = null;
+    _packageInfoList = null;
+    _packageCount = 0;
+    _makeupBalance = 0;
     _selectedTabIndex = 0;
     _errorMessage = null;
     _isLoading = false;

@@ -10,6 +10,7 @@ import 'widgets/student_history_info.dart';
 import 'widgets/student_history_stats.dart';
 import 'widgets/student_history_activity_card.dart';
 import 'widgets/student_history_package_card.dart';
+import 'widgets/student_package_info_section.dart';
 import 'widgets/student_edit_bottom_sheet.dart';
 
 class OyunGrubuStudentHistoryView extends StatefulWidget {
@@ -62,7 +63,13 @@ class _OyunGrubuStudentHistoryViewState
           backgroundColor: const Color(0xFFF5F6FA),
           body: SafeArea(
             child: RefreshIndicator(
-              onRefresh: () => viewModel.fetchHistory(),
+              onRefresh: () async {
+                await Future.wait([
+                  viewModel.fetchHistory(),
+                  viewModel.fetchPackageInfo(),
+                  viewModel.fetchAttendanceHistory(),
+                ]);
+              },
               child: NestedScrollView(
                 headerSliverBuilder: (context, innerBoxIsScrolled) => [
                   // Header
@@ -82,6 +89,7 @@ class _OyunGrubuStudentHistoryViewState
                         attendedCount: viewModel.attendedCount,
                         absentCount: viewModel.absentCount,
                         postponeCount: viewModel.postponeCount,
+                        makeupBalance: viewModel.makeupBalance,
                         locale: locale,
                       ),
                     ),
@@ -92,6 +100,85 @@ class _OyunGrubuStudentHistoryViewState
                       child: StudentHistoryInfo(
                         student: viewModel.student ?? widget.student,
                         locale: locale,
+                      ),
+                    ),
+
+                  // Package Overview Header
+                  if (!viewModel.isLoading &&
+                      viewModel.errorMessage == null &&
+                      viewModel.packageInfoList != null &&
+                      (viewModel.packageInfoList!.isNotEmpty || viewModel.makeupBalance > 0))
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          SizeTokens.p24,
+                          SizeTokens.p24,
+                          SizeTokens.p24,
+                          SizeTokens.p8,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.assignment_outlined,
+                              size: SizeTokens.i18,
+                              color: Colors.grey.shade700,
+                            ),
+                            SizedBox(width: SizeTokens.p8),
+                            Text(
+                              AppTranslations.translate('package_details', locale),
+                              style: TextStyle(
+                                fontSize: SizeTokens.f16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  // Package Info Detail
+                  if (!viewModel.isLoading &&
+                      viewModel.errorMessage == null &&
+                      viewModel.packageInfoList != null &&
+                      (viewModel.packageInfoList!.isNotEmpty || viewModel.makeupBalance > 0))
+                    SliverToBoxAdapter(
+                      child: StudentPackageInfoSection(
+                        packages: viewModel.packageInfoList!,
+                        packageCount: viewModel.packageCount,
+                        makeupBalance: viewModel.makeupBalance,
+                        locale: locale,
+                      ),
+                    ),
+
+                  // Tab bar Title
+                  if (!viewModel.isLoading && viewModel.errorMessage == null)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          SizeTokens.p24,
+                          SizeTokens.p24,
+                          SizeTokens.p24,
+                          SizeTokens.p0,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.timeline_rounded,
+                              size: SizeTokens.i18,
+                              color: Colors.grey.shade700,
+                            ),
+                            SizedBox(width: SizeTokens.p8),
+                            Text(
+                              AppTranslations.translate('activity_history', locale),
+                              style: TextStyle(
+                                fontSize: SizeTokens.f16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
 
@@ -168,7 +255,7 @@ class _OyunGrubuStudentHistoryViewState
     OyunGrubuStudentHistoryViewModel viewModel,
     String locale,
   ) {
-    final logs = viewModel.activityLogs;
+    final logs = viewModel.attendanceHistory ?? viewModel.activityLogs;
     if (logs == null || logs.isEmpty) {
       return _buildEmptyTabState(
         Icons.history_rounded,

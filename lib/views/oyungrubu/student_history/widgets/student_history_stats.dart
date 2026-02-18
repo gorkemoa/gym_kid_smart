@@ -6,6 +6,7 @@ class StudentHistoryStats extends StatelessWidget {
   final int attendedCount;
   final int absentCount;
   final int postponeCount;
+  final int? makeupBalance;
   final String locale;
 
   const StudentHistoryStats({
@@ -13,6 +14,7 @@ class StudentHistoryStats extends StatelessWidget {
     required this.attendedCount,
     required this.absentCount,
     required this.postponeCount,
+    this.makeupBalance,
     required this.locale,
   });
 
@@ -35,7 +37,7 @@ class StudentHistoryStats extends StatelessWidget {
               color: const Color(0xFF4CAF50),
             ),
           ),
-          SizedBox(width: SizeTokens.p10),
+          SizedBox(width: SizeTokens.p8),
           Expanded(
             child: _buildStatItem(
               icon: Icons.cancel_outlined,
@@ -44,7 +46,7 @@ class StudentHistoryStats extends StatelessWidget {
               color: const Color(0xFFF44336),
             ),
           ),
-          SizedBox(width: SizeTokens.p10),
+          SizedBox(width: SizeTokens.p8),
           Expanded(
             child: _buildStatItem(
               icon: Icons.schedule_rounded,
@@ -53,6 +55,17 @@ class StudentHistoryStats extends StatelessWidget {
               color: const Color(0xFFFF9800),
             ),
           ),
+          if (makeupBalance != null && makeupBalance! > 0) ...[
+            SizedBox(width: SizeTokens.p8),
+            Expanded(
+              child: _buildStatItem(
+                icon: Icons.auto_fix_high_rounded,
+                value: makeupBalance!.toString(),
+                label: AppTranslations.translate('makeup_balance', locale),
+                color: const Color(0xFF9C27B0),
+              ),
+            ),
+          ],
         ],
       ),
     );
