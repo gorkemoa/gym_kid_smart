@@ -27,6 +27,10 @@ class ApiConstants {
   // Auth
   static const String login = '/Api/Login';
   static const String getProfile = '/Api/GetProfile';
+  static const String updateParentProfile = '/Api/UpdateParentProfile';
+  static const String updateProfileImage = '/Api/UpdateProfielImage';
+  static const String students = '/Api/Students';
+  static const String studentHistory = '/Api/StudentHistory';
   static const String allSettings = '/Api/AllSettings';
   static const String addToken = '/Api/addToken';
   static const String allNotices = '/Api/AllNotices';

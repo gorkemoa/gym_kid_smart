@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../app/api_constants.dart';
 import '../core/network/api_client.dart';
@@ -61,6 +62,86 @@ class OyunGrubuAuthService {
       return Success(profileResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu getProfile failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> updateParentProfile({
+    required String name,
+    required String surname,
+    required String phone,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userKey = prefs.getString('oyungrubu_user_key');
+
+      if (userKey == null) {
+        return const Failure('no_credentials');
+      }
+
+      final response = await _apiClient.post(
+        ApiConstants.updateParentProfile,
+        body: {
+          'user_key': userKey,
+          'name': name,
+          'surname': surname,
+          'phone': phone,
+        },
+      );
+
+      if (response['success'] != null) {
+        // Profil başarıyla güncellendi, lokal veriyi de güncelleyebiliriz
+        final savedUserJson = prefs.getString('oyungrubu_user_data');
+        if (savedUserJson != null) {
+          final userMap = jsonDecode(savedUserJson) as Map<String, dynamic>;
+          userMap['name'] = name;
+          userMap['surname'] = surname;
+          userMap['phone'] = phone; // although not in model field by default, we can save it in json
+          await prefs.setString('oyungrubu_user_data', jsonEncode(userMap));
+        }
+        return const Success(true);
+      }
+      return Failure(response['failure'] ?? 'update_failed');
+    } catch (e) {
+      AppLogger.error('OyunGrubu updateParentProfile failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> updateProfileImage({
+    required File image,
+    required String type, // 'student' or 'parent'
+    String? studentId,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userKey = prefs.getString('oyungrubu_user_key');
+
+      if (userKey == null) {
+        return const Failure('no_credentials');
+      }
+
+      final Map<String, String> body = {
+        'user_key': userKey,
+        'type': type,
+      };
+
+      if (studentId != null) {
+        body['student_id'] = studentId;
+      }
+
+      final response = await _apiClient.post(
+        ApiConstants.updateProfileImage,
+        body: body,
+        files: {'image': image},
+      );
+
+      if (response['success'] != null) {
+        return const Success(true);
+      }
+      return Failure(response['failure'] ?? 'upload_failed');
+    } catch (e) {
+      AppLogger.error('OyunGrubu updateProfileImage failed', e);
       return Failure(e.toString());
     }
   }

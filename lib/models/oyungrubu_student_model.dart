@@ -11,6 +11,7 @@ class OyunGrubuStudentModel {
   final String? createdAt;
   final String? medications;
   final String? allergies;
+  final String? groupName;
 
   OyunGrubuStudentModel({
     this.id,
@@ -25,6 +26,7 @@ class OyunGrubuStudentModel {
     this.createdAt,
     this.medications,
     this.allergies,
+    this.groupName,
   });
 
   factory OyunGrubuStudentModel.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,7 @@ class OyunGrubuStudentModel {
       createdAt: json['created_at'] as String?,
       medications: json['medications'] as String?,
       allergies: json['allergies'] as String?,
+      groupName: json['group_name'] as String?,
     );
   }
 
@@ -58,6 +61,7 @@ class OyunGrubuStudentModel {
       'created_at': createdAt,
       'medications': medications,
       'allergies': allergies,
+      'group_name': groupName,
     };
   }
 }

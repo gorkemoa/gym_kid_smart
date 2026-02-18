@@ -42,6 +42,7 @@ class SizeTokens {
   static double get f32 => 8.2.w;
 
   // Icon Sizes
+  static double get i10 => 2.5.w;
   static double get i12 => 3.1.w;
   static double get i16 => 4.1.w;
   static double get i20 => 5.1.w;
