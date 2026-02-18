@@ -281,3 +281,15 @@ Emin olmadığı her noktada SORAR
 Endpoint string yazmaz, sadece ApiConstants kullanır
 
 API response’u eksiksiz modeller
+
+## ÇOKLU BASE URL VE SEÇİM EKRANI
+Uygulama iki farklı çalışma ortamı (Environment) destekler:
+1.  **Anaokulu** (Mevcut yapı)
+2.  **Oyun Grubu** (Yeni eklenecek yapı)
+
+**KURALLAR:**
+- Uygulama açılışta kullanıcıya hangi bölüme gitmek istediğini soran "Netflix profil seçimi" tarzı premium bir ekran sunmalıdır.
+- Seçilen base URL, uygulama genelinde dinamik olarak set edilmelidir.
+- `ApiConstants` içindeki `baseUrl` statik olmaktan çıkarılmalı, çalışma anında seçilen değere göre güncellenmelidir.
+- Seçim ekranı `views/environment_selection/` klasörü altında olmalı, projenin yüksek görsel standartlarına (`AppTheme`, `SizeTokens`) uymalıdır.
+- Mimaride karışıklık olmaması için tüm servisler seçili base URL üzerinden istek atmalıdır.

@@ -1,5 +1,9 @@
 class ApiConstants {
-  static const String baseUrl = 'https://smartkid.gymboreeizmir.com';
+  static String baseUrl = 'https://smartkid.gymboreeizmir.com';
+
+  static void setBaseUrl(String url) {
+    baseUrl = url;
+  }
 
   // Auth
   static const String login = '/Api/Login';

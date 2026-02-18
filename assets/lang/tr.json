@@ -165,5 +165,10 @@
     "parent_permissions": "İzinlerim",
     "file_required": "Dosya seçmeniz zorunludur",
     "class_required": "En az bir sınıf seçmelisiniz",
-    "title_required": "Başlık girilmesi zorunludur"
+    "title_required": "Başlık girilmesi zorunludur",
+    "select_environment_title": "Giriş Yapılacak Bölüm",
+    "select_environment_subtitle": "Lütfen devam etmek için bir bölüm seçin.",
+    "anaokulu": "Anaokulu",
+    "oyun_grubu": "Oyun Grubu",
+    "change_section": "Bölüm Değiştir"
 }

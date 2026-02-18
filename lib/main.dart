@@ -13,11 +13,13 @@ import 'viewmodels/settings_view_model.dart';
 import 'viewmodels/landing_view_model.dart';
 import 'viewmodels/home_view_model.dart';
 import 'viewmodels/splash_view_model.dart';
+import 'services/environment_service.dart';
 import 'views/splash/splash_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting();
+  await EnvironmentService.init();
   runApp(
     MultiProvider(
       providers: [

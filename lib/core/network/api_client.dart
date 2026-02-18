@@ -5,7 +5,7 @@ import '../../app/api_constants.dart';
 import '../utils/logger.dart';
 import 'api_exception.dart';
 import '../../services/auth_service.dart';
-import '../../views/login/login_view.dart';
+import '../../views/anaokulu/login/login_view.dart';
 import '../services/navigation_service.dart';
 
 class ApiClient {

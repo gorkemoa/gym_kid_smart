@@ -165,5 +165,10 @@
     "parent_permissions": "My Permissions",
     "file_required": "File selection is required",
     "class_required": "At least one class must be selected",
-    "title_required": "Title is required"
+    "title_required": "Title is required",
+    "select_environment_title": "Section to Login",
+    "select_environment_subtitle": "Please select a section to continue.",
+    "anaokulu": "Kindergarten",
+    "oyun_grubu": "Play Group",
+    "change_section": "Change Section"
 }

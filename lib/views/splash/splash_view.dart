@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../core/responsive/size_tokens.dart';
 import '../../core/utils/color_utils.dart';
 import '../../viewmodels/splash_view_model.dart';
-import '../landing/landing_view.dart';
+import '../environment_selection/environment_selection_view.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -25,8 +25,11 @@ class _SplashViewState extends State<SplashView> {
   Future<void> _navigateToNext() async {
     await Future.delayed(const Duration(seconds: 3));
     if (mounted) {
+      // User requested to ask for environment every time the app starts
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LandingView()),
+        MaterialPageRoute(
+          builder: (context) => const EnvironmentSelectionView(),
+        ),
       );
     }
   }
