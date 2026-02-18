@@ -20,6 +20,18 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: const Color(0xFFF9F9F9),
       useMaterial3: true,
+      appBarTheme: AppBarTheme(
+        backgroundColor: primary,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontSize: SizeTokens.f18,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       textTheme: TextTheme(
         displayLarge: TextStyle(fontSize: SizeTokens.f32, color: textPrimary),
         displayMedium: TextStyle(fontSize: SizeTokens.f24, color: textPrimary),

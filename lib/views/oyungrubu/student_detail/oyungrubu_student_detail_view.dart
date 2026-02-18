@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/responsive/size_tokens.dart';
 import '../../../core/utils/app_translations.dart';
@@ -41,10 +42,11 @@ class _OyunGrubuStudentDetailViewState
         final primaryColor = Theme.of(context).colorScheme.primary;
         final student = viewModel.student ?? widget.student;
 
-        return Scaffold(
-          backgroundColor: const Color(0xFFF5F6FA),
-          body: SafeArea(
-            child: Column(
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.light,
+          child: Scaffold(
+            backgroundColor: const Color(0xFFF5F6FA),
+            body: Column(
               children: [
                 // Header
                 _buildHeader(context, student, locale, primaryColor),
@@ -156,6 +158,7 @@ class _OyunGrubuStudentDetailViewState
   ) {
     final fullName =
         '${student.name ?? ''} ${student.surname ?? ''}'.trim();
+    final topPadding = MediaQuery.of(context).padding.top;
 
     return Container(
       decoration: BoxDecoration(
@@ -176,7 +179,7 @@ class _OyunGrubuStudentDetailViewState
       child: Padding(
         padding: EdgeInsets.fromLTRB(
           SizeTokens.p16,
-          SizeTokens.p8,
+          topPadding + SizeTokens.p8,
           SizeTokens.p16,
           SizeTokens.p24,
         ),

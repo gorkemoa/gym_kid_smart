@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/responsive/size_tokens.dart';
 import '../../../core/utils/app_translations.dart';
@@ -21,10 +22,11 @@ class StudentProfileDetailView extends StatelessWidget {
         final locale = splashVM.locale.languageCode;
         final currentStudent = viewModel.student ?? student;
 
-        return Scaffold(
-          backgroundColor: const Color(0xFFF5F6FA),
-          body: SafeArea(
-            child: SingleChildScrollView(
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.light,
+          child: Scaffold(
+            backgroundColor: const Color(0xFFF5F6FA),
+            body: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

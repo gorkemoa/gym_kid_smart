@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/responsive/size_tokens.dart';
 import '../../../core/utils/app_translations.dart';
@@ -20,10 +21,11 @@ class StudentPackageDetailView extends StatelessWidget {
         final locale = splashVM.locale.languageCode;
         final currentStudent = viewModel.student ?? student;
 
-        return Scaffold(
-          backgroundColor: const Color(0xFFF5F6FA),
-          body: SafeArea(
-            child: viewModel.isLoading
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.light,
+          child: Scaffold(
+            backgroundColor: const Color(0xFFF5F6FA),
+            body: viewModel.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : viewModel.errorMessage != null
                     ? _buildErrorState(viewModel, locale)

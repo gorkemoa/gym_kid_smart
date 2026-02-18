@@ -21,6 +21,7 @@ class StudentHistoryHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
     final fullName = '${student.name ?? ''} ${student.surname ?? ''}'.trim();
+    final topPadding = MediaQuery.of(context).padding.top;
 
     return Container(
       decoration: BoxDecoration(
@@ -41,7 +42,7 @@ class StudentHistoryHeader extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.fromLTRB(
           SizeTokens.p16,
-          SizeTokens.p8,
+          topPadding + SizeTokens.p8,
           SizeTokens.p16,
           SizeTokens.p24,
         ),

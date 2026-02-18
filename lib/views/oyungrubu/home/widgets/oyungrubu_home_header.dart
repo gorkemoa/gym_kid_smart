@@ -19,11 +19,12 @@ class OyunGrubuHomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
+    final topPadding = MediaQuery.of(context).padding.top;
 
     return Container(
       padding: EdgeInsets.fromLTRB(
         SizeTokens.p24,
-        SizeTokens.p16,
+        topPadding + SizeTokens.p16,
         SizeTokens.p24,
         SizeTokens.p24,
       ),

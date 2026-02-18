@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/responsive/size_tokens.dart';
 import '../../../core/utils/app_translations.dart';
@@ -50,10 +51,11 @@ class _StudentActivityDetailViewState extends State<StudentActivityDetailView>
         final primaryColor = Theme.of(context).colorScheme.primary;
         final currentStudent = viewModel.student ?? widget.student;
 
-        return Scaffold(
-          backgroundColor: const Color(0xFFF5F6FA),
-          body: SafeArea(
-            child: NestedScrollView(
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.light,
+          child: Scaffold(
+            backgroundColor: const Color(0xFFF5F6FA),
+            body: NestedScrollView(
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
                 // Header
                 SliverToBoxAdapter(
