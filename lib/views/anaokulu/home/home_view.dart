@@ -233,6 +233,7 @@ class _HomeViewState extends State<HomeView> {
                   fontWeight: FontWeight.w600,
                   color: Theme.of(
                     context,
+                    // ignore: deprecated_member_use
                   ).textTheme.bodyLarge?.color?.withOpacity(0.8),
                 ),
               ),
@@ -254,6 +255,7 @@ class _HomeViewState extends State<HomeView> {
         border: Border.all(color: Colors.grey.shade100, width: 1),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.04),
             blurRadius: 24,
             offset: const Offset(0, 8),
@@ -291,6 +293,7 @@ class _HomeViewState extends State<HomeView> {
               border: Border.all(color: Colors.grey.shade200),
               boxShadow: [
                 BoxShadow(
+                  // ignore: deprecated_member_use
                   color: Colors.black.withOpacity(0.03),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
@@ -344,6 +347,7 @@ class _HomeViewState extends State<HomeView> {
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(
                       context,
+                      // ignore: deprecated_member_use
                     ).textTheme.bodyMedium?.color?.withOpacity(0.9),
                     height: 1.4,
                     fontSize: SizeTokens.f14,
@@ -480,6 +484,7 @@ class _HomeViewState extends State<HomeView> {
           border: Border.all(color: Colors.grey.shade100, width: 1.2),
           boxShadow: [
             BoxShadow(
+              // ignore: deprecated_member_use
               color: Colors.black.withOpacity(0.02),
               blurRadius: 10,
               offset: const Offset(0, 4),
@@ -516,6 +521,7 @@ class _HomeViewState extends State<HomeView> {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(
                     context,
+                    // ignore: deprecated_member_use
                   ).textTheme.bodySmall?.color?.withOpacity(0.7),
                   fontWeight: FontWeight.w500,
                 ),
