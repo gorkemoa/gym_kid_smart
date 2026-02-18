@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'core/services/navigation_service.dart';
 import 'core/responsive/size_config.dart';
 import 'viewmodels/login_view_model.dart';
+import 'viewmodels/oyungrubu_login_view_model.dart';
+import 'viewmodels/oyungrubu_profile_view_model.dart';
 import 'viewmodels/settings_view_model.dart';
 import 'viewmodels/landing_view_model.dart';
 import 'viewmodels/home_view_model.dart';
@@ -31,6 +33,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ChatDetailViewModel()),
         ChangeNotifierProvider(create: (_) => PermissionViewModel()),
         ChangeNotifierProvider(create: (_) => SplashViewModel()),
+        ChangeNotifierProvider(create: (_) => OyunGrubuLoginViewModel()),
+        ChangeNotifierProvider(create: (_) => OyunGrubuProfileViewModel()),
       ],
       child: const MyApp(),
     ),

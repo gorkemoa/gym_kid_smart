@@ -5,7 +5,7 @@ import '../../core/utils/app_translations.dart';
 import '../../viewmodels/environment_selection_view_model.dart';
 import '../../viewmodels/splash_view_model.dart';
 import '../anaokulu/landing/landing_view.dart';
-import '../oyungrubu/home/oyungrubu_home_view.dart';
+import '../oyungrubu/login/oyungrubu_login_view.dart';
 import '../../models/environment_model.dart';
 
 class EnvironmentSelectionView extends StatelessWidget {
@@ -57,7 +57,7 @@ class _EnvironmentSelectionContent extends StatelessWidget {
                             builder: (_) =>
                                 config.environment == AppEnvironment.anaokulu
                                 ? const LandingView()
-                                : const OyunGrubuHomeView(),
+                                : const OyunGrubuLoginView(),
                           ),
                         );
                       }

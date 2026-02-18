@@ -170,5 +170,11 @@
     "select_environment_subtitle": "Please select a section to continue.",
     "anaokulu": "Kindergarten",
     "oyun_grubu": "Play Group",
-    "change_section": "Change Section"
+    "oyungrubu_login_title": "Play Group Login",
+    "oyungrubu_login_subtitle": "Enter your credentials to access the Play Group panel.",
+    "change_section": "Change Section",
+    "profile_title": "Profile",
+    "students": "Students",
+    "oyun_grubu_coming_soon": "Play Group Module Coming Soon!",
+    "no_credentials": "Credentials not found"
 }

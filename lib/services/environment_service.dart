@@ -22,7 +22,10 @@ class EnvironmentService {
         _currentConfig = EnvironmentConfig.availableEnvironments.firstWhere(
           (config) => config.environment == env,
         );
-        ApiConstants.setBaseUrl(_currentConfig!.baseUrl);
+        ApiConstants.setEnvironment(
+          url: _currentConfig!.baseUrl,
+          authKey: _currentConfig!.authorizationKey,
+        );
         AppLogger.info('Environment loaded: ${_currentConfig!.translationKey}');
       } catch (e) {
         AppLogger.error('Error loading environment: $e');
@@ -34,7 +37,10 @@ class EnvironmentService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyEnvironment, config.environment.toString());
     _currentConfig = config;
-    ApiConstants.setBaseUrl(config.baseUrl);
+    ApiConstants.setEnvironment(
+      url: config.baseUrl,
+      authKey: config.authorizationKey,
+    );
     AppLogger.info('Environment set to: ${config.translationKey}');
   }
 

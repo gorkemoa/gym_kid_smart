@@ -5,7 +5,11 @@ import '../../app/api_constants.dart';
 import '../utils/logger.dart';
 import 'api_exception.dart';
 import '../../services/auth_service.dart';
+import '../../services/oyungrubu_auth_service.dart';
+import '../../services/environment_service.dart';
+import '../../models/environment_model.dart';
 import '../../views/anaokulu/login/login_view.dart';
+import '../../views/oyungrubu/login/oyungrubu_login_view.dart';
 import '../services/navigation_service.dart';
 
 class ApiClient {
@@ -124,8 +128,14 @@ class ApiClient {
   }
 
   void _handleAuthError() {
-    AuthService.logout();
-    NavigationService.pushNamedAndRemoveUntil(const LoginView());
+    final currentEnv = EnvironmentService.currentConfig?.environment;
+    if (currentEnv == AppEnvironment.oyunGrubu) {
+      OyunGrubuAuthService.logout();
+      NavigationService.pushNamedAndRemoveUntil(const OyunGrubuLoginView());
+    } else {
+      AuthService.logout();
+      NavigationService.pushNamedAndRemoveUntil(const LoginView());
+    }
   }
 
   void _logResponse(http.Response response) {

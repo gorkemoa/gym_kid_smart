@@ -1,12 +1,32 @@
 class ApiConstants {
-  static String baseUrl = 'https://smartkid.gymboreeizmir.com';
+  // Environment Bases
+  static const String anaokuluUrl = 'https://smartkid.gymboreeizmir.com';
+  static const String oyunGrubuUrl = 'https://kid-qr.getsmarty.dev';
 
-  static void setBaseUrl(String url) {
-    baseUrl = url;
+  // Authorization Keys
+  static const String anaokuluKey = 'DcuV3wdDqrx-c#e#P-1dS#6n@dEFEd5hA354e';
+  static const String oyunGrubuKey = 'kid_qr_mobile_2024';
+
+  // Dynamic values set at runtime
+  static String _baseUrl = anaokuluUrl;
+  static String _authorizationKey = anaokuluKey;
+
+  static String get baseUrl => _baseUrl;
+
+  static void setEnvironment({required String url, required String authKey}) {
+    _baseUrl = url;
+    _authorizationKey = authKey;
   }
+
+  // Headers
+  static Map<String, String> get headers => {
+    'Accept': 'application/json',
+    'Authorization': _authorizationKey,
+  };
 
   // Auth
   static const String login = '/Api/Login';
+  static const String getProfile = '/Api/GetProfile';
   static const String allSettings = '/Api/AllSettings';
   static const String addToken = '/Api/addToken';
   static const String allNotices = '/Api/AllNotices';
@@ -61,10 +81,4 @@ class ApiConstants {
   static const String permissionStatusParent = '/Api/PermissionStatusParent';
   static const String permissionList = '/Api/PermissionList';
   static const String permissionControl = '/Api/PermissionControl';
-
-  // Headers
-  static Map<String, String> get headers => {
-    'Accept': 'application/json',
-    'Authorization': 'DcuV3wdDqrx-c#e#P-1dS#6n@dEFEd5hA354e',
-  };
 }

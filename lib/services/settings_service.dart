@@ -11,8 +11,7 @@ class SettingsService {
     try {
       final response = await _apiClient.post(
         ApiConstants.allSettings,
-        // schoolId 1 gidecek hep şimdilik
-        body: {'school_id': 1},
+        body: schoolId != null ? {'school_id': schoolId} : null,
       );
 
       final settingsResponse = SettingsResponse.fromJson(response);

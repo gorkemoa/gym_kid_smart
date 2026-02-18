@@ -170,5 +170,11 @@
     "select_environment_subtitle": "Lütfen devam etmek için bir bölüm seçin.",
     "anaokulu": "Anaokulu",
     "oyun_grubu": "Oyun Grubu",
-    "change_section": "Bölüm Değiştir"
+    "oyungrubu_login_title": "Oyun Grubu Giriş",
+    "oyungrubu_login_subtitle": "Oyun Grubu paneline giriş yapmak için bilgilerinizi girin.",
+    "change_section": "Bölüm Değiştir",
+    "profile_title": "Profil",
+    "students": "Öğrenciler",
+    "oyun_grubu_coming_soon": "Oyun Grubu Modülü Çok Yakında!",
+    "no_credentials": "Kimlik bilgisi bulunamadı"
 }
