@@ -82,6 +82,11 @@ class ApiConstants {
   static const String deleteSocialsTitle = '/Api/deleteSocialsTitle';
   static const String deleteSocialsValue = '/Api/deleteSocialsValue';
 
+  // OyunGrubu Classes / Timetable / Lessons
+  static const String oyunGrubuClasses = '/Api/Classes';
+  static const String oyunGrubuTimeTable = '/Api/TimeTable';
+  static const String oyunGrubuLessons = '/Api/Lessons';
+
   // Permission
   static const String addPermission = '/Api/addPermission';
   static const String getPermissionsParent = '/Api/getPermissionsParent';
