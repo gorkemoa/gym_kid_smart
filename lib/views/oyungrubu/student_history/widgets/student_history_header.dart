@@ -7,12 +7,14 @@ class StudentHistoryHeader extends StatelessWidget {
   final OyunGrubuStudentModel student;
   final String locale;
   final VoidCallback onBackTap;
+  final VoidCallback? onEditTap;
 
   const StudentHistoryHeader({
     super.key,
     required this.student,
     required this.locale,
     required this.onBackTap,
+    this.onEditTap,
   });
 
   @override
@@ -75,6 +77,23 @@ class StudentHistoryHeader extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (onEditTap != null)
+                  GestureDetector(
+                    onTap: onEditTap,
+                    child: Container(
+                      padding: EdgeInsets.all(SizeTokens.p8),
+                      decoration: BoxDecoration(
+                        // ignore: deprecated_member_use
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(SizeTokens.r12),
+                      ),
+                      child: Icon(
+                        Icons.edit_rounded,
+                        color: Colors.white,
+                        size: SizeTokens.i20,
+                      ),
+                    ),
+                  ),
               ],
             ),
             SizedBox(height: SizeTokens.p20),
@@ -124,43 +143,61 @@ class StudentHistoryHeader extends StatelessWidget {
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(height: SizeTokens.p6),
-                      if (student.groupName != null &&
-                          student.groupName!.isNotEmpty)
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: SizeTokens.p10,
-                            vertical: SizeTokens.p4,
-                          ),
-                          decoration: BoxDecoration(
-                            // ignore: deprecated_member_use
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius:
-                                BorderRadius.circular(SizeTokens.r8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.groups_outlined,
-                                size: SizeTokens.i12,
-                                color: Colors.white70,
+                      SizedBox(height: SizeTokens.p8),
+                      Row(
+                        children: [
+                          if (student.groupName != null &&
+                              student.groupName!.isNotEmpty)
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: SizeTokens.p10,
+                                vertical: SizeTokens.p4,
                               ),
-                              SizedBox(width: SizeTokens.p4),
-                              Flexible(
-                                child: Text(
-                                  student.groupName!,
-                                  style: TextStyle(
-                                    fontSize: SizeTokens.f12,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
+                              decoration: BoxDecoration(
+                                // ignore: deprecated_member_use
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius:
+                                    BorderRadius.circular(SizeTokens.r8),
+                              ),
+                              child: Text(
+                                student.groupName!,
+                                style: TextStyle(
+                                  fontSize: SizeTokens.f12,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
+                            ),
+                          if (student.status != null) ...[
+                            SizedBox(width: SizeTokens.p8),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: SizeTokens.p10,
+                                vertical: SizeTokens.p4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: student.status == 1
+                                    // ignore: deprecated_member_use
+                                    ? Colors.greenAccent.withOpacity(0.3)
+                                    // ignore: deprecated_member_use
+                                    : Colors.orangeAccent.withOpacity(0.3),
+                                borderRadius:
+                                    BorderRadius.circular(SizeTokens.r8),
+                              ),
+                              child: Text(
+                                student.status == 1
+                                    ? AppTranslations.translate('active', locale)
+                                    : AppTranslations.translate('expired', locale),
+                                style: TextStyle(
+                                  fontSize: SizeTokens.f12,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ],
                   ),
                 ),

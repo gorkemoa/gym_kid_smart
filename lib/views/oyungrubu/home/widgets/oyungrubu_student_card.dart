@@ -6,11 +6,13 @@ import '../../../../models/oyungrubu_student_model.dart';
 class OyunGrubuStudentCard extends StatelessWidget {
   final OyunGrubuStudentModel student;
   final String locale;
+  final VoidCallback? onEdit;
 
   const OyunGrubuStudentCard({
     super.key,
     required this.student,
     required this.locale,
+    this.onEdit,
   });
 
   @override
@@ -117,22 +119,46 @@ class OyunGrubuStudentCard extends StatelessWidget {
               ),
             ),
 
-            // Gender icon
-            Container(
-              padding: EdgeInsets.all(SizeTokens.p8),
-              decoration: BoxDecoration(
-                color: student.gender == 1
-                    // ignore: deprecated_member_use
-                    ? Colors.blue.withOpacity(0.08)
-                    // ignore: deprecated_member_use
-                    : Colors.pink.withOpacity(0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                student.gender == 1 ? Icons.boy_rounded : Icons.girl_rounded,
-                color: student.gender == 1 ? Colors.blue : Colors.pink,
-                size: SizeTokens.i20,
-              ),
+            // Gender icon & Edit
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(SizeTokens.p8),
+                  decoration: BoxDecoration(
+                    color: student.gender == 1
+                        // ignore: deprecated_member_use
+                        ? Colors.blue.withOpacity(0.08)
+                        // ignore: deprecated_member_use
+                        : Colors.pink.withOpacity(0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    student.gender == 1 ? Icons.boy_rounded : Icons.girl_rounded,
+                    color: student.gender == 1 ? Colors.blue : Colors.pink,
+                    size: SizeTokens.i20,
+                  ),
+                ),
+                if (onEdit != null) ...[
+                  SizedBox(height: SizeTokens.p12),
+                  GestureDetector(
+                    onTap: onEdit,
+                    child: Container(
+                      padding: EdgeInsets.all(SizeTokens.p8),
+                      decoration: BoxDecoration(
+                        // ignore: deprecated_member_use
+                        color: Colors.grey.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.edit_rounded,
+                        color: Colors.grey.shade600,
+                        size: SizeTokens.i16,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),

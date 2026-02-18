@@ -37,19 +37,25 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
     fetchStudents();
   }
 
-  Future<void> fetchStudents() async {
-    _setLoading(true);
-    _errorMessage = null;
+  Future<void> fetchStudents({bool isSilent = false}) async {
+    if (!isSilent) {
+      _setLoading(true);
+      _errorMessage = null;
+    }
 
     final result = await _studentService.getStudents();
 
-    _setLoading(false);
+    if (!isSilent) {
+      _setLoading(false);
+    }
 
     if (result is Success<OyunGrubuStudentsResponse>) {
       _students = result.data.data;
       notifyListeners();
     } else if (result is Failure<OyunGrubuStudentsResponse>) {
-      _errorMessage = result.message;
+      if (!isSilent) {
+        _errorMessage = result.message;
+      }
       notifyListeners();
     }
   }

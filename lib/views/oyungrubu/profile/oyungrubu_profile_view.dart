@@ -4,6 +4,8 @@ import '../../../core/responsive/size_tokens.dart';
 import '../../../viewmodels/oyungrubu_profile_view_model.dart';
 import '../../../viewmodels/splash_view_model.dart';
 import '../../../core/utils/app_translations.dart';
+import '../student_history/widgets/student_edit_bottom_sheet.dart';
+import '../../../viewmodels/oyungrubu_student_history_view_model.dart';
 
 class OyunGrubuProfileView extends StatefulWidget {
   const OyunGrubuProfileView({super.key});
@@ -213,7 +215,7 @@ class _OyunGrubuProfileViewState extends State<OyunGrubuProfileView> {
             ),
             SizedBox(height: SizeTokens.p32),
             ElevatedButton(
-              onPressed: viewModel.isLoading
+              onPressed: viewModel.isUpdating
                   ? null
                   : () async {
                       final success = await viewModel.updateProfile();
@@ -237,7 +239,7 @@ class _OyunGrubuProfileViewState extends State<OyunGrubuProfileView> {
                   borderRadius: BorderRadius.circular(SizeTokens.r12),
                 ),
               ),
-              child: viewModel.isLoading
+              child: viewModel.isUpdating
                   ? SizedBox(
                       height: SizeTokens.h20,
                       width: SizeTokens.h20,
@@ -323,6 +325,21 @@ class _OyunGrubuProfileViewState extends State<OyunGrubuProfileView> {
                     ),
                 ],
               ),
+            ),
+            IconButton(
+              icon: Icon(Icons.edit_rounded, color: Colors.grey.shade600, size: SizeTokens.i20),
+              onPressed: () async {
+                context.read<OyunGrubuStudentHistoryViewModel>().init(student);
+                await showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => StudentEditBottomSheet(locale: locale),
+                );
+                if (context.mounted) {
+                  context.read<OyunGrubuProfileViewModel>().fetchProfile(isSilent: true);
+                }
+              },
             ),
           ],
         ),

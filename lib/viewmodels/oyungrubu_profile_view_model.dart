@@ -14,6 +14,9 @@ class OyunGrubuProfileViewModel extends BaseViewModel {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _isUpdating = false;
+  bool get isUpdating => _isUpdating;
+
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
@@ -32,13 +35,17 @@ class OyunGrubuProfileViewModel extends BaseViewModel {
     fetchProfile();
   }
 
-  Future<void> fetchProfile() async {
-    _setLoading(true);
-    _errorMessage = null;
+  Future<void> fetchProfile({bool isSilent = false}) async {
+    if (!isSilent) {
+      _setLoading(true);
+      _errorMessage = null;
+    }
 
     final result = await _authService.getProfile();
 
-    _setLoading(false);
+    if (!isSilent) {
+      _setLoading(false);
+    }
 
     if (result is Success<OyunGrubuProfileResponse>) {
       _data = result.data.data;
@@ -49,14 +56,17 @@ class OyunGrubuProfileViewModel extends BaseViewModel {
       }
       notifyListeners();
     } else if (result is Failure<OyunGrubuProfileResponse>) {
-      _errorMessage = result.message;
+      if (!isSilent) {
+        _errorMessage = result.message;
+      }
       notifyListeners();
     }
   }
 
   Future<bool> updateProfile() async {
-    _setLoading(true);
+    _isUpdating = true;
     _errorMessage = null;
+    notifyListeners();
 
     final result = await _authService.updateParentProfile(
       name: nameController.text,
@@ -64,16 +74,19 @@ class OyunGrubuProfileViewModel extends BaseViewModel {
       phone: phoneController.text,
     );
 
-    _setLoading(false);
-
     if (result is Success<bool>) {
-      await fetchProfile(); // Refresh profile data after update
+      await fetchProfile(isSilent: true); // Refresh profile data after update
+      _isUpdating = false;
+      notifyListeners();
       return true;
     } else if (result is Failure<bool>) {
       _errorMessage = result.message;
+      _isUpdating = false;
       notifyListeners();
       return false;
     }
+    _isUpdating = false;
+    notifyListeners();
     return false;
   }
 
@@ -81,8 +94,9 @@ class OyunGrubuProfileViewModel extends BaseViewModel {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image == null) return false;
 
-    _setLoading(true);
+    _isUpdating = true;
     _errorMessage = null;
+    notifyListeners();
 
     final result = await _authService.updateProfileImage(
       image: File(image.path),
@@ -90,16 +104,19 @@ class OyunGrubuProfileViewModel extends BaseViewModel {
       studentId: studentId,
     );
 
-    _setLoading(false);
-
     if (result is Success<bool>) {
-      await fetchProfile(); // Refresh profile to see new image
+      await fetchProfile(isSilent: true); // Refresh profile to see new image
+      _isUpdating = false;
+      notifyListeners();
       return true;
     } else if (result is Failure<bool>) {
       _errorMessage = result.message;
+      _isUpdating = false;
       notifyListeners();
       return false;
     }
+    _isUpdating = false;
+    notifyListeners();
     return false;
   }
 

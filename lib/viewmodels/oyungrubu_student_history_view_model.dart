@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'base_view_model.dart';
 import '../core/network/api_result.dart';
 import '../models/oyungrubu_activity_log_model.dart';
@@ -10,9 +12,13 @@ import '../services/oyungrubu_student_history_service.dart';
 class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
   final OyunGrubuStudentHistoryService _historyService =
       OyunGrubuStudentHistoryService();
+  final ImagePicker _picker = ImagePicker();
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  bool _isUpdating = false;
+  bool get isUpdating => _isUpdating;
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -32,6 +38,13 @@ class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
   List<OyunGrubuPackageModel>? _allPackages;
   List<OyunGrubuPackageModel>? get allPackages => _allPackages;
 
+  // Edit controllers
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController surnameController = TextEditingController();
+  final TextEditingController birthDateController = TextEditingController();
+  final TextEditingController medicationsController = TextEditingController();
+  final TextEditingController allergiesController = TextEditingController();
+
   // Tab control
   int _selectedTabIndex = 0;
   int get selectedTabIndex => _selectedTabIndex;
@@ -43,21 +56,34 @@ class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
 
   Future<void> init(OyunGrubuStudentModel studentModel) async {
     _student = studentModel;
+    _populateControllers();
     notifyListeners();
     await fetchHistory();
   }
 
-  Future<void> fetchHistory() async {
+  void _populateControllers() {
+    nameController.text = _student?.name ?? '';
+    surnameController.text = _student?.surname ?? '';
+    birthDateController.text = _student?.birthDate ?? '';
+    medicationsController.text = _student?.medications ?? '';
+    allergiesController.text = _student?.allergies ?? '';
+  }
+
+  Future<void> fetchHistory({bool isSilent = false}) async {
     if (_student?.id == null) return;
 
-    _setLoading(true);
-    _errorMessage = null;
+    if (!isSilent) {
+      _setLoading(true);
+      _errorMessage = null;
+    }
 
     final result = await _historyService.getStudentHistory(
       studentId: _student!.id!,
     );
 
-    _setLoading(false);
+    if (!isSilent) {
+      _setLoading(false);
+    }
 
     if (result is Success<OyunGrubuStudentHistoryResponse>) {
       _activityLogs = result.data.activityLogs;
@@ -69,6 +95,62 @@ class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
       _errorMessage = result.message;
       notifyListeners();
     }
+  }
+
+  Future<bool> updateStudentProfile({File? photo}) async {
+    if (_student?.id == null) return false;
+
+    _isUpdating = true;
+    notifyListeners();
+
+    final result = await _historyService.updateStudentProfile(
+      studentId: _student!.id!,
+      name: nameController.text,
+      surname: surnameController.text,
+      birthDate: birthDateController.text,
+      medications: medicationsController.text,
+      allergies: allergiesController.text,
+      photo: photo,
+    );
+
+    _isUpdating = false;
+    notifyListeners();
+
+    if (result is Success<bool>) {
+      // Update local student model
+      _student = OyunGrubuStudentModel(
+        id: _student!.id,
+        groupId: _student!.groupId,
+        name: nameController.text,
+        surname: surnameController.text,
+        birthDate: birthDateController.text,
+        gender: _student!.gender,
+        parentId: _student!.parentId,
+        photo: _student!.photo,
+        status: _student!.status,
+        createdAt: _student!.createdAt,
+        medications: medicationsController.text,
+        allergies: allergiesController.text,
+        groupName: _student!.groupName,
+      );
+      
+      // Silent refresh to update logs and packages
+      fetchHistory(isSilent: true);
+      
+      notifyListeners();
+      return true;
+    } else if (result is Failure<bool>) {
+      _errorMessage = result.message;
+      notifyListeners();
+      return false;
+    }
+    return false;
+  }
+
+  Future<File?> pickPhoto() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image == null) return null;
+    return File(image.path);
   }
 
   void onRetry() {
@@ -101,5 +183,16 @@ class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
     _selectedTabIndex = 0;
     _errorMessage = null;
     _isLoading = false;
+    _isUpdating = false;
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    surnameController.dispose();
+    birthDateController.dispose();
+    medicationsController.dispose();
+    allergiesController.dispose();
+    super.dispose();
   }
 }

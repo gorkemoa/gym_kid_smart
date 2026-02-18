@@ -192,6 +192,9 @@
     "logout_confirmation": "Are you sure you want to log out?",
     "boy": "Boy",
     "girl": "Girl",
+    "gender": "Gender",
+    "male": "Boy",
+    "female": "Girl",
     "student_history": "Student History",
     "student": "Student",
     "activity_logs": "Activities",
@@ -207,5 +210,13 @@
     "postponement_limit": "Postponement Limit",
     "date_range": "Date Range",
     "active": "Active",
-    "expired": "Expired"
+    "expired": "Expired",
+    "edit_student": "Edit Student Info",
+    "birth_date": "Birth Date",
+    "medications": "Medications",
+    "allergies": "Allergies",
+    "student_updated_success": "Student information updated successfully.",
+    "update_student": "Update Student",
+    "change_photo": "Change Photo",
+    "select_date": "Select Date"
 }

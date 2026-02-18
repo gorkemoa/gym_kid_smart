@@ -10,6 +10,8 @@ import '../../../views/environment_selection/environment_selection_view.dart';
 import 'widgets/oyungrubu_student_card.dart';
 import 'widgets/oyungrubu_home_header.dart';
 import '../student_history/oyungrubu_student_history_view.dart';
+import '../../../viewmodels/oyungrubu_student_history_view_model.dart';
+import '../student_history/widgets/student_edit_bottom_sheet.dart';
 
 class OyunGrubuHomeView extends StatefulWidget {
   const OyunGrubuHomeView({super.key});
@@ -130,6 +132,17 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
                               child: OyunGrubuStudentCard(
                                 student: student,
                                 locale: locale,
+                                onEdit: () async {
+                                  context
+                                      .read<OyunGrubuStudentHistoryViewModel>()
+                                      .init(student);
+                                  await _showEditBottomSheet(context, locale);
+                                  if (context.mounted) {
+                                    context
+                                        .read<OyunGrubuHomeViewModel>()
+                                        .fetchStudents(isSilent: true);
+                                  }
+                                },
                               ),
                             );
                           },
@@ -348,6 +361,15 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _showEditBottomSheet(BuildContext context, String locale) async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => StudentEditBottomSheet(locale: locale),
     );
   }
 }

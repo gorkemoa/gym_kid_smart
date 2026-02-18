@@ -192,6 +192,9 @@
     "logout_confirmation": "Çıkış yapmak istediğinize emin misiniz?",
     "boy": "Erkek",
     "girl": "Kız",
+    "gender": "Cinsiyet",
+    "male": "Erkek",
+    "female": "Kız",
     "student_history": "Öğrenci Geçmişi",
     "student": "Öğrenci",
     "activity_logs": "Aktiviteler",
@@ -207,5 +210,13 @@
     "postponement_limit": "Erteleme Hakkı",
     "date_range": "Tarih Aralığı",
     "active": "Aktif",
-    "expired": "Süresi Dolmuş"
+    "expired": "Süresi Dolmuş",
+    "edit_student": "Öğrenci Bilgilerini Düzenle",
+    "birth_date": "Doğum Tarihi",
+    "medications": "İlaçlar",
+    "allergies": "Alerjiler",
+    "student_updated_success": "Öğrenci bilgileri başarıyla güncellendi.",
+    "update_student": "Öğrenciyi Güncelle",
+    "change_photo": "Fotoğraf Değiştir",
+    "select_date": "Tarih Seçin"
 }

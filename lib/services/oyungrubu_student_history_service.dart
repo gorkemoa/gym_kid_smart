@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../app/api_constants.dart';
 import '../core/network/api_client.dart';
@@ -31,6 +32,54 @@ class OyunGrubuStudentHistoryService {
       return Success(historyResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu getStudentHistory failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<bool>> updateStudentProfile({
+    required int studentId,
+    required String name,
+    required String surname,
+    required String birthDate,
+    String? medications,
+    String? allergies,
+    File? photo,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userKey = prefs.getString('oyungrubu_user_key');
+
+      if (userKey == null) {
+        return const Failure('no_credentials');
+      }
+
+      final Map<String, String> body = {
+        'user_key': userKey,
+        'student_id': studentId.toString(),
+        'name': name,
+        'surname': surname,
+        'birth_date': birthDate,
+        'medications': medications ?? '',
+        'allergies': allergies ?? '',
+      };
+
+      Map<String, File>? files;
+      if (photo != null) {
+        files = {'photo': photo};
+      }
+
+      final response = await _apiClient.post(
+        ApiConstants.updateStudentProfile,
+        body: body,
+        files: files,
+      );
+
+      if (response['success'] != null) {
+        return const Success(true);
+      }
+      return Failure(response['failure'] ?? 'update_failed');
+    } catch (e) {
+      AppLogger.error('OyunGrubu updateStudentProfile failed', e);
       return Failure(e.toString());
     }
   }

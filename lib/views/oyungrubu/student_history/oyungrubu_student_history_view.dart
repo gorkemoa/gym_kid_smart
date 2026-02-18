@@ -6,9 +6,11 @@ import '../../../models/oyungrubu_student_model.dart';
 import '../../../viewmodels/oyungrubu_student_history_view_model.dart';
 import '../../../viewmodels/splash_view_model.dart';
 import 'widgets/student_history_header.dart';
+import 'widgets/student_history_info.dart';
 import 'widgets/student_history_stats.dart';
 import 'widgets/student_history_activity_card.dart';
 import 'widgets/student_history_package_card.dart';
+import 'widgets/student_edit_bottom_sheet.dart';
 
 class OyunGrubuStudentHistoryView extends StatefulWidget {
   final OyunGrubuStudentModel student;
@@ -66,9 +68,10 @@ class _OyunGrubuStudentHistoryViewState
                   // Header
                   SliverToBoxAdapter(
                     child: StudentHistoryHeader(
-                      student: widget.student,
+                      student: viewModel.student ?? widget.student,
                       locale: locale,
                       onBackTap: () => Navigator.pop(context),
+                      onEditTap: () => _showEditBottomSheet(context, locale),
                     ),
                   ),
 
@@ -79,6 +82,15 @@ class _OyunGrubuStudentHistoryViewState
                         attendedCount: viewModel.attendedCount,
                         absentCount: viewModel.absentCount,
                         postponeCount: viewModel.postponeCount,
+                        locale: locale,
+                      ),
+                    ),
+
+                  // Profile Info
+                  if (!viewModel.isLoading && viewModel.errorMessage == null)
+                    SliverToBoxAdapter(
+                      child: StudentHistoryInfo(
+                        student: viewModel.student ?? widget.student,
                         locale: locale,
                       ),
                     ),
@@ -259,6 +271,15 @@ class _OyunGrubuStudentHistoryViewState
           ],
         ),
       ),
+    );
+  }
+
+  void _showEditBottomSheet(BuildContext context, String locale) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => StudentEditBottomSheet(locale: locale),
     );
   }
 }
