@@ -76,4 +76,27 @@ class OyunGrubuClassService {
       return Failure(e.toString());
     }
   }
+
+  Future<ApiResult<OyunGrubuLessonsResponse>> getUpcomingLessons({
+    required int studentId,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userKey = prefs.getString('oyungrubu_user_key');
+
+      if (userKey == null) {
+        return const Failure('no_credentials');
+      }
+
+      final response = await _apiClient.post(
+        ApiConstants.oyunGrubuUpcomingLessons,
+        body: {'user_key': userKey, 'student_id': studentId.toString()},
+      );
+      final lessonsResponse = OyunGrubuLessonsResponse.fromJson(response);
+      return Success(lessonsResponse);
+    } catch (e) {
+      AppLogger.error('OyunGrubu getUpcomingLessons failed', e);
+      return Failure(e.toString());
+    }
+  }
 }

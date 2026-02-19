@@ -258,5 +258,7 @@
     "completed": "Completed",
     "quota": "Quota",
     "postponement_mode_normal": "Normal",
-    "postponement_mode_extend_week": "Extend Week"
+    "postponement_mode_extend_week": "Extend Week",
+    "lesson_history": "Lesson History",
+    "no_history_lessons": "No lesson history found."
 }

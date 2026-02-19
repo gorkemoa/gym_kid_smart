@@ -110,8 +110,15 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
                     child: OyunGrubuLessonSection(
                       students: viewModel.students,
                       selectedStudentId: viewModel.selectedStudentIdForLessons,
-                      lessons: viewModel.selectedStudentIdForLessons != null
+                      upcomingLessons:
+                          viewModel.selectedStudentIdForLessons != null
                           ? viewModel.getStudentLessons(
+                              viewModel.selectedStudentIdForLessons!,
+                            )
+                          : null,
+                      historyLessons:
+                          viewModel.selectedStudentIdForLessons != null
+                          ? viewModel.getStudentHistoryLessons(
                               viewModel.selectedStudentIdForLessons!,
                             )
                           : null,
@@ -257,48 +264,44 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
     required Color color,
   }) {
     return Container(
-      padding: EdgeInsets.all(SizeTokens.p20),
+      padding: EdgeInsets.all(SizeTokens.p16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r16),
-        boxShadow: [
-          BoxShadow(
-            // ignore: deprecated_member_use
-            color: color.withOpacity(0.08),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(SizeTokens.r12),
+        border: Border.all(color: Colors.grey.shade200),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(SizeTokens.p10),
+            padding: EdgeInsets.all(SizeTokens.p8),
             decoration: BoxDecoration(
               // ignore: deprecated_member_use
               color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(SizeTokens.r12),
+              borderRadius: BorderRadius.circular(SizeTokens.r8),
             ),
-            child: Icon(icon, color: color, size: SizeTokens.i24),
+            child: Icon(icon, color: color, size: SizeTokens.i20),
           ),
-          SizedBox(height: SizeTokens.p12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: SizeTokens.f28,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          SizedBox(height: SizeTokens.p4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: SizeTokens.f12,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
-            ),
+          SizedBox(width: SizeTokens.p12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: SizeTokens.f20,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: SizeTokens.f12,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ],
       ),

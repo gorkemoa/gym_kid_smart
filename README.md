@@ -293,3 +293,6 @@ Uygulama iki farklı çalışma ortamı (Environment) destekler:
 - `ApiConstants` içindeki `baseUrl` statik olmaktan çıkarılmalı, çalışma anında seçilen değere göre güncellenmelidir.
 - Seçim ekranı `views/environment_selection/` klasörü altında olmalı, projenin yüksek görsel standartlarına (`AppTheme`, `SizeTokens`) uymalıdır.
 - Mimaride karışıklık olmaması için tüm servisler seçili base URL üzerinden istek atmalıdır.
+
+
+// Anasayfa da ki tasarım aşırı karışık lütfen hiçbir şekilde veri kaybı olmadan  tasarımı baştan sona düzeltin ister grid yapın ister başka şekilde tasarım yapın ancak asla @README.md kurallarından dışına çıkmayın. kuralı bozmak yasak. Senden istediğim kurumsal tasarım ve kullanıcıların Uİ UX deneyimlerinin en düzeyde olacak şekilde bir tasarım.

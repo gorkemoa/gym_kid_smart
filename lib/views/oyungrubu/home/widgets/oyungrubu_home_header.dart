@@ -22,65 +22,71 @@ class OyunGrubuHomeHeader extends StatelessWidget {
     final topPadding = MediaQuery.of(context).padding.top;
 
     return Container(
+      width: double.infinity,
       padding: EdgeInsets.fromLTRB(
         SizeTokens.p24,
-        topPadding + SizeTokens.p16,
+        topPadding + SizeTokens.p12,
         SizeTokens.p24,
-        SizeTokens.p24,
+        SizeTokens.p32,
       ),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            primaryColor,
-            // ignore: deprecated_member_use
-            primaryColor.withOpacity(0.85),
-          ],
-        ),
+        color: primaryColor,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(SizeTokens.r32),
           bottomRight: Radius.circular(SizeTokens.r32),
         ),
+        boxShadow: [
+          BoxShadow(
+            // ignore: deprecated_member_use
+            color: primaryColor.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top bar
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Image.asset(
-                    'assets/app-logo.jpg',
-                    height: SizeTokens.h32,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => Icon(
-                      Icons.child_care,
-                      size: SizeTokens.i32,
-                      color: Colors.white,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${AppTranslations.translate('welcome', locale)},',
+                      style: TextStyle(
+                        fontSize: SizeTokens.f14,
+                        // ignore: deprecated_member_use
+                        color: Colors.white.withOpacity(0.8),
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: SizeTokens.p12),
-                  Text(
-                    AppTranslations.translate('oyun_grubu', locale),
-                    style: TextStyle(
-                      fontSize: SizeTokens.f18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    SizedBox(height: SizeTokens.p4),
+                    Text(
+                      userName ?? '',
+                      style: TextStyle(
+                        fontSize: SizeTokens.f24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: -0.5,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               Row(
                 children: [
-                  _buildHeaderIconButton(
-                    icon: Icons.person_outline_rounded,
-                    onTap: onProfileTap,
+                  _buildHeaderButton(
+                    icon: Icons.notifications_none_rounded,
+                    onTap: () {}, // TODO: Add notifications later
+                    hasBadge: true,
                   ),
-                  SizedBox(width: SizeTokens.p8),
-                  _buildHeaderIconButton(
+                  SizedBox(width: SizeTokens.p12),
+                  _buildHeaderButton(
                     icon: Icons.logout_rounded,
                     onTap: onLogoutTap,
                   ),
@@ -88,57 +94,48 @@ class OyunGrubuHomeHeader extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: SizeTokens.p24),
-
-          // Greeting
-          Text(
-            '${AppTranslations.translate('welcome', locale)},',
-            style: TextStyle(
-              fontSize: SizeTokens.f14,
-              // ignore: deprecated_member_use
-              color: Colors.white.withOpacity(0.8),
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-          SizedBox(height: SizeTokens.p4),
-          Text(
-            userName ?? '',
-            style: TextStyle(
-              fontSize: SizeTokens.f28,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              letterSpacing: -0.5,
-            ),
-          ),
-          SizedBox(height: SizeTokens.p8),
-          Text(
-            AppTranslations.translate('home_subtitle', locale),
-            style: TextStyle(
-              fontSize: SizeTokens.f14,
-              // ignore: deprecated_member_use
-              color: Colors.white.withOpacity(0.7),
-            ),
-          ),
-          SizedBox(height: SizeTokens.p16),
         ],
       ),
     );
   }
 
-  Widget _buildHeaderIconButton({
+  Widget _buildHeaderButton({
     required IconData icon,
     required VoidCallback onTap,
+    bool hasBadge = false,
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(SizeTokens.p10),
-        decoration: BoxDecoration(
-          // ignore: deprecated_member_use
-          color: Colors.white.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(SizeTokens.r12),
-        ),
-        child: Icon(icon, color: Colors.white, size: SizeTokens.i20),
+      child: Stack(
+        children: [
+          Container(
+            padding: EdgeInsets.all(SizeTokens.p10),
+            decoration: BoxDecoration(
+              // ignore: deprecated_member_use
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(SizeTokens.r12),
+              border: Border.all(
+                // ignore: deprecated_member_use
+                color: Colors.white.withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+            child: Icon(icon, color: Colors.white, size: SizeTokens.i20),
+          ),
+          if (hasBadge)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Colors.redAccent,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

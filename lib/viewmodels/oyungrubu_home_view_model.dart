@@ -46,8 +46,12 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
 
   // Student lessons
   final Map<int, List<OyunGrubuLessonModel>> _studentLessonsMap = {};
+  final Map<int, List<OyunGrubuLessonModel>> _studentHistoryLessonsMap = {};
   List<OyunGrubuLessonModel>? getStudentLessons(int studentId) =>
       _studentLessonsMap[studentId];
+  List<OyunGrubuLessonModel>? getStudentHistoryLessons(int studentId) =>
+      _studentHistoryLessonsMap[studentId];
+
   bool _isLessonsLoading = false;
   bool get isLessonsLoading => _isLessonsLoading;
   int? _selectedStudentIdForLessons;
@@ -138,15 +142,29 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
     _isLessonsLoading = true;
     notifyListeners();
 
-    final result = await _classService.getLessons(studentId: studentId);
+    final results = await Future.wait([
+      _classService.getUpcomingLessons(studentId: studentId),
+      _classService.getLessons(studentId: studentId),
+    ]);
 
     _isLessonsLoading = false;
 
-    if (result is Success<OyunGrubuLessonsResponse>) {
-      _studentLessonsMap[studentId] = result.data.data ?? [];
-    } else if (result is Failure<OyunGrubuLessonsResponse>) {
+    // Upcoming Lessons
+    final upcomingResult = results[0];
+    if (upcomingResult is Success<OyunGrubuLessonsResponse>) {
+      _studentLessonsMap[studentId] = upcomingResult.data.data ?? [];
+    } else {
       _studentLessonsMap[studentId] = [];
     }
+
+    // History Lessons
+    final historyResult = results[1];
+    if (historyResult is Success<OyunGrubuLessonsResponse>) {
+      _studentHistoryLessonsMap[studentId] = historyResult.data.data ?? [];
+    } else {
+      _studentHistoryLessonsMap[studentId] = [];
+    }
+
     notifyListeners();
   }
 
