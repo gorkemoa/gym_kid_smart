@@ -34,6 +34,7 @@ class SizeTokens {
   // Font Sizes
   static double get f10 => 2.5.w;
   static double get f12 => 3.1.w;
+  static double get f13 => 3.3.w;
   static double get f14 => 3.6.w;
   static double get f16 => 4.1.w;
   static double get f18 => 4.6.w;

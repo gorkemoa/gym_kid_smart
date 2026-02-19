@@ -7,8 +7,10 @@ class OyunGrubuHomeHeader extends StatelessWidget {
   final String locale;
   final int studentCount;
   final int classCount;
+  final int unreadCount;
   final VoidCallback onProfileTap;
   final VoidCallback onLogoutTap;
+  final VoidCallback onNotificationsTap;
 
   const OyunGrubuHomeHeader({
     super.key,
@@ -16,8 +18,10 @@ class OyunGrubuHomeHeader extends StatelessWidget {
     required this.locale,
     required this.studentCount,
     required this.classCount,
+    required this.unreadCount,
     required this.onProfileTap,
     required this.onLogoutTap,
+    required this.onNotificationsTap,
   });
 
   @override
@@ -79,6 +83,31 @@ class OyunGrubuHomeHeader extends StatelessWidget {
               ),
               Row(
                 children: [
+                  Stack(
+                    children: [
+                      _buildHeaderIconButton(
+                        icon: Icons.notifications_none_rounded,
+                        onTap: onNotificationsTap,
+                      ),
+                      if (unreadCount > 0)
+                        Positioned(
+                          right: SizeTokens.p4,
+                          top: SizeTokens.p4,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 12,
+                              minHeight: 12,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  SizedBox(width: SizeTokens.p8),
                   _buildHeaderIconButton(
                     icon: Icons.person_outline_rounded,
                     onTap: onProfileTap,

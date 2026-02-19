@@ -17,6 +17,7 @@ import '../student_detail/oyungrubu_student_detail_view.dart';
 import '../../../viewmodels/oyungrubu_student_history_view_model.dart';
 import '../student_history/widgets/student_edit_bottom_sheet.dart';
 import 'widgets/lesson_detail_bottom_sheet.dart';
+import '../notifications/oyungrubu_notifications_view.dart';
 
 class OyunGrubuHomeView extends StatefulWidget {
   const OyunGrubuHomeView({super.key});
@@ -63,6 +64,11 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView>
                   locale: locale,
                   studentCount: viewModel.students?.length ?? 0,
                   classCount: viewModel.classes?.length ?? 0,
+                  unreadCount:
+                      viewModel.notifications
+                          ?.where((n) => n.isRead == 0)
+                          .length ??
+                      0,
                   onProfileTap: () {
                     Navigator.push(
                       context,
@@ -72,6 +78,14 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView>
                     );
                   },
                   onLogoutTap: () => _showLogoutDialog(context, locale),
+                  onNotificationsTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const OyunGrubuNotificationsView(),
+                      ),
+                    );
+                  },
                 ),
 
                 // Zone 2 — Tab Bar

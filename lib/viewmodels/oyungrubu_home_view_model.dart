@@ -11,14 +11,19 @@ import '../models/oyungrubu_lesson_model.dart';
 import '../models/oyungrubu_lessons_response.dart';
 import '../models/oyungrubu_lesson_detail_model.dart';
 import '../models/oyungrubu_lesson_detail_response.dart';
+import '../models/oyungrubu_notification_model.dart';
+import '../models/oyungrubu_notifications_response.dart';
 import '../services/oyungrubu_student_service.dart';
 import '../services/oyungrubu_auth_service.dart';
 import '../services/oyungrubu_class_service.dart';
+import '../services/oyungrubu_notification_service.dart';
 
 class OyunGrubuHomeViewModel extends BaseViewModel {
   final OyunGrubuStudentService _studentService = OyunGrubuStudentService();
   final OyunGrubuAuthService _authService = OyunGrubuAuthService();
   final OyunGrubuClassService _classService = OyunGrubuClassService();
+  final OyunGrubuNotificationService _notificationService =
+      OyunGrubuNotificationService();
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -59,10 +64,16 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
   int? _selectedStudentIdForLessons;
   int? get selectedStudentIdForLessons => _selectedStudentIdForLessons;
 
+  // Notifications
+  List<OyunGrubuNotificationModel>? _notifications;
+  List<OyunGrubuNotificationModel>? get notifications => _notifications;
+  bool _isNotificationsLoading = false;
+  bool get isNotificationsLoading => _isNotificationsLoading;
+
   Future<void> init() async {
     _user = await _authService.getSavedUser();
     notifyListeners();
-    await Future.wait([fetchStudents(), fetchClasses()]);
+    await Future.wait([fetchStudents(), fetchClasses(), fetchNotifications()]);
   }
 
   void onRetry() {
@@ -73,6 +84,7 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
   void refresh() {
     fetchStudents();
     fetchClasses();
+    fetchNotifications();
   }
 
   Future<void> fetchStudents({bool isSilent = false}) async {
@@ -110,6 +122,22 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
       _classes = result.data.data;
     } else if (result is Failure<OyunGrubuClassesResponse>) {
       _classes = [];
+    }
+    notifyListeners();
+  }
+
+  Future<void> fetchNotifications() async {
+    _isNotificationsLoading = true;
+    notifyListeners();
+
+    final result = await _notificationService.getNotifications();
+
+    _isNotificationsLoading = false;
+
+    if (result is Success<OyunGrubuNotificationsResponse>) {
+      _notifications = result.data.data;
+    } else if (result is Failure<OyunGrubuNotificationsResponse>) {
+      _notifications = [];
     }
     notifyListeners();
   }
