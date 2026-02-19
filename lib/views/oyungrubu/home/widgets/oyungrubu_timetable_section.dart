@@ -32,86 +32,94 @@ class OyunGrubuTimetableSection extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(SizeTokens.r16),
-          border: Border.all(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(SizeTokens.r20),
+          boxShadow: [
+            BoxShadow(
+              // ignore: deprecated_member_use
+              color: const Color(0xFF6C63FF).withOpacity(0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Cleaner Header
-            Padding(
+            // Header
+            Container(
               padding: EdgeInsets.fromLTRB(
                 SizeTokens.p20,
-                SizeTokens.p20,
-                SizeTokens.p20,
-                SizeTokens.p10,
+                SizeTokens.p16,
+                SizeTokens.p12,
+                SizeTokens.p12,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF6C63FF),
+                    // ignore: deprecated_member_use
+                    const Color(0xFF6C63FF).withOpacity(0.85),
+                  ],
+                ),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(SizeTokens.r20),
+                  topRight: Radius.circular(SizeTokens.r20),
+                ),
               ),
               child: Row(
                 children: [
-                  Container(
-                    padding: EdgeInsets.all(SizeTokens.p10),
-                    decoration: BoxDecoration(
-                      // ignore: deprecated_member_use
-                      color: const Color(0xFF6C63FF).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(SizeTokens.r12),
-                    ),
-                    child: Icon(
-                      Icons.calendar_month_rounded,
-                      color: const Color(0xFF6C63FF),
-                      size: SizeTokens.i20,
-                    ),
+                  Icon(
+                    Icons.schedule_rounded,
+                    color: Colors.white,
+                    size: SizeTokens.i20,
                   ),
-                  SizedBox(width: SizeTokens.p12),
+                  SizedBox(width: SizeTokens.p10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          AppTranslations.translate('lesson_schedule', locale),
+                          '${selectedClass!.groupName ?? '-'} - ${AppTranslations.translate('lesson_schedule', locale)}',
                           style: TextStyle(
                             fontSize: SizeTokens.f16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blueGrey.shade900,
-                          ),
-                        ),
-                        Text(
-                          selectedClass!.groupName ?? '-',
-                          style: TextStyle(
-                            fontSize: SizeTokens.f12,
-                            color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  InkWell(
+                  GestureDetector(
                     onTap: onClose,
-                    borderRadius: BorderRadius.circular(SizeTokens.r100),
                     child: Container(
-                      padding: EdgeInsets.all(SizeTokens.p8),
+                      padding: EdgeInsets.all(SizeTokens.p6),
+                      decoration: BoxDecoration(
+                        // ignore: deprecated_member_use
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(SizeTokens.r8),
+                      ),
                       child: Icon(
                         Icons.close_rounded,
-                        color: Colors.grey.shade400,
-                        size: SizeTokens.i20,
+                        color: Colors.white,
+                        size: SizeTokens.i16,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            Divider(color: Colors.grey.shade100, height: 1),
 
             // Content
             if (isLoading)
               Padding(
-                padding: EdgeInsets.all(SizeTokens.p32),
+                padding: EdgeInsets.all(SizeTokens.p24),
                 child: const Center(
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
               )
             else if (timetable == null || timetable!.isEmpty)
               Padding(
-                padding: EdgeInsets.all(SizeTokens.p32),
+                padding: EdgeInsets.all(SizeTokens.p24),
                 child: Center(
                   child: Column(
                     children: [
@@ -139,21 +147,14 @@ class OyunGrubuTimetableSection extends StatelessWidget {
               ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.symmetric(
-                  horizontal: SizeTokens.p20,
-                  vertical: SizeTokens.p12,
-                ),
+                padding: EdgeInsets.all(SizeTokens.p16),
                 itemCount: timetable!.length,
-                separatorBuilder: (_, __) => Padding(
-                  padding: EdgeInsets.symmetric(vertical: SizeTokens.p8),
-                  child: Divider(color: Colors.grey.shade50, height: 1),
-                ),
+                separatorBuilder: (_, __) => SizedBox(height: SizeTokens.p10),
                 itemBuilder: (context, index) {
                   final item = timetable![index];
                   return _buildTimetableItem(context, item);
                 },
               ),
-            SizedBox(height: SizeTokens.p12),
           ],
         ),
       ),
@@ -164,96 +165,121 @@ class OyunGrubuTimetableSection extends StatelessWidget {
     BuildContext context,
     OyunGrubuTimetableModel item,
   ) {
-    // ignore: unused_local_variable
-    // final primaryColor = Theme.of(context).colorScheme.primary;
+    final primaryColor = Theme.of(context).colorScheme.primary;
     final weekdayKey = 'weekday_${item.weekday ?? 1}';
     final weekdayName = AppTranslations.translate(weekdayKey, locale);
     final timeRange = '${item.startTime ?? '-'} - ${item.endTime ?? '-'}';
 
+    // Remove seconds from time format for cleaner display
     final cleanTimeRange = timeRange
         .replaceAll(':00:00', ':00')
         .replaceAll(RegExp(r':(\d{2}):00'), r':$1');
 
     final statusColor = _getStatusColor(item.lessonStatus);
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Time & Day Column
-        SizedBox(
-          width: SizeTokens.w100,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                weekdayName,
-                style: TextStyle(
-                  fontSize: SizeTokens.f14,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.blueGrey.shade800,
-                ),
+    return Container(
+      padding: EdgeInsets.all(SizeTokens.p14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8F9FD),
+        borderRadius: BorderRadius.circular(SizeTokens.r12),
+        border: Border.all(
+          // ignore: deprecated_member_use
+          color: const Color(0xFF6C63FF).withOpacity(0.08),
+        ),
+      ),
+      child: Row(
+        children: [
+          // Day circle
+          Container(
+            width: SizeTokens.h48,
+            height: SizeTokens.h48,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  // ignore: deprecated_member_use
+                  primaryColor.withOpacity(0.15),
+                  // ignore: deprecated_member_use
+                  const Color(0xFF6C63FF).withOpacity(0.1),
+                ],
               ),
-              SizedBox(height: SizeTokens.p2),
-              Text(
-                cleanTimeRange,
+              borderRadius: BorderRadius.circular(SizeTokens.r12),
+            ),
+            child: Center(
+              child: Text(
+                weekdayName.substring(
+                  0,
+                  weekdayName.length >= 3 ? 3 : weekdayName.length,
+                ),
                 style: TextStyle(
                   fontSize: SizeTokens.f12,
-                  color: Colors.grey.shade500,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w800,
+                  color: primaryColor,
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+          SizedBox(width: SizeTokens.p12),
 
-        // Vertical Line
-        Container(
-          width: 2,
-          height: SizeTokens.h32, // Minimal height to connect
-          margin: EdgeInsets.symmetric(horizontal: SizeTokens.p12),
-          decoration: BoxDecoration(
-            color: statusColor.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(SizeTokens.r4),
-          ),
-        ),
-
-        // Lesson Detail
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.lessonTitle ?? '-',
-                style: TextStyle(
-                  fontSize: SizeTokens.f14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.blueGrey.shade900,
-                ),
-              ),
-              SizedBox(height: SizeTokens.p4),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: SizeTokens.p8,
-                  vertical: SizeTokens.p2,
-                ),
-                decoration: BoxDecoration(
-                  // ignore: deprecated_member_use
-                  color: statusColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(SizeTokens.r4),
-                ),
-                child: Text(
-                  _getStatusLabel(item.lessonStatus, locale),
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.lessonTitle ?? '-',
                   style: TextStyle(
-                    fontSize: SizeTokens.f10,
+                    fontSize: SizeTokens.f14,
                     fontWeight: FontWeight.w700,
-                    color: statusColor,
+                    color: Colors.blueGrey.shade800,
                   ),
                 ),
-              ),
-            ],
+                SizedBox(height: SizeTokens.p4),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.access_time_rounded,
+                      size: SizeTokens.i12,
+                      color: Colors.grey.shade500,
+                    ),
+                    SizedBox(width: SizeTokens.p4),
+                    Text(
+                      cleanTimeRange,
+                      style: TextStyle(
+                        fontSize: SizeTokens.f12,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+
+          // Status badge
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: SizeTokens.p10,
+              vertical: SizeTokens.p4,
+            ),
+            decoration: BoxDecoration(
+              // ignore: deprecated_member_use
+              color: statusColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(SizeTokens.r8),
+            ),
+            child: Text(
+              _getStatusLabel(item.lessonStatus, locale),
+              style: TextStyle(
+                fontSize: SizeTokens.f10,
+                fontWeight: FontWeight.w700,
+                color: statusColor,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

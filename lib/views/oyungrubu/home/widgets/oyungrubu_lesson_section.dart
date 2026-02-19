@@ -33,6 +33,7 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
     final currentLessons = _showHistory
         ? widget.historyLessons
         : widget.upcomingLessons;
@@ -40,75 +41,16 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section Header
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: SizeTokens.p24,
-            vertical: SizeTokens.p12,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppTranslations.translate(
-                  _showHistory ? 'lesson_history' : 'upcoming_lessons',
-                  widget.locale,
-                ),
-                style: TextStyle(
-                  fontSize: SizeTokens.f18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueGrey.shade900,
-                ),
-              ),
+        SizedBox(height: SizeTokens.p12),
 
-              if (widget.selectedStudentId != null)
-                TextButton.icon(
-                  onPressed: () => setState(() => _showHistory = !_showHistory),
-                  icon: Icon(
-                    _showHistory
-                        ? Icons.history_rounded
-                        : Icons.schedule_rounded,
-                    size: SizeTokens.i16,
-                    color: _showHistory
-                        ? Colors.blueGrey
-                        : const Color(0xFFFF9800),
-                  ),
-                  label: Text(
-                    AppTranslations.translate(
-                      _showHistory ? 'upcoming_lessons' : 'lesson_history',
-                      widget.locale,
-                    ).split(' ').first,
-                    style: TextStyle(
-                      fontSize: SizeTokens.f14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.blueGrey.shade700,
-                    ),
-                  ),
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: SizeTokens.p12,
-                      vertical: SizeTokens.p8,
-                    ),
-                    backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(SizeTokens.r20),
-                      side: BorderSide(color: Colors.grey.shade200),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-
-        // Student Selector
+        // Student selector chips
         if (widget.students != null && widget.students!.isNotEmpty)
           SizedBox(
-            height: SizeTokens.h40,
-            child: ListView.separated(
+            height: SizeTokens.h48,
+            child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.symmetric(horizontal: SizeTokens.p24),
               itemCount: widget.students!.length,
-              separatorBuilder: (_, __) => SizedBox(width: SizeTokens.p8),
               itemBuilder: (context, index) {
                 final student = widget.students![index];
                 final isSelected = widget.selectedStudentId == student.id;
@@ -119,33 +61,64 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
                       widget.onStudentSelected(student.id!);
                     }
                   },
-                  child: Container(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: EdgeInsets.only(right: SizeTokens.p10),
                     padding: EdgeInsets.symmetric(
                       horizontal: SizeTokens.p16,
-                      vertical: SizeTokens.p8,
+                      vertical: SizeTokens.p10,
                     ),
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? const Color(0xFFFF9800)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(SizeTokens.r20),
-                      border: Border.all(
-                        color: isSelected
-                            ? const Color(0xFFFF9800)
-                            : Colors.grey.shade300,
-                      ),
+                      gradient: isSelected
+                          ? LinearGradient(
+                              colors: [
+                                const Color(0xFFFF9800),
+                                // ignore: deprecated_member_use
+                                const Color(0xFFFF9800).withOpacity(0.8),
+                              ],
+                            )
+                          : null,
+                      color: isSelected ? null : Colors.white,
+                      borderRadius: BorderRadius.circular(SizeTokens.r12),
+                      border: isSelected
+                          ? null
+                          : Border.all(color: Colors.grey.shade200),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                // ignore: deprecated_member_use
+                                color: const Color(
+                                  0xFFFF9800,
+                                ).withOpacity(0.25),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                          : null,
                     ),
-                    child: Center(
-                      child: Text(
-                        '${student.name ?? ''} ${student.surname ?? ''}'.trim(),
-                        style: TextStyle(
-                          fontSize: SizeTokens.f12,
-                          fontWeight: FontWeight.w600,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.child_care_rounded,
+                          size: SizeTokens.i16,
                           color: isSelected
                               ? Colors.white
-                              : Colors.blueGrey.shade600,
+                              : Colors.grey.shade600,
                         ),
-                      ),
+                        SizedBox(width: SizeTokens.p6),
+                        Text(
+                          '${student.name ?? ''} ${student.surname ?? ''}'
+                              .trim(),
+                          style: TextStyle(
+                            fontSize: SizeTokens.f12,
+                            fontWeight: FontWeight.w700,
+                            color: isSelected
+                                ? Colors.white
+                                : Colors.blueGrey.shade700,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -153,28 +126,71 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
             ),
           ),
 
-        SizedBox(height: SizeTokens.p12),
+        SizedBox(height: SizeTokens.p16),
 
-        // Content
+        // Toggle bar (upcoming / history)
+        if (widget.selectedStudentId != null)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: SizeTokens.p24),
+            child: Container(
+              padding: EdgeInsets.all(SizeTokens.p4),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(SizeTokens.r12),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildToggleButton(
+                      label: AppTranslations.translate(
+                        'upcoming_lessons',
+                        widget.locale,
+                      ),
+                      icon: Icons.upcoming_rounded,
+                      isActive: !_showHistory,
+                      color: const Color(0xFFFF9800),
+                      onTap: () => setState(() => _showHistory = false),
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildToggleButton(
+                      label: AppTranslations.translate(
+                        'lesson_history',
+                        widget.locale,
+                      ),
+                      icon: Icons.history_rounded,
+                      isActive: _showHistory,
+                      color: Colors.blueGrey,
+                      onTap: () => setState(() => _showHistory = true),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+        SizedBox(height: SizeTokens.p16),
+
+        // Lessons list
         if (widget.selectedStudentId == null)
-          _buildEmptyState(
+          _buildInfoBox(
             icon: Icons.touch_app_rounded,
-            message: AppTranslations.translate(
+            text: AppTranslations.translate(
               'select_child_for_lessons',
               widget.locale,
             ),
           )
         else if (widget.isLoading)
           Padding(
-            padding: EdgeInsets.symmetric(vertical: SizeTokens.p32),
+            padding: EdgeInsets.symmetric(vertical: SizeTokens.p24),
             child: const Center(
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
           )
         else if (currentLessons == null || currentLessons.isEmpty)
-          _buildEmptyState(
-            icon: Icons.event_note_rounded,
-            message: AppTranslations.translate(
+          _buildInfoBox(
+            icon: Icons.event_busy_rounded,
+            text: AppTranslations.translate(
               _showHistory ? 'no_history_lessons' : 'no_upcoming_lessons',
               widget.locale,
             ),
@@ -184,173 +200,282 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
             padding: EdgeInsets.symmetric(horizontal: SizeTokens.p24),
             child: Column(
               children: currentLessons.map((lesson) {
-                return _buildLessonCard(context, lesson);
+                return _buildLessonCard(context, lesson, primaryColor);
               }).toList(),
             ),
           ),
+
+        SizedBox(height: SizeTokens.p16),
       ],
     );
   }
 
-  Widget _buildEmptyState({required IconData icon, required String message}) {
-    return Container(
-      width: double.infinity,
-      margin: EdgeInsets.symmetric(
-        horizontal: SizeTokens.p24,
-        vertical: SizeTokens.p10,
-      ),
-      padding: EdgeInsets.all(SizeTokens.p32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r20),
-        border: Border.all(color: Colors.grey.shade100),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: SizeTokens.i48, color: Colors.grey.shade200),
-          SizedBox(height: SizeTokens.p12),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: SizeTokens.f14,
-              color: Colors.grey.shade400,
-              fontWeight: FontWeight.w500,
+  Widget _buildToggleButton({
+    required String label,
+    required IconData icon,
+    required bool isActive,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(vertical: SizeTokens.p10),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(SizeTokens.r10),
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    // ignore: deprecated_member_use
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: SizeTokens.i12,
+              color: isActive ? color : Colors.grey.shade400,
             ),
-          ),
-        ],
+            SizedBox(width: SizeTokens.p6),
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: SizeTokens.f12,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                  color: isActive ? color : Colors.grey.shade500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildLessonCard(BuildContext context, OyunGrubuLessonModel lesson) {
+  Widget _buildInfoBox({required IconData icon, required String text}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: SizeTokens.p24),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(SizeTokens.p24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(SizeTokens.r16),
+          border: Border.all(color: Colors.grey.shade100),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: SizeTokens.i32, color: Colors.grey.shade300),
+            SizedBox(height: SizeTokens.p8),
+            Text(
+              text,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: SizeTokens.f14,
+                color: Colors.grey.shade500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLessonCard(
+    BuildContext context,
+    OyunGrubuLessonModel lesson,
+    Color primaryColor,
+  ) {
     final isCancelled = lesson.isCancelled == true;
     final statusColor = _getStatusColor(lesson.lessonStatus, isCancelled);
+
     final startTime = _formatTime(lesson.startTime);
     final endTime = _formatTime(lesson.endTime);
 
     return Container(
-      margin: EdgeInsets.only(bottom: SizeTokens.p12),
+      margin: EdgeInsets.only(bottom: SizeTokens.p10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r12),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(SizeTokens.r16),
+        border: Border.all(
+          color: isCancelled ? Colors.red.shade100 : Colors.grey.shade100,
+        ),
+        boxShadow: [
+          BoxShadow(
+            // ignore: deprecated_member_use
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      child: IntrinsicHeight(
+      child: Padding(
+        padding: EdgeInsets.all(SizeTokens.p16),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Simple Left Strip for Status
             Container(
-              width: SizeTokens.w4,
+              padding: EdgeInsets.symmetric(
+                horizontal: SizeTokens.p12,
+                vertical: SizeTokens.p10,
+              ),
               decoration: BoxDecoration(
-                color: statusColor,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(SizeTokens.r12),
-                  bottomLeft: Radius.circular(SizeTokens.r12),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: isCancelled
+                      ? [Colors.red.shade50, Colors.red.shade100]
+                      : [
+                          _showHistory
+                              ? Colors.blueGrey.shade50
+                              // ignore: deprecated_member_use
+                              : const Color(0xFFFF9800).withOpacity(0.1),
+                          _showHistory
+                              ? Colors.blueGrey.shade100
+                              // ignore: deprecated_member_use
+                              : const Color(0xFFFF9800).withOpacity(0.18),
+                        ],
                 ),
+                borderRadius: BorderRadius.circular(SizeTokens.r12),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    _getDayFromDate(lesson.date),
+                    style: TextStyle(
+                      fontSize: SizeTokens.f20,
+                      fontWeight: FontWeight.w900,
+                      color: isCancelled
+                          ? Colors.red.shade400
+                          : (_showHistory
+                                ? Colors.blueGrey
+                                : const Color(0xFFFF9800)),
+                    ),
+                  ),
+                  Text(
+                    _getMonthAbbr(lesson.date),
+                    style: TextStyle(
+                      fontSize: SizeTokens.f10,
+                      fontWeight: FontWeight.w600,
+                      color: isCancelled
+                          ? Colors.red.shade300
+                          : (_showHistory
+                                ? Colors.blueGrey.shade400
+                                // ignore: deprecated_member_use
+                                : const Color(0xFFFF9800).withOpacity(0.7)),
+                    ),
+                  ),
+                ],
               ),
             ),
+            SizedBox(width: SizeTokens.p14),
 
-            // Content
             Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(SizeTokens.p12),
-                child: Row(
-                  children: [
-                    // Date Column
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          _getDayFromDate(lesson.date),
-                          style: TextStyle(
-                            fontSize: SizeTokens.f18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blueGrey.shade900,
-                          ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    lesson.lessonTitle ?? '-',
+                    style: TextStyle(
+                      fontSize: SizeTokens.f14,
+                      fontWeight: FontWeight.w700,
+                      color: isCancelled
+                          ? Colors.grey.shade400
+                          : Colors.blueGrey.shade800,
+                      decoration: isCancelled
+                          ? TextDecoration.lineThrough
+                          : null,
+                    ),
+                  ),
+                  SizedBox(height: SizeTokens.p4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time_rounded,
+                        size: SizeTokens.i12,
+                        color: Colors.grey.shade400,
+                      ),
+                      SizedBox(width: SizeTokens.p4),
+                      Text(
+                        '$startTime - $endTime',
+                        style: TextStyle(
+                          fontSize: SizeTokens.f12,
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w500,
                         ),
-                        Text(
-                          _getMonthAbbr(lesson.date).toUpperCase(),
+                      ),
+                      SizedBox(width: SizeTokens.p10),
+                      Icon(
+                        Icons.groups_rounded,
+                        size: SizeTokens.i12,
+                        color: Colors.grey.shade400,
+                      ),
+                      SizedBox(width: SizeTokens.p4),
+                      Flexible(
+                        child: Text(
+                          lesson.groupName ?? '-',
                           style: TextStyle(
                             fontSize: SizeTokens.f12,
                             color: Colors.grey.shade500,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
-
-                    SizedBox(width: SizeTokens.p16),
-
-                    // Lesson Info
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            lesson.lessonTitle ?? '-',
-                            style: TextStyle(
-                              fontSize: SizeTokens.f14,
-                              fontWeight: FontWeight.w600,
-                              color: isCancelled
-                                  ? Colors.grey.shade400
-                                  : Colors.blueGrey.shade900,
-                              decoration: isCancelled
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          SizedBox(height: SizeTokens.p4),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.access_time,
-                                size: SizeTokens.i12,
-                                color: Colors.grey.shade400,
-                              ),
-                              SizedBox(width: SizeTokens.p4),
-                              Text(
-                                '$startTime - $endTime',
-                                style: TextStyle(
-                                  fontSize: SizeTokens.f12,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
                       ),
-                    ),
-
-                    // Status Badge
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: SizeTokens.p8,
-                        vertical: SizeTokens.p4,
+                    ],
+                  ),
+                  SizedBox(height: SizeTokens.p6),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today_rounded,
+                        size: SizeTokens.i10,
+                        color: Colors.grey.shade400,
                       ),
-                      decoration: BoxDecoration(
-                        // ignore: deprecated_member_use
-                        color: statusColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(SizeTokens.r8),
-                      ),
-                      child: Text(
-                        _getStatusLabel(
-                          lesson.lessonStatus,
-                          isCancelled,
-                          widget.locale,
-                        ),
+                      SizedBox(width: SizeTokens.p4),
+                      Text(
+                        lesson.dayName ?? '-',
                         style: TextStyle(
                           fontSize: SizeTokens.f10,
-                          fontWeight: FontWeight.bold,
-                          color: statusColor,
+                          color: Colors.grey.shade500,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: SizeTokens.p10,
+                vertical: SizeTokens.p6,
+              ),
+              decoration: BoxDecoration(
+                // ignore: deprecated_member_use
+                color: statusColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(SizeTokens.r8),
+              ),
+              child: Text(
+                _getStatusLabel(
+                  lesson.lessonStatus,
+                  isCancelled,
+                  widget.locale,
+                ),
+                style: TextStyle(
+                  fontSize: SizeTokens.f10,
+                  fontWeight: FontWeight.w700,
+                  color: statusColor,
                 ),
               ),
             ),

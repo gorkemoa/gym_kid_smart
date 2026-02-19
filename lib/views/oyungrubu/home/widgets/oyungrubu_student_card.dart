@@ -17,45 +17,48 @@ class OyunGrubuStudentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: unused_local_variable
     final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Container(
       margin: EdgeInsets.only(bottom: SizeTokens.p12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r12),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(SizeTokens.r16),
+        border: Border.all(color: Colors.grey.shade100, width: 1),
         boxShadow: [
           BoxShadow(
             // ignore: deprecated_member_use
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.all(SizeTokens.p16),
+        padding: EdgeInsets.all(SizeTokens.p14),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildAvatar(),
+            // Avatar with Gender
+            _buildAvatarStack(primaryColor),
             SizedBox(width: SizeTokens.p12),
+
+            // Content
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Name + edit
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: Text(
                           '${student.name ?? ''} ${student.surname ?? ''}',
                           style: TextStyle(
                             fontSize: SizeTokens.f16,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             color: Colors.blueGrey.shade900,
+                            letterSpacing: -0.3,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -64,43 +67,58 @@ class OyunGrubuStudentCard extends StatelessWidget {
                       if (onEdit != null)
                         GestureDetector(
                           onTap: onEdit,
-                          child: Icon(
-                            Icons.edit_rounded,
-                            size: SizeTokens.i20,
-                            color: Colors.grey.shade400,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: SizeTokens.p8),
+                            child: Icon(
+                              Icons.edit_note_rounded,
+                              color: Colors.grey.shade400,
+                              size: SizeTokens.i18,
+                            ),
                           ),
                         ),
                     ],
                   ),
                   SizedBox(height: SizeTokens.p4),
-                  _buildGroupInfo(),
-
-                  // Health Badges
-                  if (_hasHealthInfo()) ...[
-                    SizedBox(height: SizeTokens.p8),
-                    Wrap(
-                      spacing: SizeTokens.p8,
-                      runSpacing: SizeTokens.p4,
-                      children: [
-                        if (student.allergies != null &&
-                            student.allergies!.isNotEmpty)
-                          _buildAlertBadge(
-                            '${AppTranslations.translate('allergy', locale)}: ${student.allergies}',
-                            Colors.red.shade50,
-                            Colors.red.shade700,
-                          ),
-                        if (student.medications != null &&
-                            student.medications!.isNotEmpty)
-                          _buildAlertBadge(
-                            '${AppTranslations.translate('medicament', locale)}: ${student.medications}',
-                            Colors.orange.shade50,
-                            Colors.orange.shade800,
-                          ),
-                      ],
+                  _buildInfoRow(),
+                  if ((student.allergies != null &&
+                          student.allergies!.isNotEmpty) ||
+                      (student.medications != null &&
+                          student.medications!.isNotEmpty))
+                    Padding(
+                      padding: EdgeInsets.only(top: SizeTokens.p6),
+                      child: Wrap(
+                        spacing: SizeTokens.p6,
+                        runSpacing: SizeTokens.p4,
+                        children: [
+                          if (student.allergies != null &&
+                              student.allergies!.isNotEmpty)
+                            _buildStatusBadge(
+                              icon: Icons.warning_amber_rounded,
+                              text:
+                                  '${AppTranslations.translate('allergy', locale)}: ${student.allergies}',
+                              color: Colors.red.shade600,
+                            ),
+                          if (student.medications != null &&
+                              student.medications!.isNotEmpty)
+                            _buildStatusBadge(
+                              icon: Icons.medication_outlined,
+                              text:
+                                  '${AppTranslations.translate('medicament', locale)}: ${student.medications}',
+                              color: Colors.orange.shade800,
+                            ),
+                        ],
+                      ),
                     ),
-                  ],
                 ],
               ),
+            ),
+
+            // Chevron hint
+            SizedBox(width: SizeTokens.p4),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.grey.shade300,
+              size: SizeTokens.i20,
             ),
           ],
         ),
@@ -108,85 +126,140 @@ class OyunGrubuStudentCard extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _buildAvatarStack(Color primaryColor) {
     final hasPhoto =
         student.photo != null && student.photo != 'default_student.jpg';
     final isBoy = student.gender == 1;
 
-    return Container(
-      width: SizeTokens.i48,
-      height: SizeTokens.i48,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.grey.shade100,
-        image: hasPhoto
-            ? DecorationImage(
-                image: NetworkImage(student.photo!),
-                fit: BoxFit.cover,
-              )
-            : null,
-      ),
-      child: !hasPhoto
-          ? Center(
-              child: Text(
-                (student.name != null && student.name!.isNotEmpty)
-                    ? student.name![0].toUpperCase()
-                    : '?',
-                style: TextStyle(
-                  fontSize: SizeTokens.f20,
-                  fontWeight: FontWeight.bold,
-                  color: isBoy ? Colors.blue.shade400 : Colors.pink.shade400,
-                ),
-              ),
-            )
-          : null,
-    );
-  }
-
-  Widget _buildGroupInfo() {
-    return Row(
+    return Stack(
       children: [
-        Icon(
-          Icons.class_outlined,
-          size: SizeTokens.i12,
-          color: Colors.grey.shade500,
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              // ignore: deprecated_member_use
+              color: primaryColor.withOpacity(0.1),
+              width: 3,
+            ),
+          ),
+          child: CircleAvatar(
+            radius: SizeTokens.r24,
+            backgroundColor: Colors.grey.shade50,
+            backgroundImage: hasPhoto ? NetworkImage(student.photo!) : null,
+            child: !hasPhoto
+                ? Icon(
+                    Icons.child_care_rounded,
+                    // ignore: deprecated_member_use
+                    color: primaryColor.withOpacity(0.5),
+                    size: SizeTokens.i24,
+                  )
+                : null,
+          ),
         ),
-        SizedBox(width: SizeTokens.p4),
-        Text(
-          student.groupName ?? AppTranslations.translate('no_group', locale),
-          style: TextStyle(
-            fontSize: SizeTokens.f14,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey.shade600,
+        Positioned(
+          bottom: 0,
+          right: 0,
+          child: Container(
+            padding: EdgeInsets.all(SizeTokens.p2),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  // ignore: deprecated_member_use
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+            child: Icon(
+              isBoy ? Icons.boy_rounded : Icons.girl_rounded,
+              color: isBoy ? Colors.blue.shade400 : Colors.pink.shade300,
+              size: SizeTokens.i12,
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildAlertBadge(String text, Color bgColor, Color textColor) {
+  Widget _buildInfoRow() {
+    final hasGroup = student.groupName != null && student.groupName!.isNotEmpty;
+    return Row(
+      children: [
+        Icon(
+          Icons.groups_rounded,
+          size: SizeTokens.i12,
+          color: Colors.grey.shade400,
+        ),
+        SizedBox(width: SizeTokens.p4),
+        Text(
+          hasGroup
+              ? student.groupName!
+              : AppTranslations.translate('no_group', locale),
+          style: TextStyle(
+            fontSize: SizeTokens.f12,
+            color: hasGroup ? Colors.blueGrey.shade600 : Colors.grey.shade400,
+            fontWeight: hasGroup ? FontWeight.w500 : FontWeight.normal,
+          ),
+        ),
+        if (student.birthDate != null) ...[
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: SizeTokens.p6),
+            child: Text('•', style: TextStyle(color: Colors.grey.shade300)),
+          ),
+          Icon(
+            Icons.cake_rounded,
+            size: SizeTokens.i10,
+            color: Colors.grey.shade400,
+          ),
+          SizedBox(width: SizeTokens.p4),
+          Text(
+            student.birthDate!,
+            style: TextStyle(
+              fontSize: SizeTokens.f12,
+              color: Colors.grey.shade500,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildStatusBadge({
+    required IconData icon,
+    required String text,
+    required Color color,
+  }) {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: SizeTokens.p8,
         vertical: SizeTokens.p4,
       ),
       decoration: BoxDecoration(
-        color: bgColor,
+        // ignore: deprecated_member_use
+        color: color.withOpacity(0.06),
         borderRadius: BorderRadius.circular(SizeTokens.r8),
       ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: SizeTokens.f12,
-          color: textColor,
-          fontWeight: FontWeight.w500,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: SizeTokens.i10, color: color),
+          SizedBox(width: SizeTokens.p4),
+          Flexible(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: SizeTokens.f10,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
-  }
-
-  bool _hasHealthInfo() {
-    return (student.allergies != null && student.allergies!.isNotEmpty) ||
-        (student.medications != null && student.medications!.isNotEmpty);
   }
 }

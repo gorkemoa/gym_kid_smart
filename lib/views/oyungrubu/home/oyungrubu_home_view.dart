@@ -24,13 +24,23 @@ class OyunGrubuHomeView extends StatefulWidget {
   State<OyunGrubuHomeView> createState() => _OyunGrubuHomeViewState();
 }
 
-class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
+class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<OyunGrubuHomeViewModel>().init();
     });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -44,178 +54,33 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
           value: SystemUiOverlayStyle.light,
           child: Scaffold(
             backgroundColor: const Color(0xFFF5F6FA),
-            body: RefreshIndicator(
-              onRefresh: () async {
-                await Future.wait([
-                  viewModel.fetchStudents(),
-                  viewModel.fetchClasses(),
-                ]);
-              },
-              child: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  // Header
-                  SliverToBoxAdapter(
-                    child: OyunGrubuHomeHeader(
-                      userName: viewModel.user?.name,
-                      locale: locale,
-                      onProfileTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const OyunGrubuProfileView(),
-                          ),
-                        );
-                      },
-                      onLogoutTap: () => _showLogoutDialog(context, locale),
-                    ),
-                  ),
-
-                  // Quick Stats
-                  SliverToBoxAdapter(
-                    child: _buildQuickStats(viewModel, locale, primaryColor),
-                  ),
-
-                  // Classes / Groups Section
-                  SliverToBoxAdapter(
-                    child: OyunGrubuClassSection(
-                      classes: viewModel.classes,
-                      isLoading: viewModel.isClassesLoading,
-                      locale: locale,
-                      selectedClass: viewModel.selectedClass,
-                      onClassTap: (classItem) {
-                        if (viewModel.selectedClass?.id == classItem.id) {
-                          viewModel.clearSelectedClass();
-                        } else {
-                          viewModel.selectClassAndFetchTimetable(classItem);
-                        }
-                      },
-                    ),
-                  ),
-
-                  // Timetable (shown when a class is selected)
-                  if (viewModel.selectedClass != null)
-                    SliverToBoxAdapter(
-                      child: OyunGrubuTimetableSection(
-                        selectedClass: viewModel.selectedClass,
-                        timetable: viewModel.timetable,
-                        isLoading: viewModel.isTimetableLoading,
-                        locale: locale,
-                        onClose: () => viewModel.clearSelectedClass(),
+            body: Column(
+              children: [
+                // Zone 1 — Compact Header
+                OyunGrubuHomeHeader(
+                  userName: viewModel.user?.name,
+                  locale: locale,
+                  studentCount: viewModel.students?.length ?? 0,
+                  classCount: viewModel.classes?.length ?? 0,
+                  onProfileTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const OyunGrubuProfileView(),
                       ),
-                    ),
+                    );
+                  },
+                  onLogoutTap: () => _showLogoutDialog(context, locale),
+                ),
 
-                  // Upcoming Lessons Section
-                  SliverToBoxAdapter(
-                    child: OyunGrubuLessonSection(
-                      students: viewModel.students,
-                      selectedStudentId: viewModel.selectedStudentIdForLessons,
-                      upcomingLessons:
-                          viewModel.selectedStudentIdForLessons != null
-                          ? viewModel.getStudentLessons(
-                              viewModel.selectedStudentIdForLessons!,
-                            )
-                          : null,
-                      historyLessons:
-                          viewModel.selectedStudentIdForLessons != null
-                          ? viewModel.getStudentHistoryLessons(
-                              viewModel.selectedStudentIdForLessons!,
-                            )
-                          : null,
-                      isLoading: viewModel.isLessonsLoading,
-                      locale: locale,
-                      onStudentSelected: (studentId) {
-                        viewModel.fetchLessonsForStudent(studentId);
-                      },
-                    ),
-                  ),
+                // Zone 2 — Tab Bar
+                _buildTabBar(locale, primaryColor),
 
-                  // Section Title - My Children
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: SizeTokens.p24,
-                        vertical: SizeTokens.p16,
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: SizeTokens.r4,
-                            height: SizeTokens.h24,
-                            decoration: BoxDecoration(
-                              color: primaryColor,
-                              borderRadius: BorderRadius.circular(
-                                SizeTokens.r4,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: SizeTokens.p12),
-                          Text(
-                            AppTranslations.translate('my_children', locale),
-                            style: TextStyle(
-                              fontSize: SizeTokens.f20,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Content
-                  if (viewModel.isLoading)
-                    const SliverFillRemaining(
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  else if (viewModel.errorMessage != null)
-                    SliverFillRemaining(
-                      child: _buildErrorState(viewModel, locale),
-                    )
-                  else if (viewModel.students == null ||
-                      viewModel.students!.isEmpty)
-                    SliverFillRemaining(child: _buildEmptyState(locale))
-                  else
-                    SliverPadding(
-                      padding: EdgeInsets.symmetric(horizontal: SizeTokens.p24),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final student = viewModel.students![index];
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => OyunGrubuStudentDetailView(
-                                    student: student,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: OyunGrubuStudentCard(
-                              student: student,
-                              locale: locale,
-                              onEdit: () async {
-                                context
-                                    .read<OyunGrubuStudentHistoryViewModel>()
-                                    .init(student);
-                                await _showEditBottomSheet(context, locale);
-                                if (context.mounted) {
-                                  context
-                                      .read<OyunGrubuHomeViewModel>()
-                                      .fetchStudents(isSilent: true);
-                                }
-                              },
-                            ),
-                          );
-                        }, childCount: viewModel.students!.length),
-                      ),
-                    ),
-
-                  // Bottom spacing
-                  SliverToBoxAdapter(child: SizedBox(height: SizeTokens.p32)),
-                ],
-              ),
+                // Zone 3 — Tab Content
+                Expanded(
+                  child: _buildTabContent(viewModel, locale, primaryColor),
+                ),
+              ],
             ),
           ),
         );
@@ -223,91 +88,270 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
     );
   }
 
-  Widget _buildQuickStats(
+  Widget _buildTabBar(String locale, Color primaryColor) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(
+        SizeTokens.p24,
+        SizeTokens.p16,
+        SizeTokens.p24,
+        SizeTokens.p8,
+      ),
+      padding: EdgeInsets.all(SizeTokens.p4),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(SizeTokens.r12),
+      ),
+      child: TabBar(
+        controller: _tabController,
+        indicator: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(SizeTokens.r10),
+          boxShadow: [
+            BoxShadow(
+              // ignore: deprecated_member_use
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        indicatorSize: TabBarIndicatorSize.tab,
+        dividerColor: Colors.transparent,
+        labelColor: primaryColor,
+        unselectedLabelColor: Colors.grey.shade500,
+        labelStyle: TextStyle(
+          fontSize: SizeTokens.f12,
+          fontWeight: FontWeight.w700,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontSize: SizeTokens.f12,
+          fontWeight: FontWeight.w500,
+        ),
+        labelPadding: EdgeInsets.zero,
+        tabs: [
+          Tab(
+            height: SizeTokens.h32,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.child_care_rounded, size: SizeTokens.i12),
+                SizedBox(width: SizeTokens.p4),
+                Flexible(
+                  child: Text(
+                    AppTranslations.translate('my_children', locale),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Tab(
+            height: SizeTokens.h32,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.groups_rounded, size: SizeTokens.i12),
+                SizedBox(width: SizeTokens.p4),
+                Flexible(
+                  child: Text(
+                    AppTranslations.translate('groups', locale),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Tab(
+            height: SizeTokens.h32,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.school_rounded, size: SizeTokens.i12),
+                SizedBox(width: SizeTokens.p4),
+                Flexible(
+                  child: Text(
+                    AppTranslations.translate(
+                      'upcoming_lessons',
+                      locale,
+                    ).split(' ').first,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabContent(
     OyunGrubuHomeViewModel viewModel,
     String locale,
     Color primaryColor,
   ) {
-    final studentCount = viewModel.students?.length ?? 0;
-    final classCount = viewModel.classes?.length ?? 0;
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        // Tab 1 — My Children
+        _buildChildrenTab(viewModel, locale, primaryColor),
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: SizeTokens.p24),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildStatCard(
-              icon: Icons.child_care_rounded,
-              value: studentCount.toString(),
-              label: AppTranslations.translate('total_students', locale),
-              color: primaryColor,
+        // Tab 2 — Groups & Schedule
+        _buildGroupsTab(viewModel, locale),
+
+        // Tab 3 — Lessons
+        _buildLessonsTab(viewModel, locale),
+      ],
+    );
+  }
+
+  // ──────────────────────────────────────────
+  // Tab 1: My Children
+  // ──────────────────────────────────────────
+  Widget _buildChildrenTab(
+    OyunGrubuHomeViewModel viewModel,
+    String locale,
+    Color primaryColor,
+  ) {
+    if (viewModel.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (viewModel.errorMessage != null) {
+      return _buildErrorState(viewModel, locale);
+    }
+
+    if (viewModel.students == null || viewModel.students!.isEmpty) {
+      return _buildEmptyState(locale);
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        await Future.wait([
+          viewModel.fetchStudents(),
+          viewModel.fetchClasses(),
+        ]);
+      },
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(
+          horizontal: SizeTokens.p24,
+          vertical: SizeTokens.p8,
+        ),
+        itemCount: viewModel.students!.length,
+        itemBuilder: (context, index) {
+          final student = viewModel.students![index];
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => OyunGrubuStudentDetailView(student: student),
+                ),
+              );
+            },
+            child: OyunGrubuStudentCard(
+              student: student,
+              locale: locale,
+              onEdit: () async {
+                context.read<OyunGrubuStudentHistoryViewModel>().init(student);
+                await _showEditBottomSheet(context, locale);
+                if (context.mounted) {
+                  context.read<OyunGrubuHomeViewModel>().fetchStudents(
+                    isSilent: true,
+                  );
+                }
+              },
             ),
-          ),
-          SizedBox(width: SizeTokens.p16),
-          Expanded(
-            child: _buildStatCard(
-              icon: Icons.groups_rounded,
-              value: classCount > 0 ? classCount.toString() : '-',
-              label: AppTranslations.translate('groups', locale),
-              color: const Color(0xFF6C63FF),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildStatCard({
-    required IconData icon,
-    required String value,
-    required String label,
-    required Color color,
-  }) {
-    return Container(
-      padding: EdgeInsets.all(SizeTokens.p16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(SizeTokens.p8),
-            decoration: BoxDecoration(
-              // ignore: deprecated_member_use
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(SizeTokens.r8),
+  // ──────────────────────────────────────────
+  // Tab 2: Groups & Schedule
+  // ──────────────────────────────────────────
+  Widget _buildGroupsTab(OyunGrubuHomeViewModel viewModel, String locale) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        await viewModel.fetchClasses();
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          children: [
+            // Class groups
+            OyunGrubuClassSection(
+              classes: viewModel.classes,
+              isLoading: viewModel.isClassesLoading,
+              locale: locale,
+              selectedClass: viewModel.selectedClass,
+              onClassTap: (classItem) {
+                if (viewModel.selectedClass?.id == classItem.id) {
+                  viewModel.clearSelectedClass();
+                } else {
+                  viewModel.selectClassAndFetchTimetable(classItem);
+                }
+              },
             ),
-            child: Icon(icon, color: color, size: SizeTokens.i20),
-          ),
-          SizedBox(width: SizeTokens.p12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: SizeTokens.f20,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
+
+            // Timetable (shown when a class is selected)
+            if (viewModel.selectedClass != null)
+              OyunGrubuTimetableSection(
+                selectedClass: viewModel.selectedClass,
+                timetable: viewModel.timetable,
+                isLoading: viewModel.isTimetableLoading,
+                locale: locale,
+                onClose: () => viewModel.clearSelectedClass(),
               ),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: SizeTokens.f12,
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ],
+
+            SizedBox(height: SizeTokens.p32),
+          ],
+        ),
       ),
     );
   }
 
+  // ──────────────────────────────────────────
+  // Tab 3: Lessons
+  // ──────────────────────────────────────────
+  Widget _buildLessonsTab(OyunGrubuHomeViewModel viewModel, String locale) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        await viewModel.fetchStudents();
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: OyunGrubuLessonSection(
+          students: viewModel.students,
+          selectedStudentId: viewModel.selectedStudentIdForLessons,
+          upcomingLessons: viewModel.selectedStudentIdForLessons != null
+              ? viewModel.getStudentLessons(
+                  viewModel.selectedStudentIdForLessons!,
+                )
+              : null,
+          historyLessons: viewModel.selectedStudentIdForLessons != null
+              ? viewModel.getStudentHistoryLessons(
+                  viewModel.selectedStudentIdForLessons!,
+                )
+              : null,
+          isLoading: viewModel.isLessonsLoading,
+          locale: locale,
+          onStudentSelected: (studentId) {
+            viewModel.fetchLessonsForStudent(studentId);
+          },
+        ),
+      ),
+    );
+  }
+
+  // ──────────────────────────────────────────
+  // Shared States
+  // ──────────────────────────────────────────
   Widget _buildErrorState(OyunGrubuHomeViewModel viewModel, String locale) {
     return Center(
       child: Padding(
