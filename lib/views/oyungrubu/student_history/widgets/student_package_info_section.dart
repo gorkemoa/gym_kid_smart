@@ -178,14 +178,6 @@ class StudentPackageInfoSection extends StatelessWidget {
                           color: Colors.grey.shade800,
                         ),
                       ),
-                      SizedBox(height: SizeTokens.p2),
-                      Text(
-                        'ID: ${pkg.packageId ?? '-'}',
-                        style: TextStyle(
-                          fontSize: SizeTokens.f10,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -205,7 +197,9 @@ class StudentPackageInfoSection extends StatelessWidget {
                   total: pkg.totalLessons ?? 0,
                   remaining: pkg.remainingLessons ?? 0,
                   remainingLabel: AppTranslations.translate(
-                      'remaining_lessons', locale),
+                    'remaining_lessons',
+                    locale,
+                  ),
                   progress: pkg.lessonProgress,
                   color: primaryColor,
                 ),
@@ -214,12 +208,16 @@ class StudentPackageInfoSection extends StatelessWidget {
                 // Postponement progress
                 _buildProgressRow(
                   label: AppTranslations.translate(
-                      'postponement_usage', locale),
+                    'postponement_usage',
+                    locale,
+                  ),
                   used: pkg.postponementUsed ?? 0,
                   total: pkg.postponementLimit ?? 0,
                   remaining: pkg.remainingPostponements,
                   remainingLabel: AppTranslations.translate(
-                      'remaining_postponements', locale),
+                    'remaining_postponements',
+                    locale,
+                  ),
                   progress: pkg.postponementProgress,
                   color: const Color(0xFFFF9800),
                 ),
@@ -246,8 +244,7 @@ class StudentPackageInfoSection extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              AppTranslations.translate(
-                                  'date_range', locale),
+                              AppTranslations.translate('date_range', locale),
                               style: TextStyle(
                                 fontSize: SizeTokens.f10,
                                 color: Colors.grey.shade500,

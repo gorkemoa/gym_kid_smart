@@ -86,14 +86,6 @@ class StudentHistoryPackageCard extends StatelessWidget {
                           color: Colors.grey.shade800,
                         ),
                       ),
-                      SizedBox(height: SizeTokens.p2),
-                      Text(
-                        'ID: ${package.id ?? '-'}',
-                        style: TextStyle(
-                          fontSize: SizeTokens.f10,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -136,7 +128,9 @@ class StudentHistoryPackageCard extends StatelessWidget {
                       child: _buildDetailItem(
                         icon: Icons.school_outlined,
                         label: AppTranslations.translate(
-                            'lesson_count', locale),
+                          'lesson_count',
+                          locale,
+                        ),
                         value: '${package.lessonCount ?? 0}',
                         color: primaryColor,
                       ),
@@ -146,7 +140,9 @@ class StudentHistoryPackageCard extends StatelessWidget {
                       child: _buildDetailItem(
                         icon: Icons.schedule_outlined,
                         label: AppTranslations.translate(
-                            'postponement_limit', locale),
+                          'postponement_limit',
+                          locale,
+                        ),
                         value: '${package.postponementLimit ?? 0}',
                         color: const Color(0xFFFF9800),
                       ),
@@ -176,8 +172,7 @@ class StudentHistoryPackageCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              AppTranslations.translate(
-                                  'date_range', locale),
+                              AppTranslations.translate('date_range', locale),
                               style: TextStyle(
                                 fontSize: SizeTokens.f10,
                                 color: Colors.grey.shade500,
