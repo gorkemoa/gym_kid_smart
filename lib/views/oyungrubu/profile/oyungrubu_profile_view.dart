@@ -536,6 +536,7 @@ class _OyunGrubuProfileViewState extends State<OyunGrubuProfileView> {
                   builder: (_) => StudentEditBottomSheet(locale: locale),
                 );
                 if (context.mounted) {
+                  // ignore: use_build_context_synchronously
                   context.read<OyunGrubuProfileViewModel>().fetchProfile(
                     isSilent: true,
                   );
