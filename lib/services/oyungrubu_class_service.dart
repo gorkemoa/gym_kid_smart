@@ -132,4 +132,43 @@ class OyunGrubuClassService {
       return Failure(e.toString());
     }
   }
+
+  Future<ApiResult<bool>> submitAttendance({
+    required int studentId,
+    required String date,
+    required String startTime,
+    required String status,
+    required int lessonId,
+    String? note,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userKey = prefs.getString('oyungrubu_user_key');
+
+      if (userKey == null) {
+        return const Failure('no_credentials');
+      }
+
+      final response = await _apiClient.post(
+        ApiConstants.submitAttendance,
+        body: {
+          'user_key': userKey,
+          'student_id': studentId.toString(),
+          'date': date,
+          'start_time': startTime,
+          'status': status,
+          'lesson_id': lessonId.toString(),
+          'note': note ?? '',
+        },
+      );
+
+      if (response['success'] == 'true' || response['success'] == true) {
+        return const Success(true);
+      }
+      return Failure(response['message']?.toString() ?? 'error_occurred');
+    } catch (e) {
+      AppLogger.error('OyunGrubu submitAttendance failed', e);
+      return Failure(e.toString());
+    }
+  }
 }

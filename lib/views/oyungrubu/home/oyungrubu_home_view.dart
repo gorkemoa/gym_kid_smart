@@ -18,6 +18,7 @@ import '../../../viewmodels/oyungrubu_student_history_view_model.dart';
 import '../student_history/widgets/student_edit_bottom_sheet.dart';
 import 'widgets/lesson_detail_bottom_sheet.dart';
 import '../notifications/oyungrubu_notifications_view.dart';
+import '../../../core/ui_components/common_widgets.dart';
 import '../../../viewmodels/settings_view_model.dart';
 
 class OyunGrubuHomeView extends StatefulWidget {
@@ -30,6 +31,7 @@ class OyunGrubuHomeView extends StatefulWidget {
 class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -58,51 +60,67 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView>
           value: SystemUiOverlayStyle.light,
           child: Scaffold(
             backgroundColor: const Color(0xFFF5F6FA),
-            body: Column(
-              children: [
-                // Zone 1 — Compact Header
-                OyunGrubuHomeHeader(
-                  userName: viewModel.user?.name,
-                  locale: locale,
-                  studentCount: viewModel.students?.length ?? 0,
-                  classCount: viewModel.classes?.length ?? 0,
-                  unreadCount:
-                      viewModel.notifications
-                          ?.where((n) => n.isRead == 0)
-                          .length ??
-                      0,
-                  onProfileTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const OyunGrubuProfileView(),
-                      ),
-                    );
-                  },
-                  onLogoutTap: () => _showLogoutDialog(context, locale),
-                  onNotificationsTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const OyunGrubuNotificationsView(),
-                      ),
-                    );
-                  },
-                ),
-
-                // Zone 2 — Tab Bar
-                _buildTabBar(locale, primaryColor),
-
-                // Zone 3 — Tab Content
-                Expanded(
-                  child: _buildTabContent(viewModel, locale, primaryColor),
-                ),
-              ],
+            body: _buildBody(viewModel, splashVM, locale, primaryColor),
+            bottomNavigationBar: OyunGrubuBottomNavBar(
+              currentIndex: _currentIndex,
+              onTap: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
             ),
           ),
         );
       },
     );
+  }
+
+  Widget _buildBody(
+    OyunGrubuHomeViewModel viewModel,
+    SplashViewModel splashVM,
+    String locale,
+    Color primaryColor,
+  ) {
+    switch (_currentIndex) {
+      case 0:
+        return Column(
+          children: [
+            // Zone 1 — Compact Header
+            OyunGrubuHomeHeader(
+              userName: viewModel.user?.name,
+              locale: locale,
+              studentCount: viewModel.students?.length ?? 0,
+              classCount: viewModel.classes?.length ?? 0,
+              unreadCount:
+                  viewModel.notifications?.where((n) => n.isRead == 0).length ??
+                  0,
+              onProfileTap: () {
+                setState(() {
+                  _currentIndex = 2;
+                });
+              },
+              onLogoutTap: () => _showLogoutDialog(context, locale),
+              onNotificationsTap: () {
+                setState(() {
+                  _currentIndex = 1;
+                });
+              },
+            ),
+
+            // Zone 2 — Tab Bar
+            _buildTabBar(locale, primaryColor),
+
+            // Zone 3 — Tab Content
+            Expanded(child: _buildTabContent(viewModel, locale, primaryColor)),
+          ],
+        );
+      case 1:
+        return const OyunGrubuNotificationsView(isTab: true);
+      case 2:
+        return const OyunGrubuProfileView(isTab: true);
+      default:
+        return const SizedBox.shrink();
+    }
   }
 
   Widget _buildTabBar(String locale, Color primaryColor) {
@@ -388,8 +406,30 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView>
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
-                  builder: (_) =>
-                      LessonDetailBottomSheet(detail: detail, locale: locale),
+                  builder: (_) => LessonDetailBottomSheet(
+                    detail: detail,
+                    locale: locale,
+                    studentId: viewModel.selectedStudentIdForLessons!,
+                    startTime: lesson.startTime,
+                    onSubmitAttendance:
+                        ({
+                          required int studentId,
+                          required String date,
+                          required String startTime,
+                          required String status,
+                          required int lessonId,
+                          String? note,
+                        }) {
+                          return viewModel.submitAttendance(
+                            studentId: studentId,
+                            date: date,
+                            startTime: startTime,
+                            status: status,
+                            lessonId: lessonId,
+                            note: note,
+                          );
+                        },
+                  ),
                 );
               }
             }

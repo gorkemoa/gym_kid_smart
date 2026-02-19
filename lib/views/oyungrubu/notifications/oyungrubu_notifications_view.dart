@@ -6,7 +6,8 @@ import '../../../../models/oyungrubu_notification_model.dart';
 import '../../../../viewmodels/oyungrubu_notifications_view_model.dart';
 
 class OyunGrubuNotificationsView extends StatefulWidget {
-  const OyunGrubuNotificationsView({super.key});
+  final bool isTab;
+  const OyunGrubuNotificationsView({super.key, this.isTab = false});
 
   @override
   State<OyunGrubuNotificationsView> createState() =>
@@ -42,14 +43,16 @@ class _OyunGrubuNotificationsViewState
         backgroundColor: primaryColor,
         elevation: 0,
         centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Colors.white,
-            size: SizeTokens.i20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: widget.isTab
+            ? null
+            : IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                  size: SizeTokens.i20,
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
       ),
       body: Consumer<OyunGrubuNotificationsViewModel>(
         builder: (context, viewModel, child) {

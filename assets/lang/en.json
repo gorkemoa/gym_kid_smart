@@ -261,6 +261,8 @@
     "weekday_6": "Saturday",
     "weekday_7": "Sunday",
     "pending": "Pending",
+    "lesson_pending": "Lesson Pending",
+    "student_pending": "Awaiting Approval",
     "completed": "Completed",
     "notifications": "Notifications",
     "no_notifications_yet": "No notifications yet.",
@@ -275,5 +277,11 @@
     "active_and_past": "Active and Past Packages",
     "activity": "Activities",
     "update_info": "Update Info",
-    "quick_actions": "Quick Actions"
+    "quick_actions": "Quick Actions",
+    "will_attend": "I Will Attend",
+    "will_not_attend": "I Won't Attend",
+    "attendance_note": "Note (optional)",
+    "attendance_submitted": "Your attendance has been submitted.",
+    "attend_confirmation": "Are you sure you will attend this lesson?",
+    "not_coming_confirmation": "Are you sure you won't attend this lesson?"
 }

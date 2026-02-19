@@ -261,6 +261,8 @@
     "weekday_6": "Cumartesi",
     "weekday_7": "Pazar",
     "pending": "Bekliyor",
+    "lesson_pending": "Ders Bekliyor",
+    "student_pending": "Onay Bekliyor",
     "completed": "Tamamlandı",
     "notifications": "Bildirimler",
     "no_notifications_yet": "Henüz bildiriminiz yok.",
@@ -279,5 +281,11 @@
     "activity": "Aktiviteler",
     "update_info": "Bilgileri Güncelle",
     "quick_actions": "Hızlı Aksiyonlar",
-    "package_owerview": "Paket Genel Bakış"
+    "package_owerview": "Paket Genel Bakış",
+    "will_attend": "Geleceğim",
+    "will_not_attend": "Gelemeyeceğim",
+    "attendance_note": "Not (isteğe bağlı)",
+    "attendance_submitted": "Katılım bildiriminiz gönderildi.",
+    "attend_confirmation": "Bu derse katılacağınızı onaylıyor musunuz?",
+    "not_coming_confirmation": "Bu derse gelemeyeceğinizi bildirmek istiyor musunuz?"
 }

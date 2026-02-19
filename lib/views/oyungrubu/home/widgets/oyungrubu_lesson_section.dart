@@ -301,7 +301,6 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
     Color primaryColor,
   ) {
     final isCancelled = lesson.isCancelled == true;
-    final statusColor = _getStatusColor(lesson.lessonStatus, isCancelled);
 
     final startTime = _formatTime(lesson.startTime);
     final endTime = _formatTime(lesson.endTime);
@@ -457,28 +456,32 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
               ),
             ),
 
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: SizeTokens.p10,
-                vertical: SizeTokens.p6,
-              ),
-              decoration: BoxDecoration(
-                // ignore: deprecated_member_use
-                color: statusColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(SizeTokens.r8),
-              ),
-              child: Text(
-                _getStatusLabel(
-                  lesson.lessonStatus,
-                  isCancelled,
-                  widget.locale,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _buildStatusBadge(
+                  label: _getLessonStatusLabel(
+                    lesson.lessonStatus,
+                    isCancelled,
+                    widget.locale,
+                  ),
+                  color: _getLessonStatusColor(
+                    lesson.lessonStatus,
+                    isCancelled,
+                  ),
                 ),
-                style: TextStyle(
-                  fontSize: SizeTokens.f10,
-                  fontWeight: FontWeight.w700,
-                  color: statusColor,
-                ),
-              ),
+                if (lesson.studentStatus != null &&
+                    lesson.studentStatus!.isNotEmpty) ...[
+                  SizedBox(height: SizeTokens.p4),
+                  _buildStatusBadge(
+                    label: _getStudentStatusLabel(
+                      lesson.studentStatus,
+                      widget.locale,
+                    ),
+                    color: _getStudentStatusColor(lesson.studentStatus),
+                  ),
+                ],
+              ],
             ),
           ],
         ),
@@ -526,7 +529,29 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
     }
   }
 
-  Color _getStatusColor(String? status, bool isCancelled) {
+  Widget _buildStatusBadge({required String label, required Color color}) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: SizeTokens.p10,
+        vertical: SizeTokens.p6,
+      ),
+      decoration: BoxDecoration(
+        // ignore: deprecated_member_use
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(SizeTokens.r8),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: SizeTokens.f10,
+          fontWeight: FontWeight.w700,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Color _getLessonStatusColor(String? status, bool isCancelled) {
     if (isCancelled) return Colors.red.shade500;
     switch (status) {
       case 'completed':
@@ -538,15 +563,35 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
     }
   }
 
-  String _getStatusLabel(String? status, bool isCancelled, String locale) {
+  String _getLessonStatusLabel(
+    String? status,
+    bool isCancelled,
+    String locale,
+  ) {
     if (isCancelled) return AppTranslations.translate('cancelled', locale);
     switch (status) {
       case 'completed':
         return AppTranslations.translate('completed', locale);
       case 'pending':
-        return AppTranslations.translate('pending', locale);
+        return AppTranslations.translate('lesson_pending', locale);
       default:
         return status ?? '-';
     }
+  }
+
+  Color _getStudentStatusColor(String? status) {
+    switch (status) {
+      case 'pending':
+        return Colors.orange.shade600;
+      default:
+        return Colors.blue.shade600;
+    }
+  }
+
+  String _getStudentStatusLabel(String? status, String locale) {
+    if (status == 'pending') {
+      return AppTranslations.translate('student_pending', locale);
+    }
+    return AppTranslations.translate(status ?? '', locale);
   }
 }

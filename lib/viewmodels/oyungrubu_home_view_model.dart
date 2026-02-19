@@ -216,6 +216,31 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
     }
   }
 
+  Future<bool> submitAttendance({
+    required int studentId,
+    required String date,
+    required String startTime,
+    required String status,
+    required int lessonId,
+    String? note,
+  }) async {
+    final result = await _classService.submitAttendance(
+      studentId: studentId,
+      date: date,
+      startTime: startTime,
+      status: status,
+      lessonId: lessonId,
+      note: note,
+    );
+
+    if (result is Success<bool>) {
+      // Refresh lessons silently
+      fetchLessonsForStudent(studentId);
+      return true;
+    }
+    return false;
+  }
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();

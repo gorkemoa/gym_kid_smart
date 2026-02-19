@@ -9,7 +9,8 @@ import '../student_history/widgets/student_edit_bottom_sheet.dart';
 import '../../../viewmodels/oyungrubu_student_history_view_model.dart';
 
 class OyunGrubuProfileView extends StatefulWidget {
-  const OyunGrubuProfileView({super.key});
+  final bool isTab;
+  const OyunGrubuProfileView({super.key, this.isTab = false});
 
   @override
   State<OyunGrubuProfileView> createState() => _OyunGrubuProfileViewState();
@@ -89,23 +90,25 @@ class _OyunGrubuProfileViewState extends State<OyunGrubuProfileView> {
             // Navigation bar
             Row(
               children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    padding: EdgeInsets.all(SizeTokens.p8),
-                    decoration: BoxDecoration(
-                      // ignore: deprecated_member_use
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(SizeTokens.r12),
-                    ),
-                    child: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Colors.white,
-                      size: SizeTokens.i20,
+                if (!widget.isTab) ...[
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: EdgeInsets.all(SizeTokens.p8),
+                      decoration: BoxDecoration(
+                        // ignore: deprecated_member_use
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(SizeTokens.r12),
+                      ),
+                      child: Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: Colors.white,
+                        size: SizeTokens.i20,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(width: SizeTokens.p12),
+                  SizedBox(width: SizeTokens.p12),
+                ],
                 Expanded(
                   child: Text(
                     AppTranslations.translate('profile_title', locale),

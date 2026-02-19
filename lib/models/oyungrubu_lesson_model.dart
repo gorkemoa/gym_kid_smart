@@ -8,6 +8,7 @@ class OyunGrubuLessonModel {
   final String? groupName;
   final bool? isCancelled;
   final String? lessonStatus;
+  final String? studentStatus;
 
   OyunGrubuLessonModel({
     this.date,
@@ -19,6 +20,7 @@ class OyunGrubuLessonModel {
     this.groupName,
     this.isCancelled,
     this.lessonStatus,
+    this.studentStatus,
   });
 
   factory OyunGrubuLessonModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class OyunGrubuLessonModel {
       groupName: json['group_name'] as String?,
       isCancelled: json['is_cancelled'] as bool?,
       lessonStatus: json['lesson_status'] as String?,
+      studentStatus: json['student_status'] as String?,
     );
   }
 
@@ -46,6 +49,7 @@ class OyunGrubuLessonModel {
       'group_name': groupName,
       'is_cancelled': isCancelled,
       'lesson_status': lessonStatus,
+      'student_status': studentStatus,
     };
   }
 }

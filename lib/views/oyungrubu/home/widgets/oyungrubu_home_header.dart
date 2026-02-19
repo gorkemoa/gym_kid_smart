@@ -60,17 +60,6 @@ class OyunGrubuHomeHeader extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Image.asset(
-                    'assets/app-logo.jpg',
-                    height: SizeTokens.h32,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => Icon(
-                      Icons.child_care,
-                      size: SizeTokens.i32,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(width: SizeTokens.p10),
                   Text(
                     AppTranslations.translate('oyun_grubu', locale),
                     style: TextStyle(
@@ -83,30 +72,6 @@ class OyunGrubuHomeHeader extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Stack(
-                    children: [
-                      _buildHeaderIconButton(
-                        icon: Icons.notifications_none_rounded,
-                        onTap: onNotificationsTap,
-                      ),
-                      if (unreadCount > 0)
-                        Positioned(
-                          right: SizeTokens.p4,
-                          top: SizeTokens.p4,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            constraints: const BoxConstraints(
-                              minWidth: 12,
-                              minHeight: 12,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
                   SizedBox(width: SizeTokens.p8),
                   _buildHeaderIconButton(
                     icon: Icons.person_outline_rounded,
