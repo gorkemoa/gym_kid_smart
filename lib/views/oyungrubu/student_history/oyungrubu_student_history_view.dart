@@ -35,14 +35,12 @@ class _OyunGrubuStudentHistoryViewState
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         context.read<OyunGrubuStudentHistoryViewModel>().setTab(
-              _tabController.index,
-            );
+          _tabController.index,
+        );
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context
-          .read<OyunGrubuStudentHistoryViewModel>()
-          .init(widget.student);
+      context.read<OyunGrubuStudentHistoryViewModel>().init(widget.student);
     });
   }
 
@@ -62,6 +60,7 @@ class _OyunGrubuStudentHistoryViewState
         return Scaffold(
           backgroundColor: const Color(0xFFF5F6FA),
           body: SafeArea(
+            top: false,
             child: RefreshIndicator(
               onRefresh: () async {
                 await Future.wait([
@@ -107,7 +106,8 @@ class _OyunGrubuStudentHistoryViewState
                   if (!viewModel.isLoading &&
                       viewModel.errorMessage == null &&
                       viewModel.packageInfoList != null &&
-                      (viewModel.packageInfoList!.isNotEmpty || viewModel.makeupBalance > 0))
+                      (viewModel.packageInfoList!.isNotEmpty ||
+                          viewModel.makeupBalance > 0))
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(
@@ -116,23 +116,9 @@ class _OyunGrubuStudentHistoryViewState
                           SizeTokens.p24,
                           SizeTokens.p8,
                         ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.assignment_outlined,
-                              size: SizeTokens.i18,
-                              color: Colors.grey.shade700,
-                            ),
-                            SizedBox(width: SizeTokens.p8),
-                            Text(
-                              AppTranslations.translate('package_details', locale),
-                              style: TextStyle(
-                                fontSize: SizeTokens.f16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey.shade800,
-                              ),
-                            ),
-                          ],
+                        child: _buildSectionTitle(
+                          Icons.assignment_outlined,
+                          AppTranslations.translate('package_details', locale),
                         ),
                       ),
                     ),
@@ -141,7 +127,8 @@ class _OyunGrubuStudentHistoryViewState
                   if (!viewModel.isLoading &&
                       viewModel.errorMessage == null &&
                       viewModel.packageInfoList != null &&
-                      (viewModel.packageInfoList!.isNotEmpty || viewModel.makeupBalance > 0))
+                      (viewModel.packageInfoList!.isNotEmpty ||
+                          viewModel.makeupBalance > 0))
                     SliverToBoxAdapter(
                       child: StudentPackageInfoSection(
                         packages: viewModel.packageInfoList!,
@@ -151,7 +138,7 @@ class _OyunGrubuStudentHistoryViewState
                       ),
                     ),
 
-                  // Tab bar Title
+                  // Activity title
                   if (!viewModel.isLoading && viewModel.errorMessage == null)
                     SliverToBoxAdapter(
                       child: Padding(
@@ -159,95 +146,147 @@ class _OyunGrubuStudentHistoryViewState
                           SizeTokens.p24,
                           SizeTokens.p24,
                           SizeTokens.p24,
-                          SizeTokens.p0,
+                          SizeTokens.p8,
                         ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.timeline_rounded,
-                              size: SizeTokens.i18,
-                              color: Colors.grey.shade700,
-                            ),
-                            SizedBox(width: SizeTokens.p8),
-                            Text(
-                              AppTranslations.translate('activity_history', locale),
-                              style: TextStyle(
-                                fontSize: SizeTokens.f16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey.shade800,
-                              ),
-                            ),
-                          ],
+                        child: _buildSectionTitle(
+                          Icons.timeline_rounded,
+                          AppTranslations.translate('activity_history', locale),
                         ),
                       ),
                     ),
 
-                  // Tab bar
+                  // Tab bar — Styled
                   SliverPersistentHeader(
                     pinned: true,
-                    delegate: _TabBarDelegate(
-                      tabBar: TabBar(
-                        controller: _tabController,
-                        labelColor: primaryColor,
-                        unselectedLabelColor: Colors.grey.shade500,
-                        indicatorColor: primaryColor,
-                        indicatorWeight: 3,
-                        labelStyle: TextStyle(
-                          fontSize: SizeTokens.f14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        unselectedLabelStyle: TextStyle(
-                          fontSize: SizeTokens.f14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        tabs: [
-                          Tab(
-                            text: AppTranslations.translate(
-                                'activity_logs', locale),
-                          ),
-                          Tab(
-                            text: AppTranslations.translate(
-                                'active_packages', locale),
-                          ),
-                          Tab(
-                            text: AppTranslations.translate(
-                                'expired_packages', locale),
-                          ),
-                        ],
-                      ),
+                    delegate: _StyledTabBarDelegate(
+                      tabBar: _buildStyledTabBar(locale, primaryColor),
                     ),
                   ),
                 ],
                 body: viewModel.isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : viewModel.errorMessage != null
-                        ? _buildErrorState(viewModel, locale)
-                        : TabBarView(
-                            controller: _tabController,
-                            children: [
-                              // Activity logs tab
-                              _buildActivityLogsTab(viewModel, locale),
-                              // Active packages tab
-                              _buildPackagesTab(
-                                viewModel.activePackages,
-                                locale,
-                                primaryColor,
-                                isActive: true,
-                              ),
-                              // Expired packages tab
-                              _buildPackagesTab(
-                                viewModel.expiredPackages,
-                                locale,
-                                primaryColor,
-                                isActive: false,
-                              ),
-                            ],
+                    ? _buildErrorState(viewModel, locale)
+                    : TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildActivityLogsTab(viewModel, locale),
+                          _buildPackagesTab(
+                            viewModel.activePackages,
+                            locale,
+                            primaryColor,
+                            isActive: true,
                           ),
+                          _buildPackagesTab(
+                            viewModel.expiredPackages,
+                            locale,
+                            primaryColor,
+                            isActive: false,
+                          ),
+                        ],
+                      ),
               ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSectionTitle(IconData icon, String title) {
+    return Row(
+      children: [
+        Container(
+          width: SizeTokens.r4,
+          height: SizeTokens.h20,
+          decoration: BoxDecoration(
+            color: const Color(0xFF6C63FF),
+            borderRadius: BorderRadius.circular(SizeTokens.r4),
+          ),
+        ),
+        SizedBox(width: SizeTokens.p10),
+        Icon(icon, size: SizeTokens.i18, color: Colors.grey.shade700),
+        SizedBox(width: SizeTokens.p8),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: SizeTokens.f16,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey.shade800,
+            letterSpacing: -0.3,
+          ),
+        ),
+      ],
+    );
+  }
+
+  TabBar _buildStyledTabBar(String locale, Color primaryColor) {
+    return TabBar(
+      controller: _tabController,
+      labelColor: primaryColor,
+      unselectedLabelColor: Colors.grey.shade500,
+      indicatorColor: primaryColor,
+      indicatorWeight: 3,
+      indicatorSize: TabBarIndicatorSize.label,
+      dividerColor: Colors.grey.shade200,
+      labelStyle: TextStyle(
+        fontSize: SizeTokens.f12,
+        fontWeight: FontWeight.w700,
+      ),
+      unselectedLabelStyle: TextStyle(
+        fontSize: SizeTokens.f12,
+        fontWeight: FontWeight.w500,
+      ),
+      tabs: [
+        Tab(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.history_rounded, size: SizeTokens.i12),
+              SizedBox(width: SizeTokens.p4),
+              Flexible(
+                child: Text(
+                  AppTranslations.translate('activity_logs', locale),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Tab(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.check_circle_outline_rounded, size: SizeTokens.i12),
+              SizedBox(width: SizeTokens.p4),
+              Flexible(
+                child: Text(
+                  AppTranslations.translate('active_packages', locale),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Tab(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.archive_outlined, size: SizeTokens.i12),
+              SizedBox(width: SizeTokens.p4),
+              Flexible(
+                child: Text(
+                  AppTranslations.translate('expired_packages', locale),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -267,10 +306,7 @@ class _OyunGrubuStudentHistoryViewState
       padding: EdgeInsets.all(SizeTokens.p16),
       itemCount: logs.length,
       itemBuilder: (context, index) {
-        return StudentHistoryActivityCard(
-          log: logs[index],
-          locale: locale,
-        );
+        return StudentHistoryActivityCard(log: logs[index], locale: locale);
       },
     );
   }
@@ -309,13 +345,24 @@ class _OyunGrubuStudentHistoryViewState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: SizeTokens.i64, color: Colors.grey.shade300),
+          Container(
+            padding: EdgeInsets.all(SizeTokens.p24),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              size: SizeTokens.i48,
+              color: Colors.grey.shade300,
+            ),
+          ),
           SizedBox(height: SizeTokens.p16),
           Text(
             message,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: SizeTokens.f16,
+              fontSize: SizeTokens.f14,
               fontWeight: FontWeight.w500,
               color: Colors.grey.shade600,
             ),
@@ -371,10 +418,10 @@ class _OyunGrubuStudentHistoryViewState
   }
 }
 
-class _TabBarDelegate extends SliverPersistentHeaderDelegate {
+class _StyledTabBarDelegate extends SliverPersistentHeaderDelegate {
   final TabBar tabBar;
 
-  _TabBarDelegate({required this.tabBar});
+  _StyledTabBarDelegate({required this.tabBar});
 
   @override
   Widget build(
@@ -382,10 +429,7 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Container(
-      color: const Color(0xFFF5F6FA),
-      child: tabBar,
-    );
+    return Container(color: const Color(0xFFF5F6FA), child: tabBar);
   }
 
   @override
@@ -395,5 +439,5 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => tabBar.preferredSize.height;
 
   @override
-  bool shouldRebuild(covariant _TabBarDelegate oldDelegate) => false;
+  bool shouldRebuild(covariant _StyledTabBarDelegate oldDelegate) => false;
 }

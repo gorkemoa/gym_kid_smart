@@ -5,9 +5,9 @@ import '../../../core/responsive/size_tokens.dart';
 import '../../../core/utils/app_translations.dart';
 import '../../../models/oyungrubu_student_model.dart';
 import '../../../viewmodels/oyungrubu_student_history_view_model.dart';
-import '../../../viewmodels/oyungrubu_home_view_model.dart';
 import '../../../viewmodels/splash_view_model.dart';
 import '../student_history/widgets/student_edit_bottom_sheet.dart';
+import '../student_history/widgets/student_history_header.dart';
 import 'student_profile_detail_view.dart';
 import 'student_package_detail_view.dart';
 import 'student_activity_detail_view.dart';
@@ -28,9 +28,7 @@ class _OyunGrubuStudentDetailViewState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context
-          .read<OyunGrubuStudentHistoryViewModel>()
-          .init(widget.student);
+      context.read<OyunGrubuStudentHistoryViewModel>().init(widget.student);
     });
   }
 
@@ -40,7 +38,7 @@ class _OyunGrubuStudentDetailViewState
       builder: (context, viewModel, splashVM, child) {
         final locale = splashVM.locale.languageCode;
         final primaryColor = Theme.of(context).colorScheme.primary;
-        final student = viewModel.student ?? widget.student;
+        final currentStudent = viewModel.student ?? widget.student;
 
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: SystemUiOverlayStyle.light,
@@ -49,98 +47,26 @@ class _OyunGrubuStudentDetailViewState
             body: Column(
               children: [
                 // Header
-                _buildHeader(context, student, locale, primaryColor),
+                StudentHistoryHeader(
+                  student: currentStudent,
+                  locale: locale,
+                  onBackTap: () => Navigator.pop(context),
+                  onEditTap: () => _showEditBottomSheet(context, locale),
+                ),
 
-                // Grid Menu
+                // Grid options
                 Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.all(SizeTokens.p24),
-                    child: GridView.count(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: SizeTokens.p16,
-                      crossAxisSpacing: SizeTokens.p16,
-                      childAspectRatio: 1.0,
-                      children: [
-                        _buildGridItem(
+                  child: viewModel.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : viewModel.errorMessage != null
+                      ? _buildErrorState(viewModel, locale)
+                      : _buildOptionGrid(
                           context,
-                          icon: Icons.person_rounded,
-                          label: AppTranslations.translate(
-                              'profile_info', locale),
-                          description: AppTranslations.translate(
-                              'profile_info_desc', locale),
-                          color: const Color(0xFF4CAF50),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => StudentProfileDetailView(
-                                  student: student,
-                                ),
-                              ),
-                            );
-                          },
+                          currentStudent,
+                          locale,
+                          primaryColor,
+                          viewModel,
                         ),
-                        _buildGridItem(
-                          context,
-                          icon: Icons.inventory_2_rounded,
-                          label: AppTranslations.translate(
-                              'package_info', locale),
-                          description: AppTranslations.translate(
-                              'package_info_desc', locale),
-                          color: const Color(0xFF6C63FF),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => StudentPackageDetailView(
-                                  student: student,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        _buildGridItem(
-                          context,
-                          icon: Icons.timeline_rounded,
-                          label: AppTranslations.translate(
-                              'activity_history', locale),
-                          description: AppTranslations.translate(
-                              'activity_history_desc', locale),
-                          color: const Color(0xFFFF9800),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => StudentActivityDetailView(
-                                  student: student,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        _buildGridItem(
-                          context,
-                          icon: Icons.edit_rounded,
-                          label: AppTranslations.translate(
-                              'edit_student', locale),
-                          description: AppTranslations.translate(
-                              'edit_student_desc', locale),
-                          color: const Color(0xFFE91E63),
-                          onTap: () async {
-                            await _showEditBottomSheet(context, locale);
-                            if (context.mounted) {
-                              context
-                                  .read<OyunGrubuStudentHistoryViewModel>()
-                                  .fetchHistory(isSilent: true);
-                              context
-                                  .read<OyunGrubuHomeViewModel>()
-                                  .fetchStudents(isSilent: true);
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -150,262 +76,169 @@ class _OyunGrubuStudentDetailViewState
     );
   }
 
-  Widget _buildHeader(
+  Widget _buildOptionGrid(
     BuildContext context,
     OyunGrubuStudentModel student,
     String locale,
     Color primaryColor,
+    OyunGrubuStudentHistoryViewModel viewModel,
   ) {
-    final fullName =
-        '${student.name ?? ''} ${student.surname ?? ''}'.trim();
-    final topPadding = MediaQuery.of(context).padding.top;
-
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            primaryColor,
-            // ignore: deprecated_member_use
-            primaryColor.withOpacity(0.85),
-          ],
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(SizeTokens.r32),
-          bottomRight: Radius.circular(SizeTokens.r32),
+    final items = [
+      _GridItem(
+        icon: Icons.person_outline_rounded,
+        label: AppTranslations.translate('profile', locale),
+        subtitle: AppTranslations.translate('personal_info', locale),
+        color: const Color(0xFF6C63FF),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => StudentProfileDetailView(student: student),
+          ),
         ),
       ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          SizeTokens.p16,
-          topPadding + SizeTokens.p8,
-          SizeTokens.p16,
-          SizeTokens.p24,
+      _GridItem(
+        icon: Icons.inventory_2_outlined,
+        label: AppTranslations.translate('packages', locale),
+        subtitle: AppTranslations.translate('active_and_past', locale),
+        color: const Color(0xFFFF6B6B),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => StudentPackageDetailView(student: student),
+          ),
         ),
-        child: Column(
+      ),
+      _GridItem(
+        icon: Icons.timeline_rounded,
+        label: AppTranslations.translate('activity', locale),
+        subtitle: AppTranslations.translate('lesson_history', locale),
+        color: const Color(0xFF4CAF50),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => StudentActivityDetailView(student: student),
+          ),
+        ),
+      ),
+      _GridItem(
+        icon: Icons.edit_note_rounded,
+        label: AppTranslations.translate('edit', locale),
+        subtitle: AppTranslations.translate('update_info', locale),
+        color: const Color(0xFFFF9800),
+        onTap: () => _showEditBottomSheet(context, locale),
+      ),
+    ];
+
+    return ListView(
+      padding: EdgeInsets.fromLTRB(
+        SizeTokens.p24,
+        SizeTokens.p24,
+        SizeTokens.p24,
+        SizeTokens.p32,
+      ),
+      children: [
+        // Section title
+        Row(
           children: [
-            // Top row with back button
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    padding: EdgeInsets.all(SizeTokens.p8),
-                    decoration: BoxDecoration(
-                      // ignore: deprecated_member_use
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(SizeTokens.r12),
-                    ),
-                    child: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Colors.white,
-                      size: SizeTokens.i20,
-                    ),
-                  ),
-                ),
-                SizedBox(width: SizeTokens.p12),
-                Expanded(
-                  child: Text(
-                    AppTranslations.translate('student_menu', locale),
-                    style: TextStyle(
-                      fontSize: SizeTokens.f20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                // Gender icon
-                Container(
-                  padding: EdgeInsets.all(SizeTokens.p8),
-                  decoration: BoxDecoration(
-                    // ignore: deprecated_member_use
-                    color: Colors.white.withOpacity(0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    student.gender == 1
-                        ? Icons.boy_rounded
-                        : Icons.girl_rounded,
-                    color: Colors.white,
-                    size: SizeTokens.i20,
-                  ),
-                ),
-              ],
+            Container(
+              width: SizeTokens.r4,
+              height: SizeTokens.h20,
+              decoration: BoxDecoration(
+                color: const Color(0xFF6C63FF),
+                borderRadius: BorderRadius.circular(SizeTokens.r4),
+              ),
             ),
-            SizedBox(height: SizeTokens.p20),
-
-            // Student info row
-            Row(
-              children: [
-                // Avatar
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      // ignore: deprecated_member_use
-                      color: Colors.white.withOpacity(0.4),
-                      width: 3,
-                    ),
-                  ),
-                  child: CircleAvatar(
-                    radius: SizeTokens.r32,
-                    backgroundColor: Colors.white24,
-                    backgroundImage: _hasPhoto(student)
-                        ? NetworkImage(student.photo!)
-                        : null,
-                    child: !_hasPhoto(student)
-                        ? Icon(
-                            Icons.child_care_rounded,
-                            color: Colors.white,
-                            size: SizeTokens.i32,
-                          )
-                        : null,
-                  ),
-                ),
-                SizedBox(width: SizeTokens.p16),
-
-                // Name & group
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        fullName.isNotEmpty
-                            ? fullName
-                            : AppTranslations.translate('student', locale),
-                        style: TextStyle(
-                          fontSize: SizeTokens.f20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(height: SizeTokens.p8),
-                      Row(
-                        children: [
-                          if (student.groupName != null &&
-                              student.groupName!.isNotEmpty)
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: SizeTokens.p10,
-                                vertical: SizeTokens.p4,
-                              ),
-                              decoration: BoxDecoration(
-                                // ignore: deprecated_member_use
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius:
-                                    BorderRadius.circular(SizeTokens.r8),
-                              ),
-                              child: Text(
-                                student.groupName!,
-                                style: TextStyle(
-                                  fontSize: SizeTokens.f12,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          if (student.status != null) ...[
-                            SizedBox(width: SizeTokens.p8),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: SizeTokens.p10,
-                                vertical: SizeTokens.p4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: student.status == 1
-                                    // ignore: deprecated_member_use
-                                    ? Colors.greenAccent.withOpacity(0.3)
-                                    // ignore: deprecated_member_use
-                                    : Colors.orangeAccent.withOpacity(0.3),
-                                borderRadius:
-                                    BorderRadius.circular(SizeTokens.r8),
-                              ),
-                              child: Text(
-                                student.status == 1
-                                    ? AppTranslations.translate(
-                                        'active', locale)
-                                    : AppTranslations.translate(
-                                        'expired', locale),
-                                style: TextStyle(
-                                  fontSize: SizeTokens.f12,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            SizedBox(width: SizeTokens.p10),
+            Text(
+              AppTranslations.translate('quick_actions', locale),
+              style: TextStyle(
+                fontSize: SizeTokens.f16,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey.shade800,
+                letterSpacing: -0.3,
+              ),
             ),
           ],
         ),
-      ),
+        SizedBox(height: SizeTokens.p16),
+
+        // 2x2 Grid
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: SizeTokens.p16,
+            crossAxisSpacing: SizeTokens.p16,
+            childAspectRatio: 1.0,
+          ),
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            final item = items[index];
+            return _buildGridCard(item, primaryColor);
+          },
+        ),
+
+        // Quick stats
+        SizedBox(height: SizeTokens.p24),
+        _buildQuickStatsRow(viewModel, locale),
+      ],
     );
   }
 
-  Widget _buildGridItem(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required String description,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildGridCard(_GridItem item, Color primaryColor) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: item.onTap,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(SizeTokens.r20),
+          border: Border.all(color: Colors.grey.shade100, width: 1),
           boxShadow: [
             BoxShadow(
               // ignore: deprecated_member_use
-              color: color.withOpacity(0.10),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+              color: item.color.withOpacity(0.06),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
         child: Padding(
           padding: EdgeInsets.all(SizeTokens.p16),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Icon
               Container(
-                padding: EdgeInsets.all(SizeTokens.p14),
+                padding: EdgeInsets.all(SizeTokens.p12),
                 decoration: BoxDecoration(
                   // ignore: deprecated_member_use
-                  color: color.withOpacity(0.1),
+                  color: item.color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(SizeTokens.r16),
                 ),
-                child: Icon(icon, color: color, size: SizeTokens.i32),
+                child: Icon(item.icon, color: item.color, size: SizeTokens.i24),
               ),
-              SizedBox(height: SizeTokens.p12),
+              const Spacer(),
+              // Title
               Text(
-                label,
-                textAlign: TextAlign.center,
+                item.label,
                 style: TextStyle(
-                  fontSize: SizeTokens.f14,
+                  fontSize: SizeTokens.f16,
                   fontWeight: FontWeight.w700,
                   color: Colors.grey.shade800,
                 ),
               ),
               SizedBox(height: SizeTokens.p4),
+              // Subtitle
               Text(
-                description,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                item.subtitle,
                 style: TextStyle(
                   fontSize: SizeTokens.f10,
+                  fontWeight: FontWeight.w500,
                   color: Colors.grey.shade500,
-                  fontWeight: FontWeight.w400,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -414,17 +247,157 @@ class _OyunGrubuStudentDetailViewState
     );
   }
 
-  bool _hasPhoto(OyunGrubuStudentModel student) {
-    return student.photo != null && student.photo != 'default_student.jpg';
+  Widget _buildQuickStatsRow(
+    OyunGrubuStudentHistoryViewModel viewModel,
+    String locale,
+  ) {
+    return Container(
+      padding: EdgeInsets.all(SizeTokens.p16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(SizeTokens.r16),
+        boxShadow: [
+          BoxShadow(
+            // ignore: deprecated_member_use
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildStatItem(
+              icon: Icons.check_circle_outline_rounded,
+              value: viewModel.attendedCount.toString(),
+              label: AppTranslations.translate('attended', locale),
+              color: const Color(0xFF4CAF50),
+            ),
+          ),
+          _buildVerticalDivider(),
+          Expanded(
+            child: _buildStatItem(
+              icon: Icons.cancel_outlined,
+              value: viewModel.absentCount.toString(),
+              label: AppTranslations.translate('absent', locale),
+              color: const Color(0xFFF44336),
+            ),
+          ),
+          _buildVerticalDivider(),
+          Expanded(
+            child: _buildStatItem(
+              icon: Icons.schedule_rounded,
+              value: viewModel.postponeCount.toString(),
+              label: AppTranslations.translate('postponed', locale),
+              color: const Color(0xFFFF9800),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  Future<void> _showEditBottomSheet(
-      BuildContext context, String locale) async {
-    await showModalBottomSheet(
+  Widget _buildVerticalDivider() {
+    return Container(
+      width: 1,
+      height: SizeTokens.h48,
+      color: Colors.grey.shade200,
+    );
+  }
+
+  Widget _buildStatItem({
+    required IconData icon,
+    required String value,
+    required String label,
+    required Color color,
+  }) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: SizeTokens.i18),
+        SizedBox(height: SizeTokens.p6),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: SizeTokens.f20,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        SizedBox(height: SizeTokens.p2),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: SizeTokens.f10,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade600,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildErrorState(
+    OyunGrubuStudentHistoryViewModel viewModel,
+    String locale,
+  ) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(SizeTokens.p32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline_rounded,
+              size: SizeTokens.i64,
+              color: Colors.red.shade300,
+            ),
+            SizedBox(height: SizeTokens.p16),
+            Text(
+              AppTranslations.translate(viewModel.errorMessage!, locale),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: SizeTokens.f16,
+                color: Colors.grey.shade700,
+              ),
+            ),
+            SizedBox(height: SizeTokens.p24),
+            ElevatedButton.icon(
+              onPressed: viewModel.onRetry,
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text(AppTranslations.translate('retry', locale)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEditBottomSheet(BuildContext context, String locale) {
+    showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => StudentEditBottomSheet(locale: locale),
     );
   }
+}
+
+class _GridItem {
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final Color color;
+  final VoidCallback onTap;
+
+  _GridItem({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.color,
+    required this.onTap,
+  });
 }

@@ -128,6 +128,7 @@ class _EnvironmentCardState extends State<_EnvironmentCard> {
                 colorFilter: _isHovered
                     ? null
                     : ColorFilter.mode(
+                        // ignore: deprecated_member_use
                         Colors.black.withOpacity(0.2),
                         BlendMode.darken,
                       ),

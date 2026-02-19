@@ -7,8 +7,8 @@ import '../../../models/oyungrubu_student_model.dart';
 import '../../../viewmodels/oyungrubu_student_history_view_model.dart';
 import '../../../viewmodels/splash_view_model.dart';
 import '../student_history/widgets/student_history_header.dart';
-import '../student_history/widgets/student_history_info.dart';
 import '../student_history/widgets/student_history_stats.dart';
+import '../student_history/widgets/student_history_info.dart';
 
 class StudentProfileDetailView extends StatelessWidget {
   final OyunGrubuStudentModel student;
@@ -28,17 +28,16 @@ class StudentProfileDetailView extends StatelessWidget {
             backgroundColor: const Color(0xFFF5F6FA),
             body: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header
+                  // Gradient header
                   StudentHistoryHeader(
                     student: currentStudent,
                     locale: locale,
                     onBackTap: () => Navigator.pop(context),
                   ),
 
-                  // Stats
-                  if (!viewModel.isLoading && viewModel.errorMessage == null)
+                  // Stats section
+                  if (!viewModel.isLoading)
                     StudentHistoryStats(
                       attendedCount: viewModel.attendedCount,
                       absentCount: viewModel.absentCount,
@@ -47,39 +46,46 @@ class StudentProfileDetailView extends StatelessWidget {
                       locale: locale,
                     ),
 
-                  // Section Title
+                  // Section title
                   Padding(
                     padding: EdgeInsets.fromLTRB(
                       SizeTokens.p24,
+                      SizeTokens.p16,
                       SizeTokens.p24,
-                      SizeTokens.p24,
-                      SizeTokens.p8,
+                      SizeTokens.p12,
                     ),
                     child: Row(
                       children: [
+                        Container(
+                          width: SizeTokens.r4,
+                          height: SizeTokens.h20,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6C63FF),
+                            borderRadius: BorderRadius.circular(SizeTokens.r4),
+                          ),
+                        ),
+                        SizedBox(width: SizeTokens.p10),
                         Icon(
-                          Icons.person_rounded,
-                          size: SizeTokens.i20,
+                          Icons.person_outline_rounded,
+                          size: SizeTokens.i18,
                           color: Colors.grey.shade700,
                         ),
                         SizedBox(width: SizeTokens.p8),
                         Text(
-                          AppTranslations.translate('profile_info', locale),
+                          AppTranslations.translate('personal_info', locale),
                           style: TextStyle(
                             fontSize: SizeTokens.f16,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             color: Colors.grey.shade800,
+                            letterSpacing: -0.3,
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                  // Student Info
-                  StudentHistoryInfo(
-                    student: currentStudent,
-                    locale: locale,
-                  ),
+                  // Info section
+                  StudentHistoryInfo(student: currentStudent, locale: locale),
 
                   SizedBox(height: SizeTokens.p32),
                 ],

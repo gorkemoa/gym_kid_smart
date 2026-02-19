@@ -30,9 +30,9 @@ class _StudentActivityDetailViewState extends State<StudentActivityDetailView>
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        context
-            .read<OyunGrubuStudentHistoryViewModel>()
-            .setTab(_tabController.index);
+        context.read<OyunGrubuStudentHistoryViewModel>().setTab(
+          _tabController.index,
+        );
       }
     });
   }
@@ -73,23 +73,32 @@ class _StudentActivityDetailViewState extends State<StudentActivityDetailView>
                       SizeTokens.p24,
                       SizeTokens.p24,
                       SizeTokens.p24,
-                      SizeTokens.p2,
+                      SizeTokens.p8,
                     ),
                     child: Row(
                       children: [
+                        Container(
+                          width: SizeTokens.r4,
+                          height: SizeTokens.h20,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6C63FF),
+                            borderRadius: BorderRadius.circular(SizeTokens.r4),
+                          ),
+                        ),
+                        SizedBox(width: SizeTokens.p10),
                         Icon(
                           Icons.timeline_rounded,
-                          size: SizeTokens.i20,
+                          size: SizeTokens.i18,
                           color: Colors.grey.shade700,
                         ),
                         SizedBox(width: SizeTokens.p8),
                         Text(
-                          AppTranslations.translate(
-                              'activity_history', locale),
+                          AppTranslations.translate('activity_history', locale),
                           style: TextStyle(
                             fontSize: SizeTokens.f16,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             color: Colors.grey.shade800,
+                            letterSpacing: -0.3,
                           ),
                         ),
                       ],
@@ -97,36 +106,89 @@ class _StudentActivityDetailViewState extends State<StudentActivityDetailView>
                   ),
                 ),
 
-                // Tab bar
+                // Tab bar — Styled
                 SliverPersistentHeader(
                   pinned: true,
-                  delegate: _TabBarDelegate(
+                  delegate: _StyledTabBarDelegate(
                     tabBar: TabBar(
                       controller: _tabController,
                       labelColor: primaryColor,
                       unselectedLabelColor: Colors.grey.shade500,
                       indicatorColor: primaryColor,
                       indicatorWeight: 3,
+                      indicatorSize: TabBarIndicatorSize.label,
+                      dividerColor: Colors.grey.shade200,
                       labelStyle: TextStyle(
-                        fontSize: SizeTokens.f14,
-                        fontWeight: FontWeight.w600,
+                        fontSize: SizeTokens.f12,
+                        fontWeight: FontWeight.w700,
                       ),
                       unselectedLabelStyle: TextStyle(
-                        fontSize: SizeTokens.f14,
-                        fontWeight: FontWeight.w400,
+                        fontSize: SizeTokens.f12,
+                        fontWeight: FontWeight.w500,
                       ),
                       tabs: [
                         Tab(
-                          text: AppTranslations.translate(
-                              'activity_logs', locale),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.history_rounded, size: SizeTokens.i12),
+                              SizedBox(width: SizeTokens.p4),
+                              Flexible(
+                                child: Text(
+                                  AppTranslations.translate(
+                                    'activity_logs',
+                                    locale,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         Tab(
-                          text: AppTranslations.translate(
-                              'active_packages', locale),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.check_circle_outline_rounded,
+                                size: SizeTokens.i12,
+                              ),
+                              SizedBox(width: SizeTokens.p4),
+                              Flexible(
+                                child: Text(
+                                  AppTranslations.translate(
+                                    'active_packages',
+                                    locale,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         Tab(
-                          text: AppTranslations.translate(
-                              'expired_packages', locale),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.archive_outlined,
+                                size: SizeTokens.i12,
+                              ),
+                              SizedBox(width: SizeTokens.p4),
+                              Flexible(
+                                child: Text(
+                                  AppTranslations.translate(
+                                    'expired_packages',
+                                    locale,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -136,23 +198,23 @@ class _StudentActivityDetailViewState extends State<StudentActivityDetailView>
               body: viewModel.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : viewModel.errorMessage != null
-                      ? _buildErrorState(viewModel, locale)
-                      : TabBarView(
-                          controller: _tabController,
-                          children: [
-                            _buildActivityLogsTab(viewModel, locale),
-                            _buildPackagesTab(
-                              viewModel.activePackages,
-                              locale,
-                              isActive: true,
-                            ),
-                            _buildPackagesTab(
-                              viewModel.expiredPackages,
-                              locale,
-                              isActive: false,
-                            ),
-                          ],
+                  ? _buildErrorState(viewModel, locale)
+                  : TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildActivityLogsTab(viewModel, locale),
+                        _buildPackagesTab(
+                          viewModel.activePackages,
+                          locale,
+                          isActive: true,
                         ),
+                        _buildPackagesTab(
+                          viewModel.expiredPackages,
+                          locale,
+                          isActive: false,
+                        ),
+                      ],
+                    ),
             ),
           ),
         );
@@ -164,7 +226,6 @@ class _StudentActivityDetailViewState extends State<StudentActivityDetailView>
     OyunGrubuStudentHistoryViewModel viewModel,
     String locale,
   ) {
-    // Use attendanceHistory (GetAttendanceHistory) if available, fallback to activityLogs
     final logs = viewModel.attendanceHistory ?? viewModel.activityLogs;
     if (logs == null || logs.isEmpty) {
       return _buildEmptyTabState(
@@ -177,10 +238,7 @@ class _StudentActivityDetailViewState extends State<StudentActivityDetailView>
       padding: EdgeInsets.all(SizeTokens.p16),
       itemCount: logs.length,
       itemBuilder: (context, index) {
-        return StudentHistoryActivityCard(
-          log: logs[index],
-          locale: locale,
-        );
+        return StudentHistoryActivityCard(log: logs[index], locale: locale);
       },
     );
   }
@@ -218,13 +276,24 @@ class _StudentActivityDetailViewState extends State<StudentActivityDetailView>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: SizeTokens.i64, color: Colors.grey.shade300),
+          Container(
+            padding: EdgeInsets.all(SizeTokens.p24),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              size: SizeTokens.i48,
+              color: Colors.grey.shade300,
+            ),
+          ),
           SizedBox(height: SizeTokens.p16),
           Text(
             message,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: SizeTokens.f16,
+              fontSize: SizeTokens.f14,
               fontWeight: FontWeight.w500,
               color: Colors.grey.shade600,
             ),
@@ -271,10 +340,10 @@ class _StudentActivityDetailViewState extends State<StudentActivityDetailView>
   }
 }
 
-class _TabBarDelegate extends SliverPersistentHeaderDelegate {
+class _StyledTabBarDelegate extends SliverPersistentHeaderDelegate {
   final TabBar tabBar;
 
-  _TabBarDelegate({required this.tabBar});
+  _StyledTabBarDelegate({required this.tabBar});
 
   @override
   Widget build(
@@ -282,10 +351,7 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Container(
-      color: const Color(0xFFF5F6FA),
-      child: tabBar,
-    );
+    return Container(color: const Color(0xFFF5F6FA), child: tabBar);
   }
 
   @override
@@ -295,5 +361,5 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => tabBar.preferredSize.height;
 
   @override
-  bool shouldRebuild(covariant _TabBarDelegate oldDelegate) => false;
+  bool shouldRebuild(covariant _StyledTabBarDelegate oldDelegate) => false;
 }
