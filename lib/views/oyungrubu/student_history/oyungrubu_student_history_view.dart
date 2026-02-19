@@ -119,6 +119,7 @@ class _OyunGrubuStudentHistoryViewState
                         child: _buildSectionTitle(
                           Icons.assignment_outlined,
                           AppTranslations.translate('package_details', locale),
+                          primaryColor,
                         ),
                       ),
                     ),
@@ -151,6 +152,7 @@ class _OyunGrubuStudentHistoryViewState
                         child: _buildSectionTitle(
                           Icons.timeline_rounded,
                           AppTranslations.translate('activity_history', locale),
+                          primaryColor,
                         ),
                       ),
                     ),
@@ -193,14 +195,14 @@ class _OyunGrubuStudentHistoryViewState
     );
   }
 
-  Widget _buildSectionTitle(IconData icon, String title) {
+  Widget _buildSectionTitle(IconData icon, String title, Color primaryColor) {
     return Row(
       children: [
         Container(
           width: SizeTokens.r4,
           height: SizeTokens.h20,
           decoration: BoxDecoration(
-            color: const Color(0xFF6C63FF),
+            color: primaryColor,
             borderRadius: BorderRadius.circular(SizeTokens.r4),
           ),
         ),

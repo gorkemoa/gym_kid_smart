@@ -24,6 +24,8 @@ class OyunGrubuTimetableSection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (selectedClass == null) return const SizedBox.shrink();
 
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: SizeTokens.p24,
@@ -36,7 +38,7 @@ class OyunGrubuTimetableSection extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               // ignore: deprecated_member_use
-              color: const Color(0xFF6C63FF).withOpacity(0.08),
+              color: primaryColor.withOpacity(0.08),
               blurRadius: 20,
               offset: const Offset(0, 6),
             ),
@@ -56,9 +58,9 @@ class OyunGrubuTimetableSection extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    const Color(0xFF6C63FF),
+                    primaryColor,
                     // ignore: deprecated_member_use
-                    const Color(0xFF6C63FF).withOpacity(0.85),
+                    primaryColor.withOpacity(0.85),
                   ],
                 ),
                 borderRadius: BorderRadius.only(
@@ -184,7 +186,7 @@ class OyunGrubuTimetableSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(SizeTokens.r12),
         border: Border.all(
           // ignore: deprecated_member_use
-          color: const Color(0xFF6C63FF).withOpacity(0.08),
+          color: primaryColor.withOpacity(0.08),
         ),
       ),
       child: Row(
@@ -201,7 +203,7 @@ class OyunGrubuTimetableSection extends StatelessWidget {
                   // ignore: deprecated_member_use
                   primaryColor.withOpacity(0.15),
                   // ignore: deprecated_member_use
-                  const Color(0xFF6C63FF).withOpacity(0.1),
+                  primaryColor.withOpacity(0.1),
                 ],
               ),
               borderRadius: BorderRadius.circular(SizeTokens.r12),

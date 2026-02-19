@@ -78,7 +78,7 @@ class OyunGrubuClassSection extends StatelessWidget {
                 width: SizeTokens.r4,
                 height: SizeTokens.h20,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6C63FF),
+                  color: primaryColor,
                   borderRadius: BorderRadius.circular(SizeTokens.r4),
                 ),
               ),
@@ -192,7 +192,7 @@ class OyunGrubuClassSection extends StatelessWidget {
                         // ignore: deprecated_member_use
                         ? Colors.white.withOpacity(0.2)
                         // ignore: deprecated_member_use
-                        : const Color(0xFF6C63FF).withOpacity(0.08),
+                        : primaryColor.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(SizeTokens.r4),
                   ),
                   child: Text(
@@ -203,7 +203,7 @@ class OyunGrubuClassSection extends StatelessWidget {
                       color: isSelected
                           // ignore: deprecated_member_use
                           ? Colors.white.withOpacity(0.9)
-                          : const Color(0xFF6C63FF),
+                          : primaryColor,
                     ),
                   ),
                 ),

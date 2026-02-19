@@ -88,7 +88,7 @@ class _OyunGrubuStudentDetailViewState
         icon: Icons.person_outline_rounded,
         label: AppTranslations.translate('profile', locale),
         subtitle: AppTranslations.translate('personal_info', locale),
-        color: const Color(0xFF6C63FF),
+        color: primaryColor,
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
@@ -100,7 +100,7 @@ class _OyunGrubuStudentDetailViewState
         icon: Icons.inventory_2_outlined,
         label: AppTranslations.translate('packages', locale),
         subtitle: AppTranslations.translate('active_and_past', locale),
-        color: const Color(0xFFFF6B6B),
+        color: Theme.of(context).colorScheme.secondary,
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
@@ -112,7 +112,7 @@ class _OyunGrubuStudentDetailViewState
         icon: Icons.timeline_rounded,
         label: AppTranslations.translate('activity', locale),
         subtitle: AppTranslations.translate('lesson_history', locale),
-        color: const Color(0xFF4CAF50),
+        color: Colors.teal,
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
@@ -124,7 +124,7 @@ class _OyunGrubuStudentDetailViewState
         icon: Icons.edit_note_rounded,
         label: AppTranslations.translate('edit', locale),
         subtitle: AppTranslations.translate('update_info', locale),
-        color: const Color(0xFFFF9800),
+        color: Colors.amber.shade700,
         onTap: () => _showEditBottomSheet(context, locale),
       ),
     ];
@@ -144,7 +144,7 @@ class _OyunGrubuStudentDetailViewState
               width: SizeTokens.r4,
               height: SizeTokens.h20,
               decoration: BoxDecoration(
-                color: const Color(0xFF6C63FF),
+                color: primaryColor,
                 borderRadius: BorderRadius.circular(SizeTokens.r4),
               ),
             ),
@@ -250,6 +250,7 @@ class _OyunGrubuStudentDetailViewState
     OyunGrubuStudentHistoryViewModel viewModel,
     String locale,
   ) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
     return Container(
       padding: EdgeInsets.all(SizeTokens.p16),
       decoration: BoxDecoration(
@@ -289,7 +290,7 @@ class _OyunGrubuStudentDetailViewState
               icon: Icons.schedule_rounded,
               value: viewModel.postponeCount.toString(),
               label: AppTranslations.translate('postponed', locale),
-              color: const Color(0xFFFF9800),
+              color: primaryColor,
             ),
           ),
         ],

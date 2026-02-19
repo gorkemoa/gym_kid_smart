@@ -367,7 +367,7 @@ class _OyunGrubuProfileViewState extends State<OyunGrubuProfileView> {
                   width: SizeTokens.r4,
                   height: SizeTokens.h20,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6C63FF),
+                    color: primaryColor,
                     borderRadius: BorderRadius.circular(SizeTokens.r4),
                   ),
                 ),

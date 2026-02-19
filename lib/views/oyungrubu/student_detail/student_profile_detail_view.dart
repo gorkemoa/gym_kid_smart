@@ -21,6 +21,7 @@ class StudentProfileDetailView extends StatelessWidget {
       builder: (context, viewModel, splashVM, child) {
         final locale = splashVM.locale.languageCode;
         final currentStudent = viewModel.student ?? student;
+        final primaryColor = Theme.of(context).colorScheme.primary;
 
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: SystemUiOverlayStyle.light,
@@ -60,7 +61,7 @@ class StudentProfileDetailView extends StatelessWidget {
                           width: SizeTokens.r4,
                           height: SizeTokens.h20,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6C63FF),
+                            color: primaryColor,
                             borderRadius: BorderRadius.circular(SizeTokens.r4),
                           ),
                         ),

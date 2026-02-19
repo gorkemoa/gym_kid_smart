@@ -15,7 +15,8 @@ class StudentHistoryActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final typeInfo = _getTypeInfo();
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final typeInfo = _getTypeInfo(primaryColor);
 
     return Container(
       margin: EdgeInsets.only(bottom: SizeTokens.p12),
@@ -69,8 +70,7 @@ class StudentHistoryActivityCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           // ignore: deprecated_member_use
                           color: typeInfo.color.withOpacity(0.1),
-                          borderRadius:
-                              BorderRadius.circular(SizeTokens.r8),
+                          borderRadius: BorderRadius.circular(SizeTokens.r8),
                         ),
                         child: Text(
                           typeInfo.label,
@@ -133,7 +133,9 @@ class StudentHistoryActivityCard extends StatelessWidget {
                           Text(
                             log.startTime!.substring(
                               0,
-                              log.startTime!.length >= 5 ? 5 : log.startTime!.length,
+                              log.startTime!.length >= 5
+                                  ? 5
+                                  : log.startTime!.length,
                             ),
                             style: TextStyle(
                               fontSize: SizeTokens.f12,
@@ -154,8 +156,7 @@ class StudentHistoryActivityCard extends StatelessWidget {
                         padding: EdgeInsets.all(SizeTokens.p10),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF5F6FA),
-                          borderRadius:
-                              BorderRadius.circular(SizeTokens.r8),
+                          borderRadius: BorderRadius.circular(SizeTokens.r8),
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,7 +214,7 @@ class StudentHistoryActivityCard extends StatelessWidget {
     );
   }
 
-  _ActivityTypeInfo _getTypeInfo() {
+  _ActivityTypeInfo _getTypeInfo(Color primaryColor) {
     switch (log.activityType) {
       case 'attended':
         return _ActivityTypeInfo(
@@ -230,7 +231,7 @@ class StudentHistoryActivityCard extends StatelessWidget {
       case 'postpone':
         return _ActivityTypeInfo(
           icon: Icons.schedule_rounded,
-          color: const Color(0xFFFF9800),
+          color: primaryColor,
           label: AppTranslations.translate('postponed', locale),
         );
       default:

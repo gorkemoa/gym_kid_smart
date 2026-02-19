@@ -18,6 +18,7 @@ import '../../../viewmodels/oyungrubu_student_history_view_model.dart';
 import '../student_history/widgets/student_edit_bottom_sheet.dart';
 import 'widgets/lesson_detail_bottom_sheet.dart';
 import '../notifications/oyungrubu_notifications_view.dart';
+import '../../../viewmodels/settings_view_model.dart';
 
 class OyunGrubuHomeView extends StatefulWidget {
   const OyunGrubuHomeView({super.key});
@@ -36,6 +37,7 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView>
     _tabController = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<OyunGrubuHomeViewModel>().init();
+      context.read<SettingsViewModel>().fetchSettings();
     });
   }
 

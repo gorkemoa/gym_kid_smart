@@ -20,6 +20,7 @@ class StudentHistoryStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
     return Padding(
       padding: EdgeInsets.fromLTRB(
         SizeTokens.p16,
@@ -52,7 +53,7 @@ class StudentHistoryStats extends StatelessWidget {
               icon: Icons.schedule_rounded,
               value: postponeCount.toString(),
               label: AppTranslations.translate('postponed', locale),
-              color: const Color(0xFFFF9800),
+              color: primaryColor,
             ),
           ),
           if (makeupBalance != null && makeupBalance! > 0) ...[

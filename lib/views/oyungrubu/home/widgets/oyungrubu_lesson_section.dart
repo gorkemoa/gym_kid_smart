@@ -74,9 +74,9 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
                       gradient: isSelected
                           ? LinearGradient(
                               colors: [
-                                const Color(0xFFFF9800),
+                                primaryColor,
                                 // ignore: deprecated_member_use
-                                const Color(0xFFFF9800).withOpacity(0.8),
+                                primaryColor.withOpacity(0.8),
                               ],
                             )
                           : null,
@@ -89,9 +89,7 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
                           ? [
                               BoxShadow(
                                 // ignore: deprecated_member_use
-                                color: const Color(
-                                  0xFFFF9800,
-                                ).withOpacity(0.25),
+                                color: primaryColor.withOpacity(0.25),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -150,7 +148,7 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
                       ),
                       icon: Icons.upcoming_rounded,
                       isActive: !_showHistory,
-                      color: const Color(0xFFFF9800),
+                      color: primaryColor,
                       onTap: () => setState(() => _showHistory = false),
                     ),
                   ),
@@ -344,11 +342,11 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
                           _showHistory
                               ? Colors.blueGrey.shade50
                               // ignore: deprecated_member_use
-                              : const Color(0xFFFF9800).withOpacity(0.1),
+                              : primaryColor.withOpacity(0.1),
                           _showHistory
                               ? Colors.blueGrey.shade100
                               // ignore: deprecated_member_use
-                              : const Color(0xFFFF9800).withOpacity(0.18),
+                              : primaryColor.withOpacity(0.18),
                         ],
                 ),
                 borderRadius: BorderRadius.circular(SizeTokens.r12),
@@ -362,9 +360,7 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
                       fontWeight: FontWeight.w900,
                       color: isCancelled
                           ? Colors.red.shade400
-                          : (_showHistory
-                                ? Colors.blueGrey
-                                : const Color(0xFFFF9800)),
+                          : (_showHistory ? Colors.blueGrey : primaryColor),
                     ),
                   ),
                   Text(
@@ -377,7 +373,7 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
                           : (_showHistory
                                 ? Colors.blueGrey.shade400
                                 // ignore: deprecated_member_use
-                                : const Color(0xFFFF9800).withOpacity(0.7)),
+                                : primaryColor.withOpacity(0.7)),
                     ),
                   ),
                 ],

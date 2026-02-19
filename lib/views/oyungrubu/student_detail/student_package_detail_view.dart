@@ -78,7 +78,7 @@ class _StudentPackageDetailViewState extends State<StudentPackageDetailView>
                             width: SizeTokens.r4,
                             height: SizeTokens.h20,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF6C63FF),
+                              color: primaryColor,
                               borderRadius: BorderRadius.circular(
                                 SizeTokens.r4,
                               ),
@@ -137,7 +137,7 @@ class _StudentPackageDetailViewState extends State<StudentPackageDetailView>
                           width: SizeTokens.r4,
                           height: SizeTokens.h20,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6C63FF),
+                            color: primaryColor,
                             borderRadius: BorderRadius.circular(SizeTokens.r4),
                           ),
                         ),

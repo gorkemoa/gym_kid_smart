@@ -144,7 +144,7 @@ class StudentHistoryPackageCard extends StatelessWidget {
                           locale,
                         ),
                         value: '${package.postponementLimit ?? 0}',
-                        color: const Color(0xFFFF9800),
+                        color: primaryColor,
                       ),
                     ),
                   ],

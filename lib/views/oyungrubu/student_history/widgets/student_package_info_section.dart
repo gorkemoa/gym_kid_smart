@@ -219,7 +219,7 @@ class StudentPackageInfoSection extends StatelessWidget {
                     locale,
                   ),
                   progress: pkg.postponementProgress,
-                  color: const Color(0xFFFF9800),
+                  color: primaryColor,
                 ),
                 SizedBox(height: SizeTokens.p16),
 
