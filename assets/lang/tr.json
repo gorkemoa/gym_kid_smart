@@ -260,5 +260,15 @@
     "postponement_mode_normal": "Normal",
     "postponement_mode_extend_week": "Hafta Uzatmalı",
     "lesson_history": "Ders Geçmişi",
-    "no_history_lessons": "Geçmiş ders kaydı bulunmuyor."
+    "no_history_lessons": "Geçmiş ders kaydı bulunmuyor.",
+    "lesson_progress": "Ders İlerlemesi",
+    "lesson_progress_desc": "Ders ilerlemesi ve detayları",
+    "no_lesson_progress": "Ders ilerlemesi bulunamadı",
+    "profile": "Profil",
+    "personal_info": "Profil bilgileri",
+    "packages": "Paketler",
+    "active_and_past": "Paket bilgileri",
+    "activity": "Aktiviteler",
+    "update_info": "Bilgileri Güncelle",
+    "quick_actions": "Hızlı Aksiyonlar"
 }

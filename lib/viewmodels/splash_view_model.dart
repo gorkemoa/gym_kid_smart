@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/utils/app_translations.dart';
+import '../services/environment_service.dart';
 import 'base_view_model.dart';
 
 class SplashViewModel extends BaseViewModel {
@@ -13,6 +14,10 @@ class SplashViewModel extends BaseViewModel {
     final lang = prefs.getString('language') ?? 'tr';
     _locale = Locale(lang);
     await AppTranslations.load(lang);
+
+    // Initialize environment
+    await EnvironmentService.init();
+
     notifyListeners();
   }
 }

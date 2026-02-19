@@ -160,7 +160,6 @@ class _OyunGrubuStudentDetailViewState
             ),
           ],
         ),
-        SizedBox(height: SizeTokens.p16),
 
         // 2x2 Grid
         GridView.builder(

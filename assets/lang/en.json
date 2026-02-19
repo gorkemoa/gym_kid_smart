@@ -260,5 +260,12 @@
     "postponement_mode_normal": "Normal",
     "postponement_mode_extend_week": "Extend Week",
     "lesson_history": "Lesson History",
-    "no_history_lessons": "No lesson history found."
+    "no_history_lessons": "No lesson history found.",
+    "profile": "Profile",
+    "personal_info": "Personal Info",
+    "packages": "Packages",
+    "active_and_past": "Active and Past Packages",
+    "activity": "Activities",
+    "update_info": "Update Info",
+    "quick_actions": "Quick Actions"
 }
