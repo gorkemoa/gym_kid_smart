@@ -87,6 +87,7 @@ class ApiConstants {
   static const String oyunGrubuTimeTable = '/Api/TimeTable';
   static const String oyunGrubuLessons = '/Api/Lessons';
   static const String oyunGrubuUpcomingLessons = '/Api/UpcomingLessons';
+  static const String getLessonDetails = '/Api/GetLessonDetails';
 
   // Permission
   static const String addPermission = '/Api/addPermission';

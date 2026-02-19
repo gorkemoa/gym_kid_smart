@@ -16,6 +16,7 @@ import 'widgets/oyungrubu_lesson_section.dart';
 import '../student_detail/oyungrubu_student_detail_view.dart';
 import '../../../viewmodels/oyungrubu_student_history_view_model.dart';
 import '../student_history/widgets/student_edit_bottom_sheet.dart';
+import 'widgets/lesson_detail_bottom_sheet.dart';
 
 class OyunGrubuHomeView extends StatefulWidget {
   const OyunGrubuHomeView({super.key});
@@ -343,6 +344,39 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView>
           locale: locale,
           onStudentSelected: (studentId) {
             viewModel.fetchLessonsForStudent(studentId);
+          },
+          onLessonTap: (lesson) async {
+            if (viewModel.selectedStudentIdForLessons == null ||
+                lesson.lessonId == null ||
+                lesson.date == null)
+              return;
+
+            // Show loading indicator
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => const Center(child: CircularProgressIndicator()),
+            );
+
+            final detail = await viewModel.fetchLessonDetails(
+              studentId: viewModel.selectedStudentIdForLessons!,
+              lessonId: lesson.lessonId!,
+              date: lesson.date!,
+            );
+
+            if (context.mounted) {
+              Navigator.pop(context); // Remove loading
+
+              if (detail != null) {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) =>
+                      LessonDetailBottomSheet(detail: detail, locale: locale),
+                );
+              }
+            }
           },
         ),
       ),

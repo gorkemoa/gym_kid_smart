@@ -9,6 +9,8 @@ import '../models/oyungrubu_timetable_model.dart';
 import '../models/oyungrubu_timetable_response.dart';
 import '../models/oyungrubu_lesson_model.dart';
 import '../models/oyungrubu_lessons_response.dart';
+import '../models/oyungrubu_lesson_detail_model.dart';
+import '../models/oyungrubu_lesson_detail_response.dart';
 import '../services/oyungrubu_student_service.dart';
 import '../services/oyungrubu_auth_service.dart';
 import '../services/oyungrubu_class_service.dart';
@@ -166,6 +168,24 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
     }
 
     notifyListeners();
+  }
+
+  Future<OyunGrubuLessonDetailModel?> fetchLessonDetails({
+    required int studentId,
+    required int lessonId,
+    required String date,
+  }) async {
+    final result = await _classService.getLessonDetails(
+      studentId: studentId,
+      lessonId: lessonId,
+      date: date,
+    );
+
+    if (result is Success<OyunGrubuLessonDetailResponse>) {
+      return result.data.data;
+    } else {
+      return null;
+    }
   }
 
   void _setLoading(bool value) {

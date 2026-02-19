@@ -6,6 +6,7 @@ import '../core/utils/logger.dart';
 import '../models/oyungrubu_classes_response.dart';
 import '../models/oyungrubu_timetable_response.dart';
 import '../models/oyungrubu_lessons_response.dart';
+import '../models/oyungrubu_lesson_detail_response.dart';
 
 class OyunGrubuClassService {
   final ApiClient _apiClient = ApiClient();
@@ -96,6 +97,38 @@ class OyunGrubuClassService {
       return Success(lessonsResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu getUpcomingLessons failed', e);
+      return Failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<OyunGrubuLessonDetailResponse>> getLessonDetails({
+    required int studentId,
+    required int lessonId,
+    required String date,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userKey = prefs.getString('oyungrubu_user_key');
+
+      if (userKey == null) {
+        return const Failure('no_credentials');
+      }
+
+      final response = await _apiClient.post(
+        ApiConstants.getLessonDetails,
+        body: {
+          'user_key': userKey,
+          'student_id': studentId.toString(),
+          'lesson_id': lessonId.toString(),
+          'date': date,
+        },
+      );
+      final lessonDetailResponse = OyunGrubuLessonDetailResponse.fromJson(
+        response,
+      );
+      return Success(lessonDetailResponse);
+    } catch (e) {
+      AppLogger.error('OyunGrubu getLessonDetails failed', e);
       return Failure(e.toString());
     }
   }

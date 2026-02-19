@@ -12,6 +12,7 @@ class OyunGrubuLessonSection extends StatefulWidget {
   final bool isLoading;
   final String locale;
   final Function(int studentId) onStudentSelected;
+  final Function(OyunGrubuLessonModel lesson)? onLessonTap;
 
   const OyunGrubuLessonSection({
     super.key,
@@ -22,6 +23,7 @@ class OyunGrubuLessonSection extends StatefulWidget {
     required this.isLoading,
     required this.locale,
     required this.onStudentSelected,
+    this.onLessonTap,
   });
 
   @override
@@ -200,7 +202,10 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
             padding: EdgeInsets.symmetric(horizontal: SizeTokens.p24),
             child: Column(
               children: currentLessons.map((lesson) {
-                return _buildLessonCard(context, lesson, primaryColor);
+                return GestureDetector(
+                  onTap: () => widget.onLessonTap?.call(lesson),
+                  child: _buildLessonCard(context, lesson, primaryColor),
+                );
               }).toList(),
             ),
           ),
