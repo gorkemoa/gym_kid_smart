@@ -283,5 +283,11 @@
     "attendance_note": "Note (optional)",
     "attendance_submitted": "Your attendance has been submitted.",
     "attend_confirmation": "Are you sure you will attend this lesson?",
-    "not_coming_confirmation": "Are you sure you won't attend this lesson?"
+    "not_coming_confirmation": "Are you sure you won't attend this lesson?",
+    "og_lessons": "Lessons",
+    "og_modules": "Modules",
+    "my_children_desc": "Your children's info and details",
+    "groups_desc": "Class groups and timetables",
+    "lessons_desc": "Upcoming and past lesson info",
+    "notifications_desc": "Notifications and announcements"
 }

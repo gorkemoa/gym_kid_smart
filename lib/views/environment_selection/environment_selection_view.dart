@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gym_kid_smart/views/anaokulu/landing/landing_view.dart';
 import 'package:provider/provider.dart';
 import '../../core/responsive/size_tokens.dart';
 import '../../core/utils/app_translations.dart';
 import '../../viewmodels/environment_selection_view_model.dart';
 import '../../viewmodels/splash_view_model.dart';
-import '../anaokulu/landing/landing_view.dart';
 import '../oyungrubu/login/oyungrubu_login_view.dart';
 import '../../models/environment_model.dart';
 

@@ -287,5 +287,11 @@
     "attendance_note": "Not (isteğe bağlı)",
     "attendance_submitted": "Katılım bildiriminiz gönderildi.",
     "attend_confirmation": "Bu derse katılacağınızı onaylıyor musunuz?",
-    "not_coming_confirmation": "Bu derse gelemeyeceğinizi bildirmek istiyor musunuz?"
+    "not_coming_confirmation": "Bu derse gelemeyeceğinizi bildirmek istiyor musunuz?",
+    "og_lessons": "Dersler",
+    "og_modules": "Modüller",
+    "my_children_desc": "Çocuklarınızın bilgileri ve detayları",
+    "groups_desc": "Sınıf grupları ve ders programları",
+    "lessons_desc": "Yaklaşan ve geçmiş ders bilgileri",
+    "notifications_desc": "Bildirimler ve duyurular"
 }

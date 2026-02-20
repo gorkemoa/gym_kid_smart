@@ -95,19 +95,58 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
 
     final result = await _studentService.getStudents();
 
-    if (!isSilent) {
-      _setLoading(false);
-    }
-
     if (result is Success<OyunGrubuStudentsResponse>) {
       _students = result.data.data;
-      notifyListeners();
+      await fetchAllStudentLessons();
     } else if (result is Failure<OyunGrubuStudentsResponse>) {
       if (!isSilent) {
         _errorMessage = result.message;
       }
+    }
+
+    if (!isSilent) {
+      _setLoading(false);
+    } else {
       notifyListeners();
     }
+  }
+
+  Future<void> fetchAllStudentLessons() async {
+    if (_students == null || _students!.isEmpty) return;
+
+    _isLessonsLoading = true;
+    notifyListeners();
+
+    await Future.wait(
+      _students!.map((student) async {
+        final studentId = student.id ?? 0;
+        if (studentId == 0) return;
+
+        final results = await Future.wait([
+          _classService.getUpcomingLessons(studentId: studentId),
+          _classService.getLessons(studentId: studentId),
+        ]);
+
+        // Upcoming Lessons
+        final upcomingResult = results[0];
+        if (upcomingResult is Success<OyunGrubuLessonsResponse>) {
+          _studentLessonsMap[studentId] = upcomingResult.data.data ?? [];
+        } else {
+          _studentLessonsMap[studentId] = [];
+        }
+
+        // History Lessons
+        final historyResult = results[1];
+        if (historyResult is Success<OyunGrubuLessonsResponse>) {
+          _studentHistoryLessonsMap[studentId] = historyResult.data.data ?? [];
+        } else {
+          _studentHistoryLessonsMap[studentId] = [];
+        }
+      }),
+    );
+
+    _isLessonsLoading = false;
+    notifyListeners();
   }
 
   Future<void> fetchClasses() async {
