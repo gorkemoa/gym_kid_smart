@@ -32,7 +32,7 @@ class _LoginViewState extends State<LoginView> {
       builder: (context, settingsVM, landingVM, loginVM, child) {
         final settings = settingsVM.settings;
         final backgroundColor = ColorUtils.fromHex(
-          settings?.otherColor ?? '#1a237e',
+          settings?.otherColor ?? '#028ab2',
         );
         final locale = landingVM.locale.languageCode;
 
@@ -68,8 +68,9 @@ class _LoginViewState extends State<LoginView> {
                   Text(
                     AppTranslations.translate('landing_title', locale),
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontSize: SizeTokens.f24,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   SizedBox(height: SizeTokens.p12),

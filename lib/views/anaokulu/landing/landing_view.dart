@@ -53,7 +53,7 @@ class _LandingViewState extends State<LandingView> {
 
         final settings = settingsVM.settings;
         final backgroundColor = ColorUtils.fromHex(
-          settings?.otherColor ?? '#1a237e',
+          settings?.otherColor ?? '#028ab2',
         );
         final primaryColor = ColorUtils.fromHex(
           settings?.mainColor ?? '#f9991c',

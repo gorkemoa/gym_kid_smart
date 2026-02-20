@@ -34,16 +34,16 @@ class ApiClient {
       final combinedHeaders = _combineHeaders(headers);
       final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
 
-      final request = http.MultipartRequest('POST', url);
-      request.headers.addAll(combinedHeaders);
+      if (files != null && files.isNotEmpty) {
+        final request = http.MultipartRequest('POST', url);
+        request.headers.addAll(combinedHeaders);
 
-      if (body != null) {
-        body.forEach((key, value) {
-          request.fields[key] = value.toString();
-        });
-      }
+        if (body != null) {
+          body.forEach((key, value) {
+            request.fields[key] = value.toString();
+          });
+        }
 
-      if (files != null) {
         for (var entry in files.entries) {
           final stream = http.ByteStream(entry.value.openRead());
           final length = await entry.value.length();
@@ -55,13 +55,30 @@ class ApiClient {
           );
           request.files.add(multipartFile);
         }
+
+        final streamedResponse = await request.send();
+        final response = await http.Response.fromStream(streamedResponse);
+        _logResponse(response);
+        return _handleResponse(response);
+      } else {
+        // Normal POST request
+        // Convert Map<String, dynamic> to Map<String, String> for http.post form encoding
+        Map<String, String>? stringBody;
+        if (body != null) {
+          stringBody = body.map(
+            (key, value) => MapEntry(key, value.toString()),
+          );
+        }
+
+        final response = await _client.post(
+          url,
+          headers: combinedHeaders,
+          body: stringBody,
+        );
+
+        _logResponse(response);
+        return _handleResponse(response);
       }
-
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      _logResponse(response);
-      return _handleResponse(response);
     } on SocketException {
       throw NetworkException();
     } catch (e) {

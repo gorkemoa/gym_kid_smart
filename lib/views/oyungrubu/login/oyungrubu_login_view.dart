@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:gym_kid_smart/views/anaokulu/landing/landing_view.dart';
 import 'package:provider/provider.dart';
 import '../../../core/responsive/size_tokens.dart';
 import '../../../viewmodels/oyungrubu_login_view_model.dart';
@@ -45,14 +47,14 @@ class _OyunGrubuLoginViewState extends State<OyunGrubuLoginView> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: SizeTokens.p32 * 2),
-                  Image.asset(
-                    'assets/app-logo.jpg',
-                    height: SizeTokens.h120,
+                  SvgPicture.asset(
+                    'assets/landing.svg',
                     fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => Icon(
-                      Icons.child_care,
-                      size: SizeTokens.i64,
-                      color: Colors.white,
+                    height: SizeTokens.h200,
+
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                      'assets/app-logo.jpg',
+                      height: SizeTokens.h120,
                     ),
                   ),
                   SizedBox(height: SizeTokens.p32),
@@ -103,7 +105,7 @@ class _BackToSelection extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton.icon(
       onPressed: () {
-        Navigator.of(context).pop();
+        NavigationService.pushNamedAndRemoveUntil(const LandingView());
       },
       icon: Icon(
         Icons.arrow_back,
@@ -143,7 +145,6 @@ class _PoweredBy extends StatelessWidget {
           errorBuilder: (context, error, stackTrace) => Text(
             'SmartMetrics',
             style: TextStyle(
-              color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: SizeTokens.f16,
             ),

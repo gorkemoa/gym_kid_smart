@@ -44,7 +44,7 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
                       const Text('GYBOREE'),
                 )
               : Image.asset(
-                  'assets/smartmetrics-logo.png',
+                  'assets/app-logo.jpg',
                   height: SizeTokens.h32,
                   errorBuilder: (context, error, stackTrace) =>
                       const Text('GYBOREE'),

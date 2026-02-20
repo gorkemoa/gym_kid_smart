@@ -25,6 +25,8 @@ class OyunGrubuLoginViewModel extends BaseViewModel {
     if (savedUser != null) {
       _data = OyunGrubuLoginResponse(success: 'true', data: savedUser);
       notifyListeners();
+    } else {
+      _data = null;
     }
   }
 
