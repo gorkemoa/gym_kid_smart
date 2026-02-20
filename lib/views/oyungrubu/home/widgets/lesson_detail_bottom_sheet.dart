@@ -240,36 +240,6 @@ class _LessonDetailBottomSheetState extends State<LessonDetailBottomSheet> {
                 ),
               ],
             ),
-            SizedBox(height: SizeTokens.p12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildInfoBox(
-                    label: AppTranslations.translate(
-                      'total_quota',
-                      widget.locale,
-                    ),
-                    value: widget.detail.totalQuota?.toString() ?? '0',
-                    icon: Icons.groups_outlined,
-                    color: Colors.orange,
-                  ),
-                ),
-                SizedBox(width: SizeTokens.p12),
-                Expanded(
-                  child: _buildInfoBox(
-                    label: AppTranslations.translate(
-                      'remaining_quota',
-                      widget.locale,
-                    ),
-                    value: widget.detail.remainingQuota?.toString() ?? '0',
-                    icon: Icons.reduce_capacity_rounded,
-                    color: (widget.detail.remainingQuota ?? 0) <= 0
-                        ? Colors.red
-                        : Colors.purple,
-                  ),
-                ),
-              ],
-            ),
 
             // Attendance Actions (only when student_status is pending)
             if (isPending) ...[
