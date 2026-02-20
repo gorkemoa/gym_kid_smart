@@ -182,8 +182,8 @@ class OyunGrubuBottomNavBar extends StatelessWidget {
               _buildNavItem(
                 context,
                 index: 1,
-                icon: Icons.notifications_rounded,
-                label: 'notifications',
+                icon: Icons.school_rounded,
+                label: 'og_lessons',
                 primaryColor: primaryColor,
               ),
               _buildNavItem(
@@ -191,6 +191,13 @@ class OyunGrubuBottomNavBar extends StatelessWidget {
                 index: 2,
                 icon: Icons.person_rounded,
                 label: 'profile',
+                primaryColor: primaryColor,
+              ),
+              _buildNavItem(
+                context,
+                index: 3,
+                icon: Icons.settings_rounded,
+                label: 'settings',
                 primaryColor: primaryColor,
               ),
             ],

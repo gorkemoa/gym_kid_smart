@@ -4,6 +4,8 @@ import '../../../core/responsive/size_tokens.dart';
 import '../../../viewmodels/oyungrubu_login_view_model.dart';
 import '../../../core/utils/app_translations.dart';
 import '../../../viewmodels/splash_view_model.dart';
+import '../../../core/services/navigation_service.dart';
+import '../home/oyungrubu_home_view.dart';
 import 'widgets/oyungrubu_login_form.dart';
 
 class OyunGrubuLoginView extends StatefulWidget {
@@ -17,8 +19,13 @@ class _OyunGrubuLoginViewState extends State<OyunGrubuLoginView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<OyunGrubuLoginViewModel>().init();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final loginVM = context.read<OyunGrubuLoginViewModel>();
+      await loginVM.init();
+      // Only navigate if login data was populated in init, meaning user is already logged in
+      if (mounted && loginVM.data != null && loginVM.data!.data != null) {
+        NavigationService.pushNamedAndRemoveUntil(const OyunGrubuHomeView());
+      }
     });
   }
 

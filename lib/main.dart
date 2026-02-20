@@ -15,6 +15,7 @@ import 'viewmodels/oyungrubu_home_view_model.dart';
 import 'viewmodels/oyungrubu_student_history_view_model.dart';
 import 'viewmodels/oyungrubu_notifications_view_model.dart';
 import 'viewmodels/settings_view_model.dart';
+import 'viewmodels/oyungrubu_settings_view_model.dart';
 import 'viewmodels/landing_view_model.dart';
 import 'viewmodels/home_view_model.dart';
 import 'viewmodels/splash_view_model.dart';
@@ -45,6 +46,7 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => OyunGrubuNotificationsViewModel(),
         ),
+        ChangeNotifierProvider(create: (_) => OyunGrubuSettingsViewModel()),
       ],
       child: const MyApp(),
     ),

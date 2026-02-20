@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../../services/environment_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -558,7 +559,9 @@ class SettingsView extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppTranslations.translate('change_section', locale)),
-        content: Text(AppTranslations.translate('confirm_logout', locale)),
+        content: Text(
+          AppTranslations.translate('select_environment_subtitle', locale),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -566,7 +569,7 @@ class SettingsView extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
-              await AuthService.logout();
+              await EnvironmentService.clearEnvironment();
               if (context.mounted) {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
@@ -577,7 +580,7 @@ class SettingsView extends StatelessWidget {
               }
             },
             child: Text(
-              AppTranslations.translate('approve', locale),
+              AppTranslations.translate('change_section', locale),
               style: const TextStyle(color: Colors.red),
             ),
           ),

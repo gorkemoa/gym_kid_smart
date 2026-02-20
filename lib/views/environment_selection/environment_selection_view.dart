@@ -6,7 +6,10 @@ import '../../core/utils/app_translations.dart';
 import '../../viewmodels/environment_selection_view_model.dart';
 import '../../viewmodels/splash_view_model.dart';
 import '../oyungrubu/login/oyungrubu_login_view.dart';
+import '../oyungrubu/home/oyungrubu_home_view.dart';
 import '../../models/environment_model.dart';
+import '../../core/services/navigation_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EnvironmentSelectionView extends StatelessWidget {
   const EnvironmentSelectionView({super.key});
@@ -51,13 +54,27 @@ class _EnvironmentSelectionContent extends StatelessWidget {
                   return _EnvironmentCard(
                     onTap: () async {
                       await viewModel.selectEnvironment(config);
-                      if (context.mounted) {
+                      if (!context.mounted) return;
+
+                      if (config.environment == AppEnvironment.oyunGrubu) {
+                        final prefs = await SharedPreferences.getInstance();
+                        final userKey = prefs.getString('oyungrubu_user_key');
+                        if (userKey != null && userKey.isNotEmpty) {
+                          NavigationService.pushNamedAndRemoveUntil(
+                            const OyunGrubuHomeView(),
+                          );
+                          return;
+                        }
+
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                            builder: (_) =>
-                                config.environment == AppEnvironment.anaokulu
-                                ? const LandingView()
-                                : const OyunGrubuLoginView(),
+                            builder: (_) => const OyunGrubuLoginView(),
+                          ),
+                        );
+                      } else {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (_) => const LandingView(),
                           ),
                         );
                       }

@@ -8,8 +8,6 @@ class OyunGrubuHomeHeader extends StatelessWidget {
   final int studentCount;
   final int classCount;
   final int unreadCount;
-  final VoidCallback onProfileTap;
-  final VoidCallback onLogoutTap;
   final VoidCallback onNotificationsTap;
 
   const OyunGrubuHomeHeader({
@@ -19,8 +17,6 @@ class OyunGrubuHomeHeader extends StatelessWidget {
     required this.studentCount,
     required this.classCount,
     required this.unreadCount,
-    required this.onProfileTap,
-    required this.onLogoutTap,
     required this.onNotificationsTap,
   });
 
@@ -73,15 +69,45 @@ class OyunGrubuHomeHeader extends StatelessWidget {
               Row(
                 children: [
                   SizedBox(width: SizeTokens.p8),
-                  _buildHeaderIconButton(
-                    icon: Icons.person_outline_rounded,
-                    onTap: onProfileTap,
-                  ),
-                  SizedBox(width: SizeTokens.p8),
-                  _buildHeaderIconButton(
-                    icon: Icons.logout_rounded,
-                    onTap: onLogoutTap,
-                  ),
+                  if (unreadCount > 0)
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        _buildHeaderIconButton(
+                          icon: Icons.notifications_none_rounded,
+                          onTap: onNotificationsTap,
+                        ),
+                        Positioned(
+                          right: -SizeTokens.p4,
+                          top: -SizeTokens.p4,
+                          child: Container(
+                            padding: EdgeInsets.all(SizeTokens.p4),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade600,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Text(
+                              unreadCount > 9 ? '9+' : unreadCount.toString(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: SizeTokens.f10,
+                                fontWeight: FontWeight.bold,
+                                height: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    _buildHeaderIconButton(
+                      icon: Icons.notifications_none_rounded,
+                      onTap: onNotificationsTap,
+                    ),
                 ],
               ),
             ],

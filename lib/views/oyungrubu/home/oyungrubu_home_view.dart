@@ -8,8 +8,6 @@ import '../../../core/utils/app_translations.dart';
 import '../../../viewmodels/oyungrubu_home_view_model.dart';
 import '../../../viewmodels/splash_view_model.dart';
 import '../profile/oyungrubu_profile_view.dart';
-import '../../../services/oyungrubu_auth_service.dart';
-import '../../../views/environment_selection/environment_selection_view.dart';
 import 'widgets/oyungrubu_home_header.dart';
 import '../student_detail/oyungrubu_student_detail_view.dart';
 import '../../../viewmodels/oyungrubu_student_history_view_model.dart';
@@ -22,6 +20,7 @@ import 'widgets/oyungrubu_student_card.dart';
 import 'widgets/oyungrubu_class_section.dart';
 import 'widgets/oyungrubu_timetable_section.dart';
 import 'widgets/oyungrubu_lesson_section.dart';
+import '../settings/oyungrubu_settings_view.dart';
 
 class OyunGrubuHomeView extends StatefulWidget {
   const OyunGrubuHomeView({super.key});
@@ -78,9 +77,11 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
       case 0:
         return _buildHomeDashboard(viewModel, locale, primaryColor);
       case 1:
-        return const OyunGrubuNotificationsView(isTab: true);
+        return _OyunGrubuLessonsPage(viewModel: viewModel, locale: locale);
       case 2:
         return const OyunGrubuProfileView(isTab: true);
+      case 3:
+        return const OyunGrubuSettingsView(isTab: true);
       default:
         return const SizedBox.shrink();
     }
@@ -104,16 +105,13 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
           classCount: viewModel.classes?.length ?? 0,
           unreadCount:
               viewModel.notifications?.where((n) => n.isRead == 0).length ?? 0,
-          onProfileTap: () {
-            setState(() {
-              _currentIndex = 2;
-            });
-          },
-          onLogoutTap: () => _showLogoutDialog(context, locale),
           onNotificationsTap: () {
-            setState(() {
-              _currentIndex = 1;
-            });
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const OyunGrubuNotificationsView(isTab: false),
+              ),
+            );
           },
         ),
 
@@ -491,15 +489,9 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
                   title: AppTranslations.translate('og_lessons', locale),
                   subtitle: AppTranslations.translate('lessons_desc', locale),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => _OyunGrubuLessonsPage(
-                          viewModel: viewModel,
-                          locale: locale,
-                        ),
-                      ),
-                    );
+                    setState(() {
+                      _currentIndex = 1;
+                    });
                   },
                 ),
               ),
@@ -514,9 +506,13 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
                     locale,
                   ),
                   onTap: () {
-                    setState(() {
-                      _currentIndex = 1;
-                    });
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const OyunGrubuNotificationsView(isTab: false),
+                      ),
+                    );
                   },
                 ),
               ),
@@ -660,51 +656,6 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
         );
       }
     }
-  }
-
-  void _showLogoutDialog(BuildContext context, String locale) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(SizeTokens.r16),
-        ),
-        title: Text(
-          AppTranslations.translate('logout', locale),
-          style: TextStyle(
-            fontSize: SizeTokens.f20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Text(
-          AppTranslations.translate('logout_confirmation', locale),
-          style: TextStyle(fontSize: SizeTokens.f14),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(AppTranslations.translate('cancel', locale)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await OyunGrubuAuthService.logout();
-              if (context.mounted) {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (_) => const EnvironmentSelectionView(),
-                  ),
-                  (route) => false,
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade400,
-            ),
-            child: Text(AppTranslations.translate('logout', locale)),
-          ),
-        ],
-      ),
-    );
   }
 }
 

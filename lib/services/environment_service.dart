@@ -44,5 +44,12 @@ class EnvironmentService {
     AppLogger.info('Environment set to: ${config.translationKey}');
   }
 
+  static Future<void> clearEnvironment() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_keyEnvironment);
+    _currentConfig = null;
+    AppLogger.info('Environment cleared.');
+  }
+
   static bool get isEnvironmentSelected => _currentConfig != null;
 }
