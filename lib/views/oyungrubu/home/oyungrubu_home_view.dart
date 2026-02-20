@@ -21,6 +21,7 @@ import 'widgets/oyungrubu_class_section.dart';
 import 'widgets/oyungrubu_timetable_section.dart';
 import 'widgets/oyungrubu_lesson_section.dart';
 import '../settings/oyungrubu_settings_view.dart';
+import '../qr_scanner/oyungrubu_qr_scanner_view.dart';
 
 class OyunGrubuHomeView extends StatefulWidget {
   const OyunGrubuHomeView({super.key});
@@ -37,7 +38,10 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<OyunGrubuHomeViewModel>().init();
-      context.read<SettingsViewModel>().fetchSettings();
+      final settingsVM = context.read<SettingsViewModel>();
+      if (settingsVM.settings == null) {
+        settingsVM.fetchSettings();
+      }
     });
   }
 
@@ -79,8 +83,10 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
       case 1:
         return _OyunGrubuLessonsPage(viewModel: viewModel, locale: locale);
       case 2:
-        return const OyunGrubuProfileView(isTab: true);
+        return const OyunGrubuQRScannerView();
       case 3:
+        return const OyunGrubuProfileView(isTab: true);
+      case 4:
         return const OyunGrubuSettingsView(isTab: true);
       default:
         return const SizedBox.shrink();

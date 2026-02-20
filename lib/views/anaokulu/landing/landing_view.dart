@@ -32,7 +32,7 @@ class _LandingViewState extends State<LandingView> {
         await loginVM.init();
       }
       if (context.mounted) {
-        settingsVM.fetchSettings();
+        settingsVM.fetchSettings(schoolId: loginVM.data?.data?.schoolId);
       }
 
       if (context.mounted && loginVM.data?.data != null) {

@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'base_view_model.dart';
 import '../app/app_theme.dart';
 import '../models/settings_model.dart';
@@ -55,21 +57,56 @@ class SettingsViewModel extends BaseViewModel {
     return '';
   }
 
+  Future<void> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedSettings = prefs.getString('saved_settings');
+    _baseUrl = prefs.getString('saved_settings_url');
+
+    if (savedSettings != null) {
+      try {
+        _settings = SettingsData.fromJson(jsonDecode(savedSettings));
+        notifyListeners();
+      } catch (e) {
+        debugPrint('Error loading saved settings: $e');
+      }
+    }
+  }
+
   Future<void> fetchSettings({int? schoolId}) async {
+    if (_isLoading) return;
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
-    final result = await _settingsService.getSettings(schoolId: schoolId);
+    try {
+      final result = await _settingsService.getSettings(schoolId: schoolId);
 
-    if (result is Success<SettingsResponse>) {
-      _settings = result.data.data;
-      _baseUrl = result.data.url;
       _isLoading = false;
-      notifyListeners();
-    } else if (result is Failure<SettingsResponse>) {
-      _errorMessage = result.message;
+      if (result is Success<SettingsResponse>) {
+        _settings = result.data.data;
+        _baseUrl = result.data.url;
+
+        // Persist settings
+        final prefs = await SharedPreferences.getInstance();
+        if (_settings != null) {
+          await prefs.setString(
+            'saved_settings',
+            jsonEncode(_settings!.toJson()),
+          );
+        }
+        if (_baseUrl != null) {
+          await prefs.setString('saved_settings_url', _baseUrl!);
+        }
+
+        notifyListeners();
+      } else if (result is Failure<SettingsResponse>) {
+        _errorMessage = result.message;
+        notifyListeners();
+      }
+    } catch (e) {
       _isLoading = false;
+      _errorMessage = e.toString();
       notifyListeners();
     }
   }

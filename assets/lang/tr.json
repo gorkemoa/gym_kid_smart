@@ -294,5 +294,7 @@
     "my_children_desc": "Çocuklarınızın bilgileri ve detayları",
     "groups_desc": "Sınıf grupları ve ders programları",
     "lessons_desc": "Yaklaşan ve geçmiş ders bilgileri",
-    "notifications_desc": "Bildirimler ve duyurular"
+    "notifications_desc": "Bildirimler ve duyurular",
+    "qr_scan": "QR Okuma",
+    "qr_scan_desc": "Dersi başlatmak veya katılımınızı onaylamak için QR kodunu okutun."
 }
