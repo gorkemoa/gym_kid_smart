@@ -300,5 +300,11 @@
     "qr_scan_success": "QR Code scanned successfully!",
     "qr_scan_error": "An error occurred while scanning QR code.",
     "select_student_to_scan": "Select student to scan",
-    "scan_again": "Scan Again"
+    "scan_again": "Scan Again",
+    "buy_package": "Buy",
+    "buy_new_package": "Buy New Package",
+    "buy_new_package_desc": "Click here to add a new package.",
+    "buy_package_loading": "Loading payment page...",
+    "buy_package_error": "Page could not be loaded",
+    "buy_package_error_desc": "Please check your internet connection and try again."
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/responsive/size_tokens.dart';
 import '../../../core/utils/app_translations.dart';
 import '../../../models/oyungrubu_student_model.dart';
@@ -27,6 +28,7 @@ class _OyunGrubuStudentHistoryViewState
     extends State<OyunGrubuStudentHistoryView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String? _userKey;
 
   @override
   void initState() {
@@ -41,7 +43,17 @@ class _OyunGrubuStudentHistoryViewState
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<OyunGrubuStudentHistoryViewModel>().init(widget.student);
+      _loadUserKey();
     });
+  }
+
+  Future<void> _loadUserKey() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _userKey = prefs.getString('oyungrubu_user_key');
+      });
+    }
   }
 
   @override
@@ -136,6 +148,7 @@ class _OyunGrubuStudentHistoryViewState
                         packageCount: viewModel.packageCount,
                         makeupBalance: viewModel.makeupBalance,
                         locale: locale,
+                        userKey: _userKey,
                       ),
                     ),
 

@@ -304,5 +304,11 @@
     "qr_scan_success": "QR Kod başarıyla okutuldu!",
     "qr_scan_error": "QR Kod okutulurken bir hata oluştu.",
     "select_student_to_scan": "Tarama yapılacak öğrenciyi seçin",
-    "scan_again": "Tekrar Tara"
+    "scan_again": "Tekrar Tara",
+    "buy_package": "Satın Al",
+    "buy_new_package": "Yeni Paket Satın Al",
+    "buy_new_package_desc": "Yeni bir paket eklemek için buraya tıklayın.",
+    "buy_package_loading": "Ödeme sayfası yükleniyor...",
+    "buy_package_error": "Sayfa yüklenemedi",
+    "buy_package_error_desc": "Lütfen internet bağlantınızı kontrol edip tekrar deneyin."
 }

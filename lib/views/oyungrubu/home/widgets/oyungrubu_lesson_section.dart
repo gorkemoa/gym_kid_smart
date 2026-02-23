@@ -81,6 +81,7 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
+                                // ignore: deprecated_member_use
                                 color: primaryColor.withOpacity(0.25),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
@@ -88,6 +89,7 @@ class _OyunGrubuLessonSectionState extends State<OyunGrubuLessonSection> {
                             ]
                           : [
                               BoxShadow(
+                                // ignore: deprecated_member_use
                                 color: Colors.black.withOpacity(0.02),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),

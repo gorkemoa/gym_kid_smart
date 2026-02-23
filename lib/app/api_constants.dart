@@ -98,4 +98,11 @@ class ApiConstants {
   static const String permissionStatusParent = '/Api/PermissionStatusParent';
   static const String permissionList = '/Api/PermissionList';
   static const String permissionControl = '/Api/PermissionControl';
+
+  // Payment
+  static String mobileBuyPackageUrl({
+    required String userKey,
+    required int packageId,
+  }) =>
+      '$oyunGrubuUrl/Payment/mobile_buy_package?user_key=$userKey&package_id=$packageId';
 }
