@@ -296,5 +296,9 @@
     "notifications_desc": "Notifications and announcements",
     "notifications_tdesc": "New notifications and announcements",
     "qr_scan": "QR Scan",
-    "qr_scan_desc": "Scan the QR code to start the lesson or confirm your attendance."
+    "qr_scan_desc": "Scan the QR code to start the lesson or confirm your attendance.",
+    "qr_scan_success": "QR Code scanned successfully!",
+    "qr_scan_error": "An error occurred while scanning QR code.",
+    "select_student_to_scan": "Select student to scan",
+    "scan_again": "Scan Again"
 }

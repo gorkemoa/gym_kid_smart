@@ -171,4 +171,35 @@ class OyunGrubuClassService {
       return Failure(e.toString());
     }
   }
+
+  Future<ApiResult<String>> scanLessonQR({
+    required int studentId,
+    required String qrToken,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userKey = prefs.getString('oyungrubu_user_key');
+
+      if (userKey == null) {
+        return const Failure('no_credentials');
+      }
+
+      final response = await _apiClient.post(
+        ApiConstants.scanLessonQR,
+        body: {
+          'user_key': userKey,
+          'student_id': studentId.toString(),
+          'qr_token': qrToken,
+        },
+      );
+
+      if (response.containsKey('success')) {
+        return Success(response['success']?.toString() ?? 'true');
+      }
+      return Failure(response['message']?.toString() ?? 'error_occurred');
+    } catch (e) {
+      AppLogger.error('OyunGrubu scanLessonQR failed', e);
+      return Failure(e.toString());
+    }
+  }
 }

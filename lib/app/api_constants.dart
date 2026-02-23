@@ -90,6 +90,7 @@ class ApiConstants {
   static const String getLessonDetails = '/Api/GetLessonDetails';
   static const String getNotifications = '/Api/GetNotifications';
   static const String submitAttendance = '/Api/SubmitAttendance';
+  static const String scanLessonQR = '/Api/ScanLessonQR';
 
   // Permission
   static const String addPermission = '/Api/addPermission';

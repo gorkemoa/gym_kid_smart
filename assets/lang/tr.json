@@ -300,5 +300,9 @@
     "notifications_desc": "Bildirimler ve duyurular",
     "notifications_tdesc": "Yeni bildirim ve duyurular",
     "qr_scan": "QR Okuma",
-    "qr_scan_desc": "Dersi başlatmak veya katılımınızı onaylamak için QR kodunu okutun."
+    "qr_scan_desc": "Dersi başlatmak veya katılımınızı onaylamak için QR kodunu okutun.",
+    "qr_scan_success": "QR Kod başarıyla okutuldu!",
+    "qr_scan_error": "QR Kod okutulurken bir hata oluştu.",
+    "select_student_to_scan": "Tarama yapılacak öğrenciyi seçin",
+    "scan_again": "Tekrar Tara"
 }

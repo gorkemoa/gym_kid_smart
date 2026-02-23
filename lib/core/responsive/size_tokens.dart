@@ -72,7 +72,11 @@ class SizeTokens {
   static double get h120 => 30.7.w;
   static double get h150 => 38.5.w;
   static double get h200 => 51.3.w;
+  static double get h280 => 71.8.w;
   static double get h300 => 76.9.w;
+
+  static double get r28 => 7.2.w;
+  static double get i80 => 20.5.w;
 
   static double get w4 => 4.w;
 }
