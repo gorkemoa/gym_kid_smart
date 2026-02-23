@@ -301,9 +301,10 @@
     "qr_scan_error": "An error occurred while scanning QR code.",
     "select_student_to_scan": "Select student to scan",
     "scan_again": "Scan Again",
-    "buy_package": "Buy",
-    "buy_new_package": "Buy New Package",
+    "buy_package": "Buy Package",
+    "buy_new_package": "Buy Package",
     "buy_new_package_desc": "Click here to add a new package.",
+    "select_student_for_package": "Select Student for Package",
     "buy_package_loading": "Loading payment page...",
     "buy_package_error": "Page could not be loaded",
     "buy_package_error_desc": "Please check your internet connection and try again."

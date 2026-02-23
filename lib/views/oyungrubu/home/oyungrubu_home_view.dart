@@ -22,6 +22,7 @@ import 'widgets/oyungrubu_timetable_section.dart';
 import 'widgets/oyungrubu_lesson_section.dart';
 import '../settings/oyungrubu_settings_view.dart';
 import '../qr_scanner/oyungrubu_qr_scanner_view.dart';
+import '../student_history/oyungrubu_student_history_view.dart';
 
 class OyunGrubuHomeView extends StatefulWidget {
   const OyunGrubuHomeView({super.key});
@@ -500,21 +501,23 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
                 ),
               ),
               SizedBox(width: SizeTokens.p16),
-              // Module 4: Bildirimler
+              // Module 4: Paket Satın Al
               Expanded(
                 child: _buildModuleItem(
-                  icon: Icons.notifications_outlined,
-                  title: AppTranslations.translate('notifications', locale),
+                  icon: Icons.add_shopping_cart_rounded,
+                  title: AppTranslations.translate('buy_package', locale),
                   tdesc: AppTranslations.translate(
-                    'notifications_tdesc',
+                    'buy_new_package_desc',
                     locale,
                   ),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>
-                            const OyunGrubuNotificationsView(isTab: false),
+                        builder: (_) => _OyunGrubuSelectChildForPackagePage(
+                          viewModel: viewModel,
+                          locale: locale,
+                        ),
                       ),
                     );
                   },
@@ -598,6 +601,7 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
   // ──────────────────────────────────────────
   // Helpers
   // ──────────────────────────────────────────
+
   String _formatTime(String? time) {
     if (time == null) return '';
     final parts = time.split(':');
@@ -630,6 +634,7 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
 
       if (detail != null) {
         showModalBottomSheet(
+          // ignore: use_build_context_synchronously
           context: context,
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
@@ -819,6 +824,150 @@ class _OyunGrubuChildrenPage extends StatelessWidget {
                 );
               },
             ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ──────────────────────────────────────────
+// Select Child For Package Page
+// ──────────────────────────────────────────
+class _OyunGrubuSelectChildForPackagePage extends StatelessWidget {
+  final OyunGrubuHomeViewModel viewModel;
+  final String locale;
+
+  const _OyunGrubuSelectChildForPackagePage({
+    required this.viewModel,
+    required this.locale,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F6FA),
+      appBar: AppBar(
+        title: Text(
+          AppTranslations.translate('select_student_for_package', locale),
+          style: TextStyle(
+            fontSize: SizeTokens.f18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
+      ),
+      body: Consumer<OyunGrubuHomeViewModel>(
+        builder: (context, vm, _) {
+          if (vm.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (vm.errorMessage != null) {
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.all(SizeTokens.p32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline_rounded,
+                      size: SizeTokens.i64,
+                      color: Colors.red.shade300,
+                    ),
+                    SizedBox(height: SizeTokens.p16),
+                    Text(
+                      AppTranslations.translate(vm.errorMessage!, locale),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: SizeTokens.f16,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    SizedBox(height: SizeTokens.p24),
+                    ElevatedButton.icon(
+                      onPressed: vm.onRetry,
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: Text(AppTranslations.translate('retry', locale)),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+          if (vm.students == null || vm.students!.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.all(SizeTokens.p32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.child_care_rounded,
+                      size: SizeTokens.i64,
+                      color: Colors.grey.shade300,
+                    ),
+                    SizedBox(height: SizeTokens.p16),
+                    Text(
+                      AppTranslations.translate(
+                        'no_students_registered',
+                        locale,
+                      ),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: SizeTokens.f16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+          return ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(
+              horizontal: SizeTokens.p24,
+              vertical: SizeTokens.p16,
+            ),
+            itemCount: vm.students!.length,
+            itemBuilder: (context, index) {
+              final student = vm.students![index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          OyunGrubuStudentHistoryView(student: student),
+                    ),
+                  );
+                },
+                child: OyunGrubuStudentCard(
+                  student: student,
+                  locale: locale,
+                  onEdit: () async {
+                    context.read<OyunGrubuStudentHistoryViewModel>().init(
+                      student,
+                    );
+                    await showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) => StudentEditBottomSheet(locale: locale),
+                    );
+                    if (context.mounted) {
+                      context.read<OyunGrubuHomeViewModel>().fetchStudents(
+                        isSilent: true,
+                      );
+                    }
+                  },
+                ),
+              );
+            },
           );
         },
       ),

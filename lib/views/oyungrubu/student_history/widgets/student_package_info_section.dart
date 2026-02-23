@@ -338,16 +338,15 @@ class StudentPackageInfoSection extends StatelessWidget {
               size: compact ? SizeTokens.i14 : SizeTokens.i18,
               color: Colors.white,
             ),
-            if (!compact) SizedBox(width: SizeTokens.p6),
-            if (!compact)
-              Text(
-                AppTranslations.translate('buy_package', locale),
-                style: TextStyle(
-                  fontSize: SizeTokens.f13,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
+            SizedBox(width: SizeTokens.p6),
+            Text(
+              AppTranslations.translate('buy_package', locale),
+              style: TextStyle(
+                fontSize: compact ? SizeTokens.f12 : SizeTokens.f13,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
               ),
+            ),
           ],
         ),
       ),
