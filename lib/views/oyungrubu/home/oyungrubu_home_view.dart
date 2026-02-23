@@ -444,10 +444,8 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
                 child: _buildModuleItem(
                   icon: Icons.child_care_rounded,
                   title: AppTranslations.translate('my_children', locale),
-                  subtitle: AppTranslations.translate(
-                    'my_children_desc',
-                    locale,
-                  ),
+                  tdesc: AppTranslations.translate('my_children_tdesc', locale),
+
                   onTap: () {
                     Navigator.push(
                       context,
@@ -467,7 +465,7 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
                 child: _buildModuleItem(
                   icon: Icons.groups_rounded,
                   title: AppTranslations.translate('groups', locale),
-                  subtitle: AppTranslations.translate('groups_desc', locale),
+                  tdesc: AppTranslations.translate('groups_tdesc', locale),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -493,7 +491,7 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
                 child: _buildModuleItem(
                   icon: Icons.school_rounded,
                   title: AppTranslations.translate('og_lessons', locale),
-                  subtitle: AppTranslations.translate('lessons_desc', locale),
+                  tdesc: AppTranslations.translate('lessons_tdesc', locale),
                   onTap: () {
                     setState(() {
                       _currentIndex = 1;
@@ -507,8 +505,8 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
                 child: _buildModuleItem(
                   icon: Icons.notifications_outlined,
                   title: AppTranslations.translate('notifications', locale),
-                  subtitle: AppTranslations.translate(
-                    'notifications_desc',
+                  tdesc: AppTranslations.translate(
+                    'notifications_tdesc',
                     locale,
                   ),
                   onTap: () {
@@ -532,13 +530,13 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
   Widget _buildModuleItem({
     required IconData icon,
     required String title,
-    required String subtitle,
+    String? tdesc,
     VoidCallback? onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(SizeTokens.p16),
+        padding: EdgeInsets.all(SizeTokens.p10),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(SizeTokens.r12),
@@ -562,9 +560,9 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
                 color: Theme.of(context).colorScheme.primary,
                 borderRadius: BorderRadius.circular(SizeTokens.r16),
               ),
-              child: Icon(icon, color: Colors.white, size: SizeTokens.i24),
+              child: Icon(icon, color: Colors.white, size: SizeTokens.i20),
             ),
-            SizedBox(height: SizeTokens.p10),
+            SizedBox(height: SizeTokens.p6),
             Text(
               title,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -575,22 +573,22 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
               textAlign: TextAlign.center,
               maxLines: 1,
             ),
-            SizedBox(height: SizeTokens.p4),
-            Flexible(
-              child: Text(
-                subtitle,
+            if (tdesc != null) ...[
+              SizedBox(height: SizeTokens.p2),
+              Text(
+                tdesc,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(
                     context,
-                    // ignore: deprecated_member_use
-                  ).textTheme.bodySmall?.color?.withOpacity(0.7),
-                  fontWeight: FontWeight.w500,
+                  ).colorScheme.onSurface.withOpacity(0.6),
+                  fontWeight: FontWeight.w600,
+                  fontSize: SizeTokens.f10,
                 ),
                 textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
-            ),
+            ],
+            SizedBox(height: SizeTokens.p2),
           ],
         ),
       ),

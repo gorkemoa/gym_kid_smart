@@ -288,9 +288,13 @@
     "og_lessons": "Lessons",
     "og_modules": "Modules",
     "my_children_desc": "Your children's info and details",
+    "my_children_tdesc": "Detailed list of students",
     "groups_desc": "Class groups and timetables",
+    "groups_tdesc": "Class and group details",
     "lessons_desc": "Upcoming and past lesson info",
+    "lessons_tdesc": "Lesson plan and attendance",
     "notifications_desc": "Notifications and announcements",
+    "notifications_tdesc": "New notifications and announcements",
     "qr_scan": "QR Scan",
     "qr_scan_desc": "Scan the QR code to start the lesson or confirm your attendance."
 }

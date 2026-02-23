@@ -292,9 +292,13 @@
     "og_lessons": "Dersler",
     "og_modules": "Modüller",
     "my_children_desc": "Çocuklarınızın bilgileri ve detayları",
+    "my_children_tdesc": "Öğrencilerin detaylı listesi",
     "groups_desc": "Sınıf grupları ve ders programları",
+    "groups_tdesc": "Sınıf ve grup detayları",
     "lessons_desc": "Yaklaşan ve geçmiş ders bilgileri",
+    "lessons_tdesc": "Ders planı ve katılımlar",
     "notifications_desc": "Bildirimler ve duyurular",
+    "notifications_tdesc": "Yeni bildirim ve duyurular",
     "qr_scan": "QR Okuma",
     "qr_scan_desc": "Dersi başlatmak veya katılımınızı onaylamak için QR kodunu okutun."
 }
