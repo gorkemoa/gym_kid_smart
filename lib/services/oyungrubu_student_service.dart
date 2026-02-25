@@ -4,6 +4,7 @@ import '../core/network/api_client.dart';
 import '../core/network/api_result.dart';
 import '../core/utils/logger.dart';
 import '../models/oyungrubu_students_response.dart';
+import '../core/utils/error_mapper.dart';
 
 class OyunGrubuStudentService {
   final ApiClient _apiClient = ApiClient();
@@ -25,7 +26,7 @@ class OyunGrubuStudentService {
       return Success(studentsResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu getStudents failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 }

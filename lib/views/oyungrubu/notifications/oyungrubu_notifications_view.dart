@@ -92,95 +92,104 @@ class _OyunGrubuNotificationsViewState
   ) {
     final isRead = notification.isRead == 1;
 
-    return Container(
-      padding: EdgeInsets.all(SizeTokens.p16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(SizeTokens.r16),
-        boxShadow: [
-          BoxShadow(
-            // ignore: deprecated_member_use
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return GestureDetector(
+      onTap: () {
+        if (!isRead && notification.id != null) {
+          context.read<OyunGrubuNotificationsViewModel>().markNotificationRead(
+            notification.id!,
+          );
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.all(SizeTokens.p16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(SizeTokens.r16),
+          boxShadow: [
+            BoxShadow(
+              // ignore: deprecated_member_use
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          border: Border.all(
+            color: isRead ? Colors.transparent : primaryColor.withOpacity(0.1),
           ),
-        ],
-        border: Border.all(
-          color: isRead ? Colors.transparent : primaryColor.withOpacity(0.1),
         ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: EdgeInsets.all(SizeTokens.p10),
-            decoration: BoxDecoration(
-              color: isRead
-                  ? Colors.grey.shade50
-                  : primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(SizeTokens.r12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: EdgeInsets.all(SizeTokens.p10),
+              decoration: BoxDecoration(
+                color: isRead
+                    ? Colors.grey.shade50
+                    : primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(SizeTokens.r12),
+              ),
+              child: Icon(
+                _getNotificationIcon(notification.type),
+                size: SizeTokens.i20,
+                color: isRead ? Colors.grey.shade400 : primaryColor,
+              ),
             ),
-            child: Icon(
-              _getNotificationIcon(notification.type),
-              size: SizeTokens.i20,
-              color: isRead ? Colors.grey.shade400 : primaryColor,
-            ),
-          ),
-          SizedBox(width: SizeTokens.p16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        notification.title ?? '-',
-                        style: TextStyle(
-                          fontSize: SizeTokens.f14,
-                          fontWeight: isRead
-                              ? FontWeight.w600
-                              : FontWeight.w700,
-                          color: isRead
-                              ? Colors.blueGrey.shade700
-                              : Colors.blueGrey.shade900,
+            SizedBox(width: SizeTokens.p16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          notification.title ?? '-',
+                          style: TextStyle(
+                            fontSize: SizeTokens.f14,
+                            fontWeight: isRead
+                                ? FontWeight.w600
+                                : FontWeight.w700,
+                            color: isRead
+                                ? Colors.blueGrey.shade700
+                                : Colors.blueGrey.shade900,
+                          ),
                         ),
                       ),
+                      if (!isRead)
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: SizeTokens.p6),
+                  Text(
+                    notification.message ?? '-',
+                    style: TextStyle(
+                      fontSize: SizeTokens.f13,
+                      color: Colors.blueGrey.shade600,
+                      height: 1.5,
                     ),
-                    if (!isRead)
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                  ],
-                ),
-                SizedBox(height: SizeTokens.p6),
-                Text(
-                  notification.message ?? '-',
-                  style: TextStyle(
-                    fontSize: SizeTokens.f13,
-                    color: Colors.blueGrey.shade600,
-                    height: 1.5,
                   ),
-                ),
-                SizedBox(height: SizeTokens.p10),
-                Text(
-                  notification.createdAt ?? '-',
-                  style: TextStyle(
-                    fontSize: SizeTokens.f10,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey.shade400,
+                  SizedBox(height: SizeTokens.p10),
+                  Text(
+                    notification.createdAt ?? '-',
+                    style: TextStyle(
+                      fontSize: SizeTokens.f10,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey.shade400,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -4,6 +4,8 @@ import '../core/network/api_result.dart';
 import '../models/settings_model.dart';
 import '../core/utils/logger.dart';
 
+import '../core/utils/error_mapper.dart';
+
 class SettingsService {
   final ApiClient _apiClient = ApiClient();
 
@@ -18,7 +20,7 @@ class SettingsService {
       return Success(settingsResponse);
     } catch (e) {
       AppLogger.error('Fetch settings failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 }

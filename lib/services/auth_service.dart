@@ -7,6 +7,8 @@ import '../models/login_response.dart';
 import '../models/user_model.dart';
 import '../core/utils/logger.dart';
 
+import '../core/utils/error_mapper.dart';
+
 class AuthService {
   final ApiClient _apiClient = ApiClient();
 
@@ -31,7 +33,7 @@ class AuthService {
       return Success(loginResponse);
     } catch (e) {
       AppLogger.error('Login failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 

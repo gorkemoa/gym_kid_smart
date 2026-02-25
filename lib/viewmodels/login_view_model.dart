@@ -4,13 +4,11 @@ import '../core/network/api_result.dart';
 import '../models/login_response.dart';
 import '../services/auth_service.dart';
 import '../services/push_notification_service.dart';
-import '../services/device_info_service.dart';
 import '../core/utils/logger.dart';
 
 class LoginViewModel extends BaseViewModel {
   final AuthService _authService = AuthService();
   final PushNotificationService _pushService = PushNotificationService();
-  final DeviceInfoService _deviceInfoService = DeviceInfoService();
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -63,17 +61,13 @@ class LoginViewModel extends BaseViewModel {
       if (_data?.data != null) {
         final user = _data!.data!;
 
-        final deviceId = await _deviceInfoService.getDeviceId();
         final res = await _pushService.addToken(
           schoolId: user.schoolId ?? 1,
           userKey: user.userKey ?? '',
-          deviceId: deviceId,
         );
 
         if (res is Success<bool>) {
-          AppLogger.info(
-            'Push token registered successfully with ID: $deviceId',
-          );
+          AppLogger.info('Push token registered successfully.');
         } else if (res is Failure<bool>) {
           AppLogger.warning('Push token registration failed: ${res.message}');
         }

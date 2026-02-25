@@ -73,6 +73,7 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
   Future<void> init() async {
     _user = await _authService.getSavedUser();
     notifyListeners();
+    _notificationService.updateFCMToken(); // Update FCM Token in background
     await Future.wait([fetchStudents(), fetchClasses(), fetchNotifications()]);
   }
 

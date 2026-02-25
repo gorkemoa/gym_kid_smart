@@ -9,6 +9,8 @@ import '../models/oyungrubu_user_model.dart';
 import '../models/oyungrubu_profile_response.dart';
 import '../core/utils/logger.dart';
 
+import '../core/utils/error_mapper.dart';
+
 class OyunGrubuAuthService {
   final ApiClient _apiClient = ApiClient();
 
@@ -41,7 +43,7 @@ class OyunGrubuAuthService {
       return Success(loginResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu login failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 
@@ -62,7 +64,7 @@ class OyunGrubuAuthService {
       return Success(profileResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu getProfile failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 
@@ -96,15 +98,18 @@ class OyunGrubuAuthService {
           final userMap = jsonDecode(savedUserJson) as Map<String, dynamic>;
           userMap['name'] = name;
           userMap['surname'] = surname;
-          userMap['phone'] = phone; // although not in model field by default, we can save it in json
+          userMap['phone'] =
+              phone; // although not in model field by default, we can save it in json
           await prefs.setString('oyungrubu_user_data', jsonEncode(userMap));
         }
         return const Success(true);
       }
-      return Failure(response['failure'] ?? 'update_failed');
+      return Failure(
+        ErrorMapper.mapMessage(response['failure'] ?? 'update_failed'),
+      );
     } catch (e) {
       AppLogger.error('OyunGrubu updateParentProfile failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 
@@ -121,10 +126,7 @@ class OyunGrubuAuthService {
         return const Failure('no_credentials');
       }
 
-      final Map<String, String> body = {
-        'user_key': userKey,
-        'type': type,
-      };
+      final Map<String, String> body = {'user_key': userKey, 'type': type};
 
       if (studentId != null) {
         body['student_id'] = studentId;
@@ -139,10 +141,12 @@ class OyunGrubuAuthService {
       if (response['success'] != null) {
         return const Success(true);
       }
-      return Failure(response['failure'] ?? 'upload_failed');
+      return Failure(
+        ErrorMapper.mapMessage(response['failure'] ?? 'upload_failed'),
+      );
     } catch (e) {
       AppLogger.error('OyunGrubu updateProfileImage failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 

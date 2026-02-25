@@ -5,7 +5,7 @@ class OyunGrubuNotificationModel {
   final String? message;
   final String? type;
   final String? data;
-  final int? isRead;
+  int? isRead;
   final String? createdAt;
 
   OyunGrubuNotificationModel({

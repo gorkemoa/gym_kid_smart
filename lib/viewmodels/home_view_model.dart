@@ -4,6 +4,7 @@ import '../models/notice_model.dart';
 import '../models/student_model.dart';
 import '../models/user_model.dart';
 import '../services/home_service.dart';
+import '../services/push_notification_service.dart';
 import '../core/utils/logger.dart';
 
 class HomeViewModel extends BaseViewModel {
@@ -28,6 +29,14 @@ class HomeViewModel extends BaseViewModel {
 
   Future<void> init(UserModel user) async {
     _user = user;
+
+    // Uygulama her açıldığında veya home yüklendiğinde token güncelleyelim
+    final pushService = PushNotificationService();
+    pushService.addToken(
+      schoolId: _user!.schoolId ?? 1,
+      userKey: _user!.userKey ?? '',
+    );
+
     await refresh();
   }
 

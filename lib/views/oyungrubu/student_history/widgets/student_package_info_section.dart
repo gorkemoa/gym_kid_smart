@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/responsive/size_tokens.dart';
 import '../../../../core/utils/app_translations.dart';
 import '../../../../models/oyungrubu_package_info_model.dart';
-import 'buy_package_webview_view.dart';
+import 'iyzico_package_selection_bottom_sheet.dart';
 
 class StudentPackageInfoSection extends StatelessWidget {
   final List<OyunGrubuPackageInfoModel> packages;
@@ -465,14 +465,21 @@ class StudentPackageInfoSection extends StatelessWidget {
       return;
     }
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => BuyPackageWebViewView(
-          userKey: localUserKey!,
-          packageId: packageId,
-          packageTitle: packageTitle,
-          locale: locale,
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(SizeTokens.r24),
+          topRight: Radius.circular(SizeTokens.r24),
         ),
+      ),
+      builder: (_) => IyzicoPackageSelectionBottomSheet(
+        userKey: localUserKey!,
+        packageId: packageId,
+        packageTitle: packageTitle,
+        locale: locale,
       ),
     );
   }

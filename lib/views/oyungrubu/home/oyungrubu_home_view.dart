@@ -112,13 +112,16 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
           classCount: viewModel.classes?.length ?? 0,
           unreadCount:
               viewModel.notifications?.where((n) => n.isRead == 0).length ?? 0,
-          onNotificationsTap: () {
-            Navigator.push(
+          onNotificationsTap: () async {
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => const OyunGrubuNotificationsView(isTab: false),
               ),
             );
+            if (context.mounted) {
+              context.read<OyunGrubuHomeViewModel>().fetchNotifications();
+            }
           },
         ),
 

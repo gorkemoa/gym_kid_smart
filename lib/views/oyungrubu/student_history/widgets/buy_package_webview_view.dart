@@ -7,6 +7,7 @@ import '../../../../app/api_constants.dart';
 class BuyPackageWebViewView extends StatefulWidget {
   final String userKey;
   final int packageId;
+  final int iyzicoPackageId;
   final String packageTitle;
   final String locale;
 
@@ -14,6 +15,7 @@ class BuyPackageWebViewView extends StatefulWidget {
     super.key,
     required this.userKey,
     required this.packageId,
+    required this.iyzicoPackageId,
     required this.packageTitle,
     required this.locale,
   });
@@ -33,6 +35,7 @@ class _BuyPackageWebViewViewState extends State<BuyPackageWebViewView> {
     final url = ApiConstants.mobileBuyPackageUrl(
       userKey: widget.userKey,
       packageId: widget.packageId,
+      iyzicoPackageId: widget.iyzicoPackageId,
     );
 
     _controller = WebViewController()
@@ -118,6 +121,7 @@ class _BuyPackageWebViewViewState extends State<BuyPackageWebViewView> {
                 final url = ApiConstants.mobileBuyPackageUrl(
                   userKey: widget.userKey,
                   packageId: widget.packageId,
+                  iyzicoPackageId: widget.iyzicoPackageId,
                 );
                 _controller.loadRequest(Uri.parse(url));
               },
@@ -214,6 +218,7 @@ class _BuyPackageWebViewViewState extends State<BuyPackageWebViewView> {
                 final url = ApiConstants.mobileBuyPackageUrl(
                   userKey: widget.userKey,
                   packageId: widget.packageId,
+                  iyzicoPackageId: widget.iyzicoPackageId,
                 );
                 setState(() {
                   _hasError = false;

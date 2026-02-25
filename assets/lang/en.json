@@ -31,7 +31,7 @@
     "calendar_desc": "Personal development and habits",
     "food_list_desc": "Weekly or monthly food menus",
     "messages_desc": "Links providing quick access",
-    "no_messages": "No messages yet.",
+    "no_messages": "No messages yet in your account.",
     "write_message": "Write a message...",
     "send": "Send",
     "start_new_chat": "Start New Chat",
@@ -307,5 +307,16 @@
     "select_student_for_package": "Select Student for Package",
     "buy_package_loading": "Loading payment page...",
     "buy_package_error": "Page could not be loaded",
-    "buy_package_error_desc": "Please check your internet connection and try again."
+    "buy_package_error_desc": "Please check your internet connection and try again.",
+    "choose_package_variant": "Select Package Variant",
+    "variant_days": " Days",
+    "variant_lessons": " Lessons",
+    "variant_price": " TL",
+    "select_variant_desc": "Please select a package variant to continue.",
+    "error_missing_params": "Please make sure to fill in all fields.",
+    "error_invalid_user_key": "Your session has expired, please log in again.",
+    "error_general": "An error occurred during the process.",
+    "error_unauthorized": "Please log in first.",
+    "error_server": "Server error, please try again later.",
+    "invalid_credentials": "Email or password incorrect."
 }

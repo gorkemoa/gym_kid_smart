@@ -7,6 +7,8 @@ import '../core/utils/logger.dart';
 import '../models/oyungrubu_student_history_response.dart';
 import '../models/oyungrubu_package_info_response.dart';
 import '../models/oyungrubu_attendance_history_response.dart';
+import '../models/iyzico_packages_response.dart';
+import '../core/utils/error_mapper.dart';
 
 class OyunGrubuStudentHistoryService {
   final ApiClient _apiClient = ApiClient();
@@ -24,17 +26,15 @@ class OyunGrubuStudentHistoryService {
 
       final response = await _apiClient.post(
         ApiConstants.studentHistory,
-        body: {
-          'user_key': userKey,
-          'student_id': studentId.toString(),
-        },
+        body: {'user_key': userKey, 'student_id': studentId.toString()},
       );
-      final historyResponse =
-          OyunGrubuStudentHistoryResponse.fromJson(response);
+      final historyResponse = OyunGrubuStudentHistoryResponse.fromJson(
+        response,
+      );
       return Success(historyResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu getStudentHistory failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 
@@ -79,10 +79,12 @@ class OyunGrubuStudentHistoryService {
       if (response['success'] != null) {
         return const Success(true);
       }
-      return Failure(response['failure'] ?? 'update_failed');
+      return Failure(
+        ErrorMapper.mapMessage(response['failure'] ?? 'update_failed'),
+      );
     } catch (e) {
       AppLogger.error('OyunGrubu updateStudentProfile failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 
@@ -99,17 +101,15 @@ class OyunGrubuStudentHistoryService {
 
       final response = await _apiClient.post(
         ApiConstants.getPackageInfo,
-        body: {
-          'user_key': userKey,
-          'student_id': studentId.toString(),
-        },
+        body: {'user_key': userKey, 'student_id': studentId.toString()},
       );
-      final packageInfoResponse =
-          OyunGrubuPackageInfoResponse.fromJson(response);
+      final packageInfoResponse = OyunGrubuPackageInfoResponse.fromJson(
+        response,
+      );
       return Success(packageInfoResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu getPackageInfo failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 
@@ -126,17 +126,36 @@ class OyunGrubuStudentHistoryService {
 
       final response = await _apiClient.post(
         ApiConstants.getAttendanceHistory,
-        body: {
-          'user_key': userKey,
-          'student_id': studentId.toString(),
-        },
+        body: {'user_key': userKey, 'student_id': studentId.toString()},
       );
-      final historyResponse =
-          OyunGrubuAttendanceHistoryResponse.fromJson(response);
+      final historyResponse = OyunGrubuAttendanceHistoryResponse.fromJson(
+        response,
+      );
       return Success(historyResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu getAttendanceHistory failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
+    }
+  }
+
+  Future<ApiResult<IyzicoPackagesResponse>> getIyzicoPackages() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userKey = prefs.getString('oyungrubu_user_key');
+
+      if (userKey == null) {
+        return const Failure('no_credentials');
+      }
+
+      final response = await _apiClient.post(
+        ApiConstants.getIyzicoPackages,
+        body: {'user_key': userKey},
+      );
+      final packagesResponse = IyzicoPackagesResponse.fromJson(response);
+      return Success(packagesResponse);
+    } catch (e) {
+      AppLogger.error('OyunGrubu getIyzicoPackages failed', e);
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 }

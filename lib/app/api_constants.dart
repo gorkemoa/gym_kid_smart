@@ -91,6 +91,8 @@ class ApiConstants {
   static const String getNotifications = '/Api/GetNotifications';
   static const String submitAttendance = '/Api/SubmitAttendance';
   static const String scanLessonQR = '/Api/ScanLessonQR';
+  static const String updateFCMToken = '/Api/UpdateFCMToken';
+  static const String markNotificationRead = '/Api/MarkNotificationRead';
 
   // Permission
   static const String addPermission = '/Api/addPermission';
@@ -100,9 +102,12 @@ class ApiConstants {
   static const String permissionControl = '/Api/PermissionControl';
 
   // Payment
+  static const String getIyzicoPackages = '/Api/GetIyzicoPackages';
+
   static String mobileBuyPackageUrl({
     required String userKey,
     required int packageId,
+    required int iyzicoPackageId,
   }) =>
-      '$oyunGrubuUrl/Payment/mobile_buy_package?user_key=$userKey&package_id=$packageId';
+      '$oyunGrubuUrl/Payment/mobile_buy_package?user_key=$userKey&package_id=$packageId&iyzico_package_id=$iyzicoPackageId';
 }

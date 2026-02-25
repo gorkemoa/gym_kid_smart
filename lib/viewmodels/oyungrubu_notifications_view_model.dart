@@ -11,6 +11,9 @@ class OyunGrubuNotificationsViewModel extends BaseViewModel {
   List<OyunGrubuNotificationModel>? _notifications;
   List<OyunGrubuNotificationModel>? get notifications => _notifications;
 
+  int get unreadCount =>
+      _notifications?.where((n) => n.isRead == 0).length ?? 0;
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -32,5 +35,31 @@ class OyunGrubuNotificationsViewModel extends BaseViewModel {
       _notifications = [];
     }
     notifyListeners();
+  }
+
+  Future<bool> markNotificationRead(int notificationId) async {
+    // Optimistic UI updates (find and update locally first)
+    final index =
+        _notifications?.indexWhere((n) => n.id == notificationId) ?? -1;
+    if (index != -1 && _notifications![index].isRead == 0) {
+      _notifications![index].isRead = 1;
+      notifyListeners();
+    }
+
+    final result = await _notificationService.markNotificationRead(
+      notificationId: notificationId,
+    );
+
+    if (result is Success<bool>) {
+      // Notification marked on server successfully
+      return true;
+    } else {
+      // Revert if failed
+      if (index != -1) {
+        _notifications![index].isRead = 0;
+        notifyListeners();
+      }
+      return false;
+    }
   }
 }

@@ -49,5 +49,10 @@
 	<string>Bu uygulama galeriye erişerek öğrenci fotoğrafları yüklemenize olanak tanır.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Bu uygulama kamerayı kullanarak öğrenci fotoğrafları çekmenize olanak tanır.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

@@ -7,6 +7,7 @@ import '../models/oyungrubu_classes_response.dart';
 import '../models/oyungrubu_timetable_response.dart';
 import '../models/oyungrubu_lessons_response.dart';
 import '../models/oyungrubu_lesson_detail_response.dart';
+import '../core/utils/error_mapper.dart';
 
 class OyunGrubuClassService {
   final ApiClient _apiClient = ApiClient();
@@ -28,7 +29,7 @@ class OyunGrubuClassService {
       return Success(classesResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu getClasses failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 
@@ -51,7 +52,7 @@ class OyunGrubuClassService {
       return Success(timetableResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu getTimeTable failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 
@@ -74,7 +75,7 @@ class OyunGrubuClassService {
       return Success(lessonsResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu getLessons failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 
@@ -97,7 +98,7 @@ class OyunGrubuClassService {
       return Success(lessonsResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu getUpcomingLessons failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 
@@ -129,7 +130,7 @@ class OyunGrubuClassService {
       return Success(lessonDetailResponse);
     } catch (e) {
       AppLogger.error('OyunGrubu getLessonDetails failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 
@@ -165,10 +166,12 @@ class OyunGrubuClassService {
       if (response['success'] == 'true' || response['success'] == true) {
         return const Success(true);
       }
-      return Failure(response['message']?.toString() ?? 'error_occurred');
+      return Failure(
+        ErrorMapper.mapMessage(response['message'] ?? 'error_occurred'),
+      );
     } catch (e) {
       AppLogger.error('OyunGrubu submitAttendance failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 
@@ -196,10 +199,12 @@ class OyunGrubuClassService {
       if (response.containsKey('success')) {
         return Success(response['success']?.toString() ?? 'true');
       }
-      return Failure(response['message']?.toString() ?? 'error_occurred');
+      return Failure(
+        ErrorMapper.mapMessage(response['message'] ?? 'error_occurred'),
+      );
     } catch (e) {
       AppLogger.error('OyunGrubu scanLessonQR failed', e);
-      return Failure(e.toString());
+      return Failure(ErrorMapper.mapMessage(e));
     }
   }
 }

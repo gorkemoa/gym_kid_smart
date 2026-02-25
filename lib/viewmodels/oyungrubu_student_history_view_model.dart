@@ -10,6 +10,8 @@ import '../models/oyungrubu_package_info_response.dart';
 import '../models/oyungrubu_student_model.dart';
 import '../models/oyungrubu_student_history_response.dart';
 import '../models/oyungrubu_attendance_history_response.dart';
+import '../models/iyzico_package_model.dart';
+import '../models/iyzico_packages_response.dart';
 import '../services/oyungrubu_student_history_service.dart';
 
 class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
@@ -22,6 +24,9 @@ class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
 
   bool _isUpdating = false;
   bool get isUpdating => _isUpdating;
+
+  bool _isLoadingPackages = false;
+  bool get isLoadingPackages => _isLoadingPackages;
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -54,6 +59,9 @@ class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
 
   int _makeupBalance = 0;
   int get makeupBalance => _makeupBalance;
+
+  List<IyzicoPackageModel>? _iyzicoPackages;
+  List<IyzicoPackageModel>? get iyzicoPackages => _iyzicoPackages;
 
   // Edit controllers
   final TextEditingController nameController = TextEditingController();
@@ -154,11 +162,11 @@ class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
         allergies: allergiesController.text,
         groupName: _student!.groupName,
       );
-      
+
       // Silent refresh to update logs and packages
       fetchHistory(isSilent: true);
       fetchAttendanceHistory(isSilent: true);
-      
+
       notifyListeners();
       return true;
     } else if (result is Failure<bool>) {
@@ -207,6 +215,23 @@ class OyunGrubuStudentHistoryViewModel extends BaseViewModel {
       _attendanceHistory = result.data.data;
       notifyListeners();
     }
+  }
+
+  Future<void> fetchIyzicoPackages() async {
+    _isLoadingPackages = true;
+    _iyzicoPackages = null;
+    notifyListeners();
+
+    final result = await _historyService.getIyzicoPackages();
+
+    _isLoadingPackages = false;
+
+    if (result is Success<IyzicoPackagesResponse>) {
+      _iyzicoPackages = result.data.data;
+    } else if (result is Failure<IyzicoPackagesResponse>) {
+      _errorMessage = result.message;
+    }
+    notifyListeners();
   }
 
   // Stats helpers — use attendanceHistory if available, fallback to activityLogs
