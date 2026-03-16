@@ -1224,8 +1224,15 @@ class HomeService {
       );
 
       // Check multiple possible fields for room ID
-      final rawId =
-          response['id'] ?? response['message_id'] ?? response['data'];
+      var rawId = response['id'] ?? response['message_id'];
+
+      if (rawId == null && response['data'] != null) {
+        if (response['data'] is Map) {
+          rawId = response['data']['id'];
+        } else {
+          rawId = response['data'];
+        }
+      }
 
       if (rawId != null) {
         final id = int.tryParse(rawId.toString());

@@ -20,6 +20,7 @@ import 'widgets/oyungrubu_student_card.dart';
 import 'widgets/oyungrubu_class_section.dart';
 import 'widgets/oyungrubu_timetable_section.dart';
 import 'widgets/oyungrubu_lesson_section.dart';
+import 'widgets/oyungrubu_announcement_card.dart';
 import '../settings/oyungrubu_settings_view.dart';
 import '../qr_scanner/oyungrubu_qr_scanner_view.dart';
 import '../student_history/oyungrubu_student_history_view.dart';
@@ -33,6 +34,7 @@ class OyunGrubuHomeView extends StatefulWidget {
 
 class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
   int _currentIndex = 0;
+  bool _showAnnouncements = false;
 
   @override
   void initState() {
@@ -146,21 +148,24 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Section Title — Dersler
-                          _buildSectionHeader(
-                            context,
-                            AppTranslations.translate('og_lessons', locale),
-                          ),
+                          // Tab row: Dersler | Duyurular
+                          _buildSliderTabRow(context, viewModel, locale),
                           SizedBox(height: SizeTokens.p16),
 
-                          // Lessons horizontal scroll
+                          // Lessons or Announcements slider
                           Expanded(
                             flex: 32,
-                            child: _buildLessonsSection(
-                              viewModel,
-                              locale,
-                              primaryColor,
-                            ),
+                            child: _showAnnouncements
+                                ? _buildAnnouncementsSection(
+                                    viewModel,
+                                    locale,
+                                    primaryColor,
+                                  )
+                                : _buildLessonsSection(
+                                    viewModel,
+                                    locale,
+                                    primaryColor,
+                                  ),
                           ),
 
                           SizedBox(height: SizeTokens.p24),
@@ -218,6 +223,157 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
           ),
         ),
       ],
+    );
+  }
+
+  // ──────────────────────────────────────────
+  // Slider Tab Row: Dersler | Duyurular
+  // ──────────────────────────────────────────
+  Widget _buildSliderTabRow(
+    BuildContext context,
+    OyunGrubuHomeViewModel viewModel,
+    String locale,
+  ) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    return Row(
+      children: [
+        Container(
+          width: SizeTokens.r4,
+          height: SizeTokens.h24,
+          decoration: BoxDecoration(
+            color: primaryColor,
+            borderRadius: BorderRadius.circular(SizeTokens.r4),
+          ),
+        ),
+        SizedBox(width: SizeTokens.p12),
+        GestureDetector(
+          onTap: () {
+            if (_showAnnouncements) {
+              setState(() => _showAnnouncements = false);
+            }
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppTranslations.translate('og_lessons', locale),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.5,
+                  color: !_showAnnouncements
+                      ? Theme.of(context).textTheme.titleLarge?.color
+                      : Colors.grey.shade400,
+                ),
+              ),
+              if (!_showAnnouncements)
+                Container(
+                  height: 2,
+                  width: SizeTokens.p48,
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+                    borderRadius: BorderRadius.circular(SizeTokens.r4),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        SizedBox(width: SizeTokens.p20),
+        GestureDetector(
+          onTap: () {
+            if (!_showAnnouncements) {
+              setState(() => _showAnnouncements = true);
+            }
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppTranslations.translate('og_announcements', locale),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.5,
+                  color: _showAnnouncements
+                      ? Theme.of(context).textTheme.titleLarge?.color
+                      : Colors.grey.shade400,
+                ),
+              ),
+              if (_showAnnouncements)
+                Container(
+                  height: 2,
+                  width: SizeTokens.p48,
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+                    borderRadius: BorderRadius.circular(SizeTokens.r4),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ──────────────────────────────────────────
+  // Announcements Horizontal Section
+  // ──────────────────────────────────────────
+  Widget _buildAnnouncementsSection(
+    OyunGrubuHomeViewModel viewModel,
+    String locale,
+    Color primaryColor,
+  ) {
+    if (viewModel.isAnnouncementsLoading) {
+      return _buildLessonContainer(
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final announcements = viewModel.announcements;
+
+    if (announcements == null || announcements.isEmpty) {
+      return _buildLessonContainer(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.campaign_outlined,
+              size: SizeTokens.i32,
+              color: primaryColor,
+            ),
+            SizedBox(height: SizeTokens.p8),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: SizeTokens.p16),
+              child: Text(
+                AppTranslations.translate('no_announcements', locale),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  // ignore: deprecated_member_use
+                  color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.8),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      clipBehavior: Clip.none,
+      itemCount: announcements.length,
+      padding: EdgeInsets.symmetric(vertical: SizeTokens.p4),
+      itemBuilder: (context, index) {
+        return OyunGrubuAnnouncementCard(
+          announcement: announcements[index],
+          locale: locale,
+          onVote: ({required int announcementId, required String vote}) {
+            return viewModel.votePoll(
+              announcementId: announcementId,
+              vote: vote,
+            );
+          },
+        );
+      },
     );
   }
 

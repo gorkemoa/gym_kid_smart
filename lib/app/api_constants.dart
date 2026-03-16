@@ -93,6 +93,8 @@ class ApiConstants {
   static const String scanLessonQR = '/Api/ScanLessonQR';
   static const String updateFCMToken = '/Api/UpdateFCMToken';
   static const String markNotificationRead = '/Api/MarkNotificationRead';
+  static const String getAnnouncements = '/Api/GetAnnouncements';
+  static const String votePoll = '/Api/VotePoll';
 
   // Permission
   static const String addPermission = '/Api/addPermission';

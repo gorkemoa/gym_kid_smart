@@ -13,6 +13,9 @@ import '../models/oyungrubu_lesson_detail_model.dart';
 import '../models/oyungrubu_lesson_detail_response.dart';
 import '../models/oyungrubu_notification_model.dart';
 import '../models/oyungrubu_notifications_response.dart';
+import '../models/oyungrubu_announcement_model.dart';
+import '../models/oyungrubu_announcements_response.dart';
+import '../services/oyungrubu_announcement_service.dart';
 import '../services/oyungrubu_student_service.dart';
 import '../services/oyungrubu_auth_service.dart';
 import '../services/oyungrubu_class_service.dart';
@@ -24,6 +27,8 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
   final OyunGrubuClassService _classService = OyunGrubuClassService();
   final OyunGrubuNotificationService _notificationService =
       OyunGrubuNotificationService();
+  final OyunGrubuAnnouncementService _announcementService =
+      OyunGrubuAnnouncementService();
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -70,11 +75,19 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
   bool _isNotificationsLoading = false;
   bool get isNotificationsLoading => _isNotificationsLoading;
 
+  // Announcements
+  List<OyunGrubuAnnouncementModel>? _announcements;
+  List<OyunGrubuAnnouncementModel>? get announcements => _announcements;
+  bool _isAnnouncementsLoading = false;
+  bool get isAnnouncementsLoading => _isAnnouncementsLoading;
+  String? _announcementsErrorMessage;
+  String? get announcementsErrorMessage => _announcementsErrorMessage;
+
   Future<void> init() async {
     _user = await _authService.getSavedUser();
     notifyListeners();
     _notificationService.updateFCMToken(); // Update FCM Token in background
-    await Future.wait([fetchStudents(), fetchClasses(), fetchNotifications()]);
+    await Future.wait([fetchStudents(), fetchClasses(), fetchNotifications(), fetchAnnouncements()]);
   }
 
   void onRetry() {
@@ -86,6 +99,7 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
     fetchStudents();
     fetchClasses();
     fetchNotifications();
+    fetchAnnouncements();
   }
 
   Future<void> fetchStudents({bool isSilent = false}) async {
@@ -276,6 +290,40 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
     if (result is Success<bool>) {
       // Refresh lessons silently
       fetchLessonsForStudent(studentId);
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> fetchAnnouncements() async {
+    _isAnnouncementsLoading = true;
+    _announcementsErrorMessage = null;
+    notifyListeners();
+
+    final result = await _announcementService.getAnnouncements();
+
+    _isAnnouncementsLoading = false;
+
+    if (result is Success<OyunGrubuAnnouncementsResponse>) {
+      _announcements = result.data.data;
+    } else if (result is Failure<OyunGrubuAnnouncementsResponse>) {
+      _announcementsErrorMessage = result.message;
+      _announcements = [];
+    }
+    notifyListeners();
+  }
+
+  Future<bool> votePoll({
+    required int announcementId,
+    required String vote,
+  }) async {
+    final result = await _announcementService.votePoll(
+      announcementId: announcementId,
+      vote: vote,
+    );
+
+    if (result is Success<bool>) {
+      await fetchAnnouncements();
       return true;
     }
     return false;
