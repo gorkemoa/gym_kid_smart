@@ -323,7 +323,34 @@ class OyunGrubuHomeViewModel extends BaseViewModel {
     );
 
     if (result is Success<bool>) {
-      await fetchAnnouncements();
+      // Update local data without full list reload to avoid UI jump
+      if (_announcements != null) {
+        final index = _announcements!.indexWhere((a) => a.id == announcementId);
+        if (index != -1) {
+          final old = _announcements![index];
+          _announcements![index] = OyunGrubuAnnouncementModel(
+            id: old.id,
+            title: old.title,
+            content: old.content,
+            status: old.status,
+            createdAt: old.createdAt,
+            pollOptionA: old.pollOptionA,
+            pollOptionB: old.pollOptionB,
+            isPoll: old.isPoll,
+            type: old.type,
+            userVote: vote,
+            hasVoted: true,
+          );
+          notifyListeners();
+        }
+      }
+      // Re-fetch in background to sync with server values if needed
+      _announcementService.getAnnouncements().then((result) {
+        if (result is Success<OyunGrubuAnnouncementsResponse>) {
+          _announcements = result.data.data;
+          notifyListeners();
+        }
+      });
       return true;
     }
     return false;

@@ -8,6 +8,8 @@ class OyunGrubuAnnouncementModel {
   final dynamic pollOptionB;
   final int? isPoll;
   final String? type;
+  final String? userVote;
+  final bool? hasVoted;
 
   OyunGrubuAnnouncementModel({
     this.id,
@@ -19,6 +21,8 @@ class OyunGrubuAnnouncementModel {
     this.pollOptionB,
     this.isPoll,
     this.type,
+    this.userVote,
+    this.hasVoted,
   });
 
   factory OyunGrubuAnnouncementModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +42,10 @@ class OyunGrubuAnnouncementModel {
           ? json['is_poll'] as int?
           : int.tryParse(json['is_poll'].toString()),
       type: json['type'] as String?,
+      userVote: json['user_vote'] as String?,
+      hasVoted: json['has_voted'] is bool
+          ? json['has_voted'] as bool?
+          : json['has_voted'] == 1 || json['has_voted'] == 'true',
     );
   }
 
@@ -52,6 +60,8 @@ class OyunGrubuAnnouncementModel {
       'poll_option_b': pollOptionB,
       'is_poll': isPoll,
       'type': type,
+      'user_vote': userVote,
+      'has_voted': hasVoted,
     };
   }
 

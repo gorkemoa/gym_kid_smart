@@ -157,7 +157,28 @@ class _PollButtons extends StatefulWidget {
 
 class _PollButtonsState extends State<_PollButtons> {
   bool _isVoting = false;
-  String? _votedFor;
+  late String? _votedFor;
+
+  @override
+  void initState() {
+    super.initState();
+    _votedFor = (widget.announcement.hasVoted == true)
+        ? widget.announcement.userVote
+        : null;
+  }
+
+  @override
+  void didUpdateWidget(covariant _PollButtons oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.announcement.hasVoted != oldWidget.announcement.hasVoted ||
+        widget.announcement.userVote != oldWidget.announcement.userVote) {
+      setState(() {
+        _votedFor = (widget.announcement.hasVoted == true)
+            ? widget.announcement.userVote
+            : null;
+      });
+    }
+  }
 
   Future<void> _handleVote(String vote) async {
     if (_isVoting || _votedFor != null) return;
