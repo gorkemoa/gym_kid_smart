@@ -9,12 +9,14 @@ class OyunGrubuAnnouncementCard extends StatelessWidget {
   final String locale;
   final Future<bool> Function({required int announcementId, required String vote})
       onVote;
+  final VoidCallback? onTap;
 
   const OyunGrubuAnnouncementCard({
     super.key,
     required this.announcement,
     required this.locale,
     required this.onVote,
+    this.onTap,
   });
 
   @override
@@ -25,10 +27,12 @@ class OyunGrubuAnnouncementCard extends StatelessWidget {
         (announcement.pollOptionAText != null ||
             announcement.pollOptionBText != null);
 
-    return Container(
-      width: 310 / 390 * 100.w,
-      margin: EdgeInsets.only(right: SizeTokens.p16),
-      padding: EdgeInsets.all(SizeTokens.p20),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+      width: 79.5.w,
+      margin: EdgeInsets.only(right: SizeTokens.p12),
+      padding: EdgeInsets.all(SizeTokens.p14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(SizeTokens.r12),
@@ -50,7 +54,7 @@ class OyunGrubuAnnouncementCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: EdgeInsets.all(SizeTokens.p8),
+                padding: EdgeInsets.all(SizeTokens.p6),
                 decoration: BoxDecoration(
                   // ignore: deprecated_member_use
                   color: primaryColor.withOpacity(0.1),
@@ -60,11 +64,11 @@ class OyunGrubuAnnouncementCard extends StatelessWidget {
                   isPoll
                       ? Icons.how_to_vote_rounded
                       : Icons.campaign_rounded,
-                  size: SizeTokens.i20,
+                  size: SizeTokens.i16,
                   color: primaryColor,
                 ),
               ),
-              SizedBox(width: SizeTokens.p12),
+              SizedBox(width: SizeTokens.p8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,7 +77,7 @@ class OyunGrubuAnnouncementCard extends StatelessWidget {
                       announcement.title ?? '',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        fontSize: SizeTokens.f16,
+                        fontSize: SizeTokens.f13,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -94,7 +98,7 @@ class OyunGrubuAnnouncementCard extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: SizeTokens.p12),
+          SizedBox(height: SizeTokens.p8),
 
           // Content
           Expanded(
@@ -103,7 +107,7 @@ class OyunGrubuAnnouncementCard extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Colors.grey.shade700,
                 height: 1.4,
-                fontSize: SizeTokens.f13,
+                fontSize: SizeTokens.f12,
               ),
               overflow: TextOverflow.fade,
             ),
@@ -121,7 +125,7 @@ class OyunGrubuAnnouncementCard extends StatelessWidget {
           ],
         ],
       ),
-    );
+    ));
   }
 
   String _formatDate(String dateStr) {

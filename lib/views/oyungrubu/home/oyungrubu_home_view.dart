@@ -14,6 +14,7 @@ import '../../../viewmodels/oyungrubu_student_history_view_model.dart';
 import '../student_history/widgets/student_edit_bottom_sheet.dart';
 import 'widgets/lesson_detail_bottom_sheet.dart';
 import '../notifications/oyungrubu_notifications_view.dart';
+import 'oyungrubu_announcement_detail_view.dart';
 import '../../../core/ui_components/common_widgets.dart';
 import '../../../viewmodels/settings_view_model.dart';
 import 'widgets/oyungrubu_student_card.dart';
@@ -363,9 +364,27 @@ class _OyunGrubuHomeViewState extends State<OyunGrubuHomeView> {
       itemCount: announcements.length,
       padding: EdgeInsets.symmetric(vertical: SizeTokens.p4),
       itemBuilder: (context, index) {
+        final announcement = announcements[index];
         return OyunGrubuAnnouncementCard(
-          announcement: announcements[index],
+          announcement: announcement,
           locale: locale,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OyunGrubuAnnouncementDetailView(
+                  announcement: announcement,
+                  locale: locale,
+                  onVote: ({required int announcementId, required String vote}) {
+                    return viewModel.votePoll(
+                      announcementId: announcementId,
+                      vote: vote,
+                    );
+                  },
+                ),
+              ),
+            );
+          },
           onVote: ({required int announcementId, required String vote}) {
             return viewModel.votePoll(
               announcementId: announcementId,
