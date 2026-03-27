@@ -23,8 +23,8 @@ class LoginViewModel extends BaseViewModel {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> init() async {
-    emailController.text = 'b.sekman@smartmetrics.com.tr';
-    passwordController.text = '123123';
+    emailController.text = '';
+    passwordController.text = '';
 
     final savedUser = await _authService.getSavedUser();
     if (savedUser != null) {
