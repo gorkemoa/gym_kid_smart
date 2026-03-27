@@ -58,12 +58,34 @@ class _BuyPackageWebViewViewState extends State<BuyPackageWebViewView> {
             }
           },
           onWebResourceError: (WebResourceError error) {
-            if (mounted) {
+            // Sadece ana frame hatalarında ve gerçek bağlantı/yükleme hatalarında
+            // hata durumunu göster. Sub-resource hatalarını (reklamlar, tracking
+            // pixel'ler vb.) ve navigasyon iptallerini görmezden gel.
+            final isMainFrame = error.isForMainFrame ?? false;
+            if (isMainFrame && mounted) {
               setState(() {
                 _isLoading = false;
                 _hasError = true;
               });
             }
+          },
+          onNavigationRequest: (NavigationRequest request) {
+            // iyzico ödeme sonrası "uygulamaya dön" butonuna basıldığında
+            // non-http(s) bir URL'ye (deep link, custom scheme vb.) yönlendirme
+            // yapılır. WebView bu URL'yi yükleyemez. Bunun yerine WebView'ı
+            // kapatıp uygulamaya dönüyoruz.
+            final uri = Uri.tryParse(request.url);
+            if (uri != null &&
+                uri.scheme != 'http' &&
+                uri.scheme != 'https' &&
+                uri.scheme != 'about' &&
+                uri.scheme != 'blob') {
+              if (mounted) {
+                Navigator.of(context).pop();
+              }
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
           },
         ),
       )

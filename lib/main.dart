@@ -30,9 +30,20 @@ import 'services/auth_service.dart';
 import 'services/push_notification_service.dart';
 import 'services/oyungrubu_notification_service.dart';
 import 'package:upgrader/upgrader.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'views/splash/splash_view.dart';
 import 'views/anaokulu/notice/notice_view.dart';
 import 'views/oyungrubu/notifications/oyungrubu_notifications_view.dart';
+
+const AndroidNotificationChannel _androidChannel = AndroidNotificationChannel(
+  'high_importance_channel',
+  'Önemli Bildirimler',
+  description: 'Uygulama açıkken gelen bildirimler için kullanılır.',
+  importance: Importance.high,
+);
+
+final FlutterLocalNotificationsPlugin _localNotifications =
+    FlutterLocalNotificationsPlugin();
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -61,6 +72,17 @@ void main() async {
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+  // flutter_local_notifications başlat (Android foreground bildirimler için)
+  await _localNotifications.initialize(
+    const InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    ),
+  );
+  await _localNotifications
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(_androidChannel);
+
   // Enable foreground notifications on iOS
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true,
@@ -74,21 +96,24 @@ void main() async {
   debugPrint('User granted permission: ${settings.authorizationStatus}');
 
   // Firebase topic'ine abone ol (backend buradan gönderiyor)
-  try {
-    await FirebaseMessaging.instance.subscribeToTopic(
-      'php_notification_gymkid',
-    );
+  FirebaseMessaging.instance.subscribeToTopic('php_notification_gymkid').then((_) {
     debugPrint('Subscribed to topic: php_notification_gymkid');
-  } catch (e) {
+  }).catchError((e) {
     debugPrint('Failed to subscribe to topic: $e');
-  }
+  });
 
   // FCM Token Al ve Yazdır
   try {
-    String? token = await FirebaseMessaging.instance.getToken();
-    debugPrint('=============================================');
-    debugPrint('FCM Token: $token');
-    debugPrint('=============================================');
+    // some devices (especially emulators or devices without play services) 
+    // might hang on getToken or subscribeToTopic if not handled carefully.
+    // Let's use a timeout or just continue asynchronously.
+    FirebaseMessaging.instance.getToken().then((token) {
+      debugPrint('=============================================');
+      debugPrint('FCM Token: $token');
+      debugPrint('=============================================');
+    }).catchError((e) {
+      debugPrint('FCM Token error: $e');
+    });
 
     // Token yenilendiğinde dinle (Opsiyonel ama iyi pratik)
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
@@ -107,6 +132,29 @@ void main() async {
       // OyunGrubu Token Güncelleme
       final oyunGrubuPushService = OyunGrubuNotificationService();
       await oyunGrubuPushService.updateFCMToken();
+    });
+
+    // Foreground bildirim: Android'de uygulama açıkken FCM otomatik göstermez,
+    // flutter_local_notifications ile elle gösteriyoruz.
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      final notification = message.notification;
+      if (notification != null) {
+        _localNotifications.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              _androidChannel.id,
+              _androidChannel.name,
+              channelDescription: _androidChannel.description,
+              importance: Importance.high,
+              priority: Priority.high,
+              icon: '@mipmap/ic_launcher',
+            ),
+          ),
+        );
+      }
     });
 
     // Bildirime tıklanma durumları (Background / Terminated -> Foreground)
@@ -183,6 +231,10 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
   bool _isDialogShowing = false;
+  // Debounce timer: connectivity_plus bazen uygulama ön plana gelirken
+  // (WebView'den dönerken vb.) anlık ConnectivityResult.none rapor eder.
+  // Gerçekten bağlantı kesilmeden önce 3 sn bekliyoruz.
+  Timer? _noInternetDebounce;
 
   @override
   void initState() {
@@ -200,6 +252,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void dispose() {
     _connectivitySubscription.cancel();
+    _noInternetDebounce?.cancel();
     super.dispose();
   }
 
@@ -210,8 +263,16 @@ class _MyAppState extends State<MyApp> {
     );
 
     if (!hasInternet) {
-      _showNoInternetDialog();
+      // Debounce: anlık (geçici) kayıplar için diyaloğu hemen gösterme.
+      // iyzico WebView'den geri dönerken yaşanan geçici durum da buna dahil.
+      _noInternetDebounce?.cancel();
+      _noInternetDebounce = Timer(const Duration(seconds: 3), () {
+        _showNoInternetDialog();
+      });
     } else {
+      // Bağlantı geri gelirse bekleyen timer'ı iptal et ve diyaloğu kapat.
+      _noInternetDebounce?.cancel();
+      _noInternetDebounce = null;
       _hideNoInternetDialog();
     }
   }

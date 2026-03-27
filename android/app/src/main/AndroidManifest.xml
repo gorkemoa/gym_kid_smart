@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="gym_kid_smart"
+        android:label="Gym Kid Smart"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

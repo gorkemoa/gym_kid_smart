@@ -51,6 +51,7 @@ dependencies:
   webview_flutter: ^4.10.0
   firebase_core: ^4.4.0
   firebase_messaging: ^16.1.1
+  flutter_local_notifications: ^18.0.1
   upgrader: ^11.4.0
 
 dev_dependencies:

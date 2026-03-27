@@ -8,7 +8,7 @@ class OyunGrubuNotificationsResponse {
 
   factory OyunGrubuNotificationsResponse.fromJson(Map<String, dynamic> json) {
     return OyunGrubuNotificationsResponse(
-      success: json['success'] as String?,
+      success: json['success']?.toString(),
       data: (json['data'] as List<dynamic>?)
           ?.map(
             (e) =>

@@ -25,14 +25,16 @@ class OyunGrubuNotificationModel {
       userId: json['user_id'] is int
           ? json['user_id'] as int?
           : int.tryParse(json['user_id'].toString()),
-      title: json['title'] as String?,
-      message: json['message'] as String?,
-      type: json['type'] as String?,
-      data: json['data'] as String?,
+      title: json['title']?.toString(),
+      message: json['message']?.toString(),
+      type: json['type']?.toString(),
+      data: json['data'] != null
+          ? (json['data'] is String ? json['data'] as String : json['data'].toString())
+          : null,
       isRead: json['is_read'] is int
           ? json['is_read'] as int?
           : int.tryParse(json['is_read'].toString()),
-      createdAt: json['created_at'] as String?,
+      createdAt: json['created_at']?.toString(),
     );
   }
 
