@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -27,6 +29,7 @@ import 'services/environment_service.dart';
 import 'services/auth_service.dart';
 import 'services/push_notification_service.dart';
 import 'services/oyungrubu_notification_service.dart';
+import 'package:upgrader/upgrader.dart';
 import 'views/splash/splash_view.dart';
 import 'views/anaokulu/notice/notice_view.dart';
 import 'views/oyungrubu/notifications/oyungrubu_notifications_view.dart';
@@ -127,6 +130,19 @@ void main() async {
 
   await initializeDateFormatting();
   await EnvironmentService.init();
+
+  // Upgrader: read saved locale to show messages in the correct language
+  final prefs = await SharedPreferences.getInstance();
+  final savedLang =
+      prefs.getString('language_code') ?? prefs.getString('language') ?? 'tr';
+  final appUpgrader = Upgrader(
+    messages: UpgraderMessages(code: savedLang),
+    durationUntilAlertAgain: const Duration(seconds: 1), // TEST: Her açılışta kontrol etsin
+    debugLogging: true, // TEST: Tüm logları gör
+  );
+  
+  debugPrint('DEBUG: Upgrader initialized with language: $savedLang');
+
   runApp(
     MultiProvider(
       providers: [
@@ -150,13 +166,15 @@ void main() async {
         ChangeNotifierProvider(create: (_) => OyunGrubuSettingsViewModel()),
         ChangeNotifierProvider(create: (_) => OyunGrubuQRScannerViewModel()),
       ],
-      child: const MyApp(),
+      child: MyApp(upgrader: appUpgrader),
     ),
   );
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final Upgrader upgrader;
+
+  const MyApp({super.key, required this.upgrader});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -266,7 +284,11 @@ class _MyAppState extends State<MyApp> {
             child: child!,
           );
         },
-        home: const SplashView(),
+        home: UpgradeAlert(
+            upgrader: widget.upgrader,
+            showIgnore: false,
+            showLater: true,
+            child: const SplashView()),
       ),
     );
   }
