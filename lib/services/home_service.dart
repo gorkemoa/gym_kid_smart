@@ -40,8 +40,11 @@ class HomeService {
       }
       return Success([]);
     } catch (e) {
+      if (e.toString().contains('Hata') || e.toString().contains('failure')) {
+        return Success([]);
+      }
       if (e.toString().contains('Bulunamadı')) {
-        return const Success([]);
+        return Success([]);
       }
       AppLogger.error('Fetch notices failed', e);
       return Failure(e.toString());

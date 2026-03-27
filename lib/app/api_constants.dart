@@ -1,6 +1,6 @@
 class ApiConstants {
   // Environment Bases
-  static const String anaokuluUrl = 'https://smartkid.gymboreeizmir.com';
+  static const String anaokuluUrl = 'https://smartkid.getsmarty.dev';
   static const String oyunGrubuUrl = 'https://kid-qr.getsmarty.dev';
 
   // Authorization Keys

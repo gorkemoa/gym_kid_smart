@@ -80,6 +80,7 @@ class _StudentListContent extends StatelessWidget {
             ],
           ),
         ),
+     
         actions: [
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),

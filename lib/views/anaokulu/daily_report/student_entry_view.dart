@@ -70,7 +70,7 @@ class _StudentEntryContent extends StatelessWidget {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20 ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
