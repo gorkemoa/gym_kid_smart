@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
@@ -68,6 +69,7 @@ Future<void> _handleFCMNavigation(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -331,18 +333,35 @@ class _MyAppState extends State<MyApp> {
         navigatorKey: NavigationService.navigatorKey,
         title: 'GymBoree SmartKid',
         debugShowCheckedModeBanner: false,
-        theme: settingsViewModel.themeData,
+        theme: settingsViewModel.themeData.copyWith(
+          bottomSheetTheme: const BottomSheetThemeData(
+            elevation: 0,
+            clipBehavior: Clip.antiAlias,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+          ),
+        ),
         builder: (context, child) {
           // Initialize SizeConfig
           SizeConfig().init(context);
 
+          final mq = MediaQuery.of(context);
           return MediaQuery(
             // Font Scaling Protection: Sistem ayarlarından yazı tipi boyutu değiştirilse bile
             // tasarımın bozulmaması için TextScaler.noScaling eklenmelidir.
-            data: MediaQuery.of(
-              context,
-            ).copyWith(textScaler: TextScaler.noScaling),
-            child: child!,
+            // viewPadding korunarak edge-to-edge modunda navigation bar yüksekliği
+            // SafeArea ve BottomSheet tarafından doğru hesaplanır.
+            data: mq.copyWith(
+              textScaler: TextScaler.noScaling,
+              padding: mq.padding,
+              viewPadding: mq.viewPadding,
+            ),
+            child: SafeArea(
+              top: false,
+              bottom: true,
+              child: child!,
+            ),
           );
         },
         home: UpgradeAlert(
