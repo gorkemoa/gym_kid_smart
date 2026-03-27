@@ -137,10 +137,10 @@ void main() async {
       prefs.getString('language_code') ?? prefs.getString('language') ?? 'tr';
   final appUpgrader = Upgrader(
     messages: UpgraderMessages(code: savedLang),
-    durationUntilAlertAgain: const Duration(seconds: 1), // TEST: Her açılışta kontrol etsin
-    debugLogging: true, // TEST: Tüm logları gör
+    durationUntilAlertAgain: const Duration(days: 1),
+    debugLogging: kDebugMode,
   );
-  
+
   debugPrint('DEBUG: Upgrader initialized with language: $savedLang');
 
   runApp(
@@ -285,10 +285,11 @@ class _MyAppState extends State<MyApp> {
           );
         },
         home: UpgradeAlert(
-            upgrader: widget.upgrader,
-            showIgnore: false,
-            showLater: true,
-            child: const SplashView()),
+          upgrader: widget.upgrader,
+          showIgnore: false,
+          showLater: true,
+          child: const SplashView(),
+        ),
       ),
     );
   }
