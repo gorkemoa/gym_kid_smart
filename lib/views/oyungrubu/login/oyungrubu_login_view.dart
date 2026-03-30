@@ -40,7 +40,24 @@ class _OyunGrubuLoginViewState extends State<OyunGrubuLoginView> {
 
         return Scaffold(
           backgroundColor: primaryColor,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: Text(
+              AppTranslations.translate('change_section', locale),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
           body: SafeArea(
+            top: false,
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: SizeTokens.p24),
               child: Column(

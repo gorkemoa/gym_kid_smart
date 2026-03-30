@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -74,16 +75,18 @@ void main() async {
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // flutter_local_notifications başlat (Android foreground bildirimler için)
-  await _localNotifications.initialize(
-    const InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-    ),
-  );
-  await _localNotifications
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(_androidChannel);
+  // flutter_local_notifications başlat (Sadece Android foreground bildirimler için)
+  if (Platform.isAndroid) {
+    await _localNotifications.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      ),
+    );
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(_androidChannel);
+  }
 
   // Enable foreground notifications on iOS
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
@@ -357,11 +360,13 @@ class _MyAppState extends State<MyApp> {
               padding: mq.padding,
               viewPadding: mq.viewPadding,
             ),
-            child: SafeArea(
-              top: false,
-              bottom: true,
-              child: child!,
-            ),
+            child: kIsWeb || !defaultTargetPlatform.toString().contains('android')
+                ? child!
+                : SafeArea(
+                    top: false,
+                    bottom: true,
+                    child: child!,
+                  ),
           );
         },
         home: UpgradeAlert(

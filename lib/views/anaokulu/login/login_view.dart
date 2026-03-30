@@ -37,7 +37,24 @@ class _LoginViewState extends State<LoginView> {
 
         return Scaffold(
           backgroundColor: backgroundColor,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: Text(
+              AppTranslations.translate('change_section', locale),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
           body: SafeArea(
+            top: false,
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: SizeTokens.p24),
               child: Column(
@@ -84,6 +101,8 @@ class _LoginViewState extends State<LoginView> {
                   SizedBox(height: SizeTokens.p32),
                   const LoginForm(),
                   SizedBox(height: SizeTokens.p16),
+                  _BackToSelection(locale: locale),
+                  SizedBox(height: SizeTokens.p16),
                   const _PoweredBy(),
                   SizedBox(height: SizeTokens.p24),
                 ],
@@ -92,6 +111,33 @@ class _LoginViewState extends State<LoginView> {
           ),
         );
       },
+    );
+  }
+}
+
+class _BackToSelection extends StatelessWidget {
+  final String locale;
+
+  const _BackToSelection({required this.locale});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+      icon: Icon(
+        Icons.arrow_back,
+        color: Colors.white.withOpacity(0.8),
+        size: SizeTokens.i16,
+      ),
+      label: Text(
+        AppTranslations.translate('change_section', locale),
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.8),
+          fontSize: SizeTokens.f14,
+        ),
+      ),
     );
   }
 }
