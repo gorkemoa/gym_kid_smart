@@ -334,7 +334,7 @@ class _MyAppState extends State<MyApp> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: MaterialApp(
         navigatorKey: NavigationService.navigatorKey,
-        title: 'GymBoree SmartKid',
+        title: 'SmartKids',
         debugShowCheckedModeBanner: false,
         theme: settingsViewModel.themeData.copyWith(
           bottomSheetTheme: const BottomSheetThemeData(
